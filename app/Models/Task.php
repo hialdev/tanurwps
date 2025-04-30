@@ -1,0 +1,43 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
+
+class Task extends Model
+{
+    use HasFactory;
+    protected $table = 'stage_tasks';
+
+    protected $keyType = 'string';
+    public $incrementing = false;
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($model) {
+            $model->id = (string) \Illuminate\Support\Str::uuid();
+        });
+        static::deleting(function ($model) {
+            if ($model->attachments->count() > 0) {
+                foreach ($model->attachments as $attachment) {
+                    Storage::disk('public')->delete($attachment->file);
+                    $attachment->delete();
+                }
+            }
+        });
+    }
+
+    public function stage()
+    {
+        return $this->belongsTo(Stage::class, 'stage_id', 'id');
+    }
+    
+    public function attachments()
+    {
+        return $this->hasMany(TaskAttachment::class, 'stage_task_id', 'id');
+    }
+}

@@ -1,0 +1,36 @@
+.btn.btn-primary{
+  border-width: 0px !important;
+}
+
+.line-clamp.line-clamp-2{
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.line-clamp.line-clamp-3{
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bg-tanur-green{
+  background: linear-gradient(284deg, #133057 -14.71%, #027473 53.11%, #819264 96.05%) !important;
+  color: #fff !important;
+}
+
+.bg-tanur-coklat{
+  background: linear-gradient(289deg, #604B17 -6.19%, #D0B069 84.02%, #DDBF77 99.22%) !important;
+  color: #fff !important;
+}
+
+.tanur-link{
+  text-transform: uppercase !important;
+  letter-spacing: 0.2em;
+  font-weight: bold;
+  color: #027473;
+}

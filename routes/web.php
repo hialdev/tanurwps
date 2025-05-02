@@ -70,17 +70,19 @@ Route::get('/agent/{id}/detail', [AgentController::class, 'detail'])->name('agen
 Route::get('/agent/{id}/superiors', [AgentController::class, 'superiors'])->name('agent.superiors');
 
 Route::get('/agent/{id}/dashboard', [WorkspaceController::class, 'index'])->name('agent.workspace.index');
-Route::get('/agent/{id}/workspace/{workspace_id}/detail', [WorkspaceController::class, 'show'])->name('agent.workspace.show');
 Route::get('/agent/{id}/workspace', [WorkspaceController::class, 'list'])->name('agent.workspace.list');
 Route::get('/agent/{id}/workspace/add', [WorkspaceController::class, 'add'])->name('agent.workspace.add');
 Route::post('/agent/{id}/workspace/store', [WorkspaceController::class, 'store'])->name('agent.workspace.store');
+Route::get('/agent/{id}/workspace/{workspace_id}/detail', [WorkspaceController::class, 'show'])->name('agent.workspace.show');
+Route::get('/agent/{id}/workspace/{workspace_id}/edit', [WorkspaceController::class, 'edit'])->name('agent.workspace.edit');
+Route::put('/agent/{id}/workspace/{workspace_id}/update', [WorkspaceController::class, 'update'])->name('agent.workspace.update');
+Route::get('/agent/{id}/workspace/{workspace_id}/destroy', [WorkspaceController::class, 'destroy'])->name('agent.workspace.destroy');
 
 Route::get('/agent/{id}/history', [HistoryController::class, 'index'])->name('agent.history.index');
 Route::get('/agent/{id}/approval', [ApprovalController::class, 'index'])->name('agent.approval.index');
-
-Route::get('/agent/{id}/workspace/{workspace_id}/edit', [WorkspaceController::class, 'edit'])->name('agent.workspace.edit');
-Route::post('/agent/{id}/workspace/{workspace_id}/update', [WorkspaceController::class, 'update'])->name('agent.workspace.update');
-Route::get('/agent/{id}/workspace/{workspace_id}/destroy', [WorkspaceController::class, 'destroy'])->name('agent.workspace.destroy');
+Route::get('/agent/{id}/approval/{approval_id}/detail', [ApprovalController::class, 'show'])->name('agent.approval.show');
+Route::post('/agent/{id}/approval/{approval_id}/decision', [ApprovalController::class, 'decision'])->name('agent.approval.decision');
+Route::post('/agent/{id}/approval/{approval_id}/decision/update', [ApprovalController::class, 'updateDecision'])->name('agent.approval.decision.update');
 
 Route::middleware(['auth'])->group(function(){
     Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home');

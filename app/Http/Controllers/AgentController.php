@@ -50,7 +50,9 @@ class AgentController extends Controller
 
         // Filter dan sorting manual berdasarkan input
         $filtered = collect($allAgents)->filter(function ($agent) use ($filter) {
-            return str_contains(strtolower($agent['name']), strtolower($filter->q));
+            return str_contains(strtolower($agent['name']), strtolower($filter->q)) || 
+                   str_contains(strtolower($agent['agent_no']), strtolower($filter->q)) ||
+                   str_contains(strtolower($agent['level']), strtolower($filter->q));
         })->sortBy($filter->field, SORT_NATURAL | SORT_FLAG_CASE, $filter->order === 'asc')->values();
 
         // Pagination secara manual
@@ -64,9 +66,14 @@ class AgentController extends Controller
             ['path' => $request->url(), 'query' => $request->query()]
         );
 
-        $fields = ['name', 'agent_no'];
+        $fields = ['name', 'agent_no', 'level'];
         // dd($agents);
         return view('agents.index', compact('agents', 'filter', 'fields'));
+    }
+
+    public function detail($id){
+        $fetch = $this->tanurapi->getAgentDetail($id);
+        dd($fetch);
     }
 
 }

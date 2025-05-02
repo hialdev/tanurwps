@@ -40,6 +40,39 @@
             </div>
         </div>
         <div class="list bg-white p-2">
+            @forelse ($workspaces as $workspace)
+                <a href="{{ route('agent.workspace.show', ['id' => request()->route('id'), 'workspace_id' => $workspace->id]) }}" class="p-3 d-block text-decoration-none text-dark mb-2 bg-light text-dark rounded-3 position-relative">
+                    <div class="position-absolute top-0 end-0 bg-{{$workspace->getStatus()['color']}} rounded-3 p-1 px-2 text-white m-2 fs-1 fw-semibold">
+                        {{ $workspace->getStatus()['name'] }}
+                    </div>
+
+                    <div class="fs-3 fw-semibold">{{$workspace->name}}</div>
+                        <div class="fs-1">{{$workspace->description ?? 'tidak ada deskripsi'}}</div>
+                        <div class="d-flex align-items-center gap-3 mt-2">
+                        <div class="fs-2"><i class="ti ti-user-circle me-1"></i> {{$workspace->pilgrims->count()}} Jamaah</div>
+                        <div class="fs-2"><i class="ti ti-timeline-event me-1"></i> <span class="text-primary fw-semibold">2</span> / 5 Stage</div>
+                        <div class="fs-2"><i class="ti ti-subtask me-1"></i> <span class="text-primary fw-semibold">2</span> / 20 Task</div>
+                    </div>
+                    @if($workspace->getStatus()['message'])
+                    <div class="d-flex text-{{$workspace->getStatus()['color']}} align-items-center mt-2 fw-semibold gap-2">
+                        <i class="ti ti-alert-circle"></i>
+                        <div class="fs-1 text-dark">{{$workspace->getStatus()['message']}}</div>
+                    </div>
+                    @endif
+
+                    @if($workspace->status != '0')
+                    <div class="mt-1">
+                        <div class="fs-1 text-dark fw-semibold">Score Terkini</div>
+                        <div class="fs-4 fw-bolder text-warning">312</div>
+                    </div>
+                    @endif
+                </a>
+            @empty
+                <div class="p-3 fs-2 my-2 border border-2 border-dashed rounded-3 bg-light d-flex flex-column gap-2 align-items-center">
+                    <div class="text-dark">Belum ada Workspace</div>
+                    <a href="{{route('agent.workspace.add', request()->route('id'))}}" class="btn btn-dark"><i class="ti ti-plus me-2"></i> Buat</a>
+                </div>
+            @endforelse
             <a href="{{ route('agent.workspace.show', ['id' => '25040904300304', 'workspace_id' => '81236123']) }}" class="p-3 d-block text-decoration-none text-dark mb-2 bg-light text-dark rounded-3 position-relative">
                 <div class="position-absolute top-0 end-0 bg-secondary rounded-3 p-1 px-2 text-white m-2 fs-1 fw-semibold">
                 Pending

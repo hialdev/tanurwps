@@ -39,41 +39,36 @@
             </div>
         </div>
         <div class="list bg-white p-2">
-            <a href="#" class="p-3 d-block text-decoration-none text-dark rounded-3 border mb-2 border-2 border-dashed">
+            @forelse($approvals as $approval)
+            <a href="{{ route('agent.approval.show', [request()->route('id'), $approval->id]) }}" class="p-3 d-block text-decoration-none text-dark rounded-3 border mb-2 border-2 border-dashed">
               <div class="d-flex align-items-center gap-2 mb-2">
                 <img src="https://placehold.co/100" alt="Image Agent Pengirim Approval" class="d-block rounded-circle" style="width:35px;aspect-ratio:1/1">
                 <div>
-                  <div class="fs-2 fw-semibold">Rusdi Ardiansyah</div>
-                  <div class="fs-1 text-dark">Executive Syiar</div>
+                  <div class="fs-2 fw-semibold">{{$approval->requester->name}}</div>
+                  <div class="fs-1 text-dark">{{$approval->requester->level}}</div>
                 </div>
                 <div class="fs-2 ms-auto fw-semibold"><i class="ti ti-clock me-2"></i>2 hari lalu</div>
               </div>
               <div class="d-flex align-items-center justify-content-between">
                 <div class="fs-1 fw-semibold mb-1">Meminta Persetujuan</div>
-                <div class="fs-1 fw-semibold text-warning mb-1">Menunggu</div>
+                <div class="fs-1 fw-semibold text-{{ $approval->getStatus()['color'] }} mb-1">{{ $approval->getStatus()['name'] }}</div>
               </div>
+              @if($approval->workspace)
               <button class="btn bg-tanur-green border-0 d-flex w-100 align-items-center gap-2"><i class="ti ti-briefcase"></i> Workspace <i class="ti ti-arrow-narrow-right ms-auto"></i></button>
-            </a>
-
-            <a href="#" class="p-3 d-block text-decoration-none text-dark rounded-3 border border-2 border-dashed">
-              <div class="d-flex align-items-center gap-2 mb-2">
-                <img src="https://placehold.co/100" alt="Image Agent Pengirim Approval" class="d-block rounded-circle" style="width:35px;aspect-ratio:1/1">
-                <div>
-                  <div class="fs-2 fw-semibold">Rusdi Ardiansyah</div>
-                  <div class="fs-1 text-dark">Executive Syiar</div>
-                </div>
-                <div class="fs-2 ms-auto fw-semibold"><i class="ti ti-clock me-2"></i>2 hari lalu</div>
-              </div>
-              <div class="d-flex align-items-center justify-content-between">
-                <div class="fs-1 fw-semibold mb-1">Meminta Persetujuan</div>
-                <div class="fs-1 fw-semibold text-danger mb-1">Ditolak</div>
-              </div>
+              @elseif ($approval->stage)
               <button class="btn bg-tanur-coklat border-0 d-flex w-100 align-items-center gap-2"><i class="ti ti-timeline-event"></i> Stage <i class="ti ti-arrow-narrow-right ms-auto"></i></button>
               <div class="d-flex align-items-center text-danger mt-2 gap-2">
                 <i class="ti ti-alert-triangle"></i>
                 <div class="fs-1 fw-semibold">Deadline Stage ini sisa 3 hari lagi, beri keputusan segera</div>
               </div>
+              @endif
             </a>
+            @empty
+            <div class="text-center p-3">
+                <h2 class="fs-2 fw-semibold">Tidak ada data</h2>
+                <p class="fs-1">Belum ada approval yang diajukan</p>
+            </div>
+            @endforelse
         </div>
     </section>
 </div>

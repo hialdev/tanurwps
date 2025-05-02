@@ -5,11 +5,10 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class City extends Model
+class District extends Model
 {
     use HasFactory;
-    protected $table = 'm_kota';
-
+    protected $table = 'm_kecamatan';
     protected $keyType = 'string';
     public $incrementing = false;
 
@@ -18,8 +17,8 @@ class City extends Model
         return $this->belongsTo(Province::class, 'id_propinsi', 'id');
     }
 
-    public function districts()
+    public function city()
     {
-        return $this->hasMany(District::class, 'id_kota', 'id');
+        return $this->belongsTo(City::class, 'id_kota', 'id');
     }
 }

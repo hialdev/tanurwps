@@ -20,12 +20,8 @@ return new class extends Migration
 
             $table->string('name');
             $table->text('description')->nullable();
-            $table->string('area');
-            $table->text('address1');
-            $table->text('address2')->nullable();
+            $table->text('address');
             $table->string('city');
-            $table->string('district');
-            $table->string('sub_district');
             $table->string('postal_code');
 
             $table->string('pic_name');
@@ -34,7 +30,7 @@ return new class extends Migration
 
             $table->string('product_type')->nullable();
 
-            $table->enum('status', [0,1,2])->default(0); // 0 : Berjalan, 1 : Diajukan, 2 : Selesai
+            $table->enum('status', [0,1,2,3,4,5])->default(0); // 0 : Pending, 1 : Berjalan, 2 : Pengajuan Stage, 3 : Stage Ditolak, 4 : Selesai, 5: Ditolak
             $table->timestamp('finished_at')->nullable(); // Terisi saat pengajuan, null kembali jika pengajuan ditolak
             $table->timestamp('approved_at')->nullable(); // Terisi saat semua selesai diterima
 

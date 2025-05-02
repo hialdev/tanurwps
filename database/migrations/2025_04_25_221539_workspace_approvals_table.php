@@ -21,8 +21,8 @@ return new class extends Migration
             $table->enum('status', [0,1,2])->default(0); // 0: Waiting, 1: Approved, 2: Rejected
             $table->timestamp('approved_at')->nullable(); // Terisi saat disetujui
             $table->timestamp('rejected_at')->nullable(); // Terisi saat ditolak
-            $table->text('rejected_reason');
-            $table->text('rejected_attachment')->nullable();
+            $table->text('reason')->nullable();
+            $table->text('attachment')->nullable();
             
             $table->timestamps();
 

@@ -4,10 +4,18 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Api\TanurController;
 use App\Models\Workspace;
+use App\Models\WorkspaceApproval;
 use Illuminate\Http\Request;
 
 class WorkspaceController extends Controller
 {
+    protected $tanurapi = null;
+    
+    public function __construct()
+    {
+        $this->tanurapi = new TanurController();
+    }
+
     //index
     public function index($id)
     {
@@ -26,106 +34,136 @@ class WorkspaceController extends Controller
     }
 
     //List
-    public function list(Request $request)
+    public function list($id, Request $request)
     {
         $filter = (object) [
             'q' => $request->get('search', ''),
-            'field' => $request->get('field', 'order'),
+            'field' => $request->get('field', 'code'),
             'order' => $request->get('order') === 'oldest' ? 'asc' : 'desc',
         ];
 
-        $workspaces = Workspace::where('name', 'like', '%' . $filter->q . '%')
-            ->orWhere('description', 'like', '%' . $filter->q . '%')
+        $workspaces = Workspace::where('agent_id', $id)
+            ->where(function ($query) use ($filter) {
+                $query->where('name', 'like', '%' . $filter->q . '%')
+                    ->orWhere('description', 'like', '%' . $filter->q . '%');
+            })
             ->orderBy($filter->field, $filter->order)
             ->paginate(100);
-
         return view('mobile.workspace.list', compact('workspaces', 'filter'));
     }
 
     //Add
     public function add()
     {
-        return view('mobile.workspace.add');
+        $cities = \App\Models\City::orderBy('nama')->get();
+        return view('mobile.workspace.add', compact('cities'));
     }
 
     //Store
-    public function store(Request $request)
+    public function store($id, Request $request)
     {
         $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'area' => 'required|string|max:255',
-            'address1' => 'required|string|max:255',
-            'address2' => 'nullable|string|max:255',
+            'product_type' => 'required|in:umroh,haji',
+            'address' => 'required|string',
             'city' => 'required|string|max:255',
-            'district' => 'required|string|max:255',
-            'sub_district' => 'required|string|max:255',
             'postal_code' => 'required|string|max:10',
             'pic_name' => 'required|string|max:255',
             'pic_phone' => 'required|string|max:15',
             'pic_email' => 'required|email|max:255',
-            'product_type' => 'required|in:umroh,haji',
+            'jamaah' => 'required|array',
+            'jamaah.*.name' => 'required|string',
+            'jamaah.*.phone' => 'nullable|regex:/^[0-9]{10,15}$/',
+            'jamaah.*.email' => 'nullable|email',
         ]);
 
         try {
             $workspace = new Workspace();
+            $workspace->agent_id = $id;
             $workspace->name = $request->name;
             $workspace->description = $request->description;
-            $workspace->area = $request->area;
-            $workspace->address1 = $request->address1;
-            $workspace->address2 = $request->address2;
+            $workspace->address = $request->address;
             $workspace->city = $request->city;
-            $workspace->district = $request->district;
-            $workspace->sub_district = $request->sub_district;
             $workspace->postal_code = $request->postal_code;
             $workspace->pic_name = $request->pic_name;
             $workspace->pic_phone = $request->pic_phone;
             $workspace->pic_email = $request->pic_email;
             $workspace->product_type = $request->product_type;
+            $workspace->status = '0';
             $workspace->save();
 
-            return redirect()->route('workspace.index')->with('success', 'Workspace created successfully.');
+            foreach ($request->jamaah as $jamaah) {
+                $workspacePilgrim = new \App\Models\WorkspacePilgrim();
+                $workspacePilgrim->workspace_id = $workspace->id;
+                $workspacePilgrim->name = $jamaah['name'];
+                $workspacePilgrim->phone = $jamaah['phone'];
+                $workspacePilgrim->email = $jamaah['email'] ?? null;
+                $workspacePilgrim->save();
+            }
+
+            //Get Superior Tanur API Agent Detail
+            $fetch = $this->tanurapi->getAgentDetail($id);
+            $superiors = $fetch['data']['superiors'] ?? null;
+            if ($superiors) {
+                foreach ($superiors as $superior) {
+                    $workspaceApproval = new WorkspaceApproval();
+                    $workspaceApproval->workspace_id = $workspace->id;
+                    $workspaceApproval->approver_id = $superior['id'];
+                    $workspaceApproval->status = '0'; // Pending approval
+                    $workspaceApproval->save();
+                }
+            }
+            return redirect()->route('agent.workspace.list', $id)->with('success', 'Workspace created successfully.');
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Failed to create workspace: ' . $e->getMessage());
+            return redirect()->back()->withInput()->with('error', 'Failed to create workspace: ' . $e->getMessage());
         }
     }
 
     //Edit
-    public function edit($id)
+    public function edit($id, $workspace_id)
     {
-        $workspace = Workspace::findOrFail($id);
-        return view('mobile.workspace.edit', compact('workspace'));
+        $workspace = Workspace::findOrFail($workspace_id);
+        $cities = \App\Models\City::orderBy('nama')->get();
+        return view('mobile.workspace.edit', compact('workspace', 'cities'));
     }
 
     //Update
-    public function update(Request $request, $id)
+   public function update(Request $request, $id, $workspace_id)
     {
+        $workspace = Workspace::findOrFail($workspace_id);
+        if($workspace->agent_id != $id){
+            return redirect()->back()->with('error', 'Aksi Ilegal, Anda tidak bisa mengubah Workspace orang lain.');
+        }
+        if($workspace->status != '0'){
+            return redirect()->back()->with('error', 'Workspace tidak dapat diubah, status sudah bukan pending.');
+        }
+        if($workspace->is_approved || $workspace->has_approved){
+            return redirect()->back()->with('error', 'Workspace tidak dapat diubah, telah disetujui oleh salah satu atau lebih dari seluruh Superior Level.');
+        }
+
         $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'area' => 'required|string|max:255',
-            'address1' => 'required|string|max:255',
-            'address2' => 'nullable|string|max:255',
+            'product_type' => 'required|in:umroh,haji',
+            'address' => 'required|string',
             'city' => 'required|string|max:255',
-            'district' => 'required|string|max:255',
-            'sub_district' => 'required|string|max:255',
             'postal_code' => 'required|string|max:10',
             'pic_name' => 'required|string|max:255',
             'pic_phone' => 'required|string|max:15',
             'pic_email' => 'required|email|max:255',
-            'product_type' => 'required|in:umroh,haji',
+            'jamaah' => 'required|array',
+            'jamaah.*.name' => 'required|string',
+            'jamaah.*.phone' => 'nullable|regex:/^[0-9]{10,15}$/',
+            'jamaah.*.email' => 'nullable|email',
         ]);
 
         try {
-            $workspace = Workspace::findOrFail($id);
+            // Update workspace fields
             $workspace->name = $request->name;
             $workspace->description = $request->description;
-            $workspace->area = $request->area;
-            $workspace->address1 = $request->address1;
-            $workspace->address2 = $request->address2;
+            $workspace->address = $request->address;
             $workspace->city = $request->city;
-            $workspace->district = $request->district;
-            $workspace->sub_district = $request->sub_district;
             $workspace->postal_code = $request->postal_code;
             $workspace->pic_name = $request->pic_name;
             $workspace->pic_phone = $request->pic_phone;
@@ -133,11 +171,25 @@ class WorkspaceController extends Controller
             $workspace->product_type = $request->product_type;
             $workspace->save();
 
-            return redirect()->route('workspace.index')->with('success', 'Workspace updated successfully.');
+            // Sync pilgrims
+            // Hapus semua pilgrims lama
+            $workspace->pilgrims()->delete();
+
+            // Tambah ulang berdasarkan input baru
+            foreach ($request->jamaah as $jamaahData) {
+                $workspace->pilgrims()->create([
+                    'name' => $jamaahData['name'],
+                    'phone' => $jamaahData['phone'],
+                    'email' => $jamaahData['email'],
+                ]);
+            }
+
+            return redirect()->route('agent.workspace.show', [$id, $workspace_id])->with('success', 'Workspace updated successfully.');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Failed to update workspace: ' . $e->getMessage());
         }
     }
+
 
     //Ajukan
     public function sendApproval($id)
@@ -156,20 +208,29 @@ class WorkspaceController extends Controller
             $workspace->status = 1;
             $workspace->save();
 
-            return redirect()->route('workspace.index')->with('success', 'Workspace submitted for approval successfully.');
+            return redirect()->route('agent.workspace.list', $id)->with('success', 'Workspace submitted for approval successfully.');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Failed to submit workspace for approval: ' . $e->getMessage());
         }
     }
 
     //Hapus
-    public function destroy($id)
+    public function destroy($id, $workspace_id)
     {
         try {
-            $workspace = Workspace::findOrFail($id);
+            $workspace = Workspace::findOrFail($workspace_id);
+            if($workspace->agent_id != $id){
+                return redirect()->back()->with('error', 'Aksi Ilegal, Anda tidak bisa mengubah Workspace orang lain.');
+            }
+            if($workspace->status != '0'){
+                return redirect()->back()->with('error', 'Workspace tidak dapat dihapus, status sudah bukan pending.');
+            }
+            if($workspace->is_approved || $workspace->has_approved){
+                return redirect()->back()->with('error', 'Workspace tidak dapat dihapus, telah disetujui oleh salah satu atau lebih dari seluruh Superior Level.');
+            }
             $workspace->delete();
 
-            return redirect()->route('workspace.index')->with('success', 'Workspace deleted successfully.');
+            return redirect()->route('agent.workspace.list', $id)->with('success', 'Workspace deleted successfully.');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Failed to delete workspace: ' . $e->getMessage());
         }

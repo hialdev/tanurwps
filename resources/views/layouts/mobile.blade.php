@@ -61,6 +61,7 @@
             position: relative;
             overflow: hidden; /* hindari scroll seluruh screen */
             display: flex;
+            padding-bottom: 2em;
             flex-direction: column;
         }
 
@@ -176,7 +177,7 @@
                                         background: linear-gradient(58deg, #9D844A 0%, #3D7A63 37.18%, #0C4961 67.77%, #133258 115.54%);
                                         width: 60px;
                                         height: 60px;
-                                        margin-top: -3.5em;
+                                        margin-top: -2em;
                             ">
                                 <img src="{{'/storage/'.setting('site.mobile-logo')}}" alt="Logo WPS Menu Mobile" class="d-block" style="width: 100%; padding:10px">
                             </a>
@@ -280,7 +281,23 @@
 
     <!-- solar icons -->
     <script src="https://cdn.jsdelivr.net/npm/iconify-icon@1.0.8/dist/iconify-icon.min.js"></script>
+    <script>
+        $(document).ready(function () {
+        // Open modal
+        $(document).on('click', '.btn-add-modal', function () {
+            let modalId = $(this).data('modal-id');
+            $(`#${modalId}`).slideToggle(300);
+            $('.mobile-menu').hide();
+        });
 
+        // Close modal
+        $(document).on('click', '.btn-close-modal', function () {
+            let modalId = $(this).data('modal-id');
+            $(`#${modalId}`).slideToggle(300);
+            $('.mobile-menu').show();
+        });
+    });
+    </script>
     @yield('scripts')
 </body>
 

@@ -88,8 +88,8 @@
                         </div>
                         <div class="mb-2">
                             <label for="" class="d-block fs-1 text-muted form-label">File Pendukung</label>
-                            @if($workspace->approver_status[$approver->id]['attachment'])
-                                <a href="{{ asset('storage/'.$workspace->approver_status[$approver->id]['attachment']) }}" class="fs-2 border p-2 px-3 d-inline-block border-primary rounded-3" target="_blank"><i class="ti ti-file me-2"></i> Lihat File</a>
+                            @if($approval->workspace->approver_status[$approver->id]['attachment'])
+                                <a href="{{ asset('storage/'.$approval->workspace->approver_status[$approver->id]['attachment']) }}" class="fs-2 border p-2 px-3 d-inline-block border-primary rounded-3" target="_blank"><i class="ti ti-file me-2"></i> Lihat File</a>
                             @else
                                 <div class="fs-2">Tidak ada file</div>
                             @endif

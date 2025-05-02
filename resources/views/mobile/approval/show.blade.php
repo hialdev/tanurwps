@@ -84,7 +84,7 @@
                     <x-modal id="reason-modal" title="Detail Keputusan">
                         <div class="mb-2">
                             <div class="d-block fs-1 text-muted form-label mb-1">Alasan Keputusan</div>
-                            <div class="fs-2 fw-semibold text-dark">{{$workspace->approver_status[$approver->id]['reason']}}</div>
+                            <div class="fs-2 fw-semibold text-dark">{{$approval->workspace->approver_status[$approver->id]['reason']}}</div>
                         </div>
                         <div class="mb-2">
                             <label for="" class="d-block fs-1 text-muted form-label">File Pendukung</label>

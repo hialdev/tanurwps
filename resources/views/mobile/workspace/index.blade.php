@@ -52,151 +52,78 @@
     <section class="bg-white rounded-top-4 p-3">
       <div class="d-flex mb-2 align-items-center justify-content-between">
         <h6 class="fw-bolder mb-0">Workspace Terbaru</h6>
-        <a href="" class="fs-2 tanur-link">Semua<i class="ti ti-arrow-narrow-right ms-2"></i></a>
+        <a href="{{route('agent.workspace.index')}}" class="fs-2 tanur-link">Semua<i class="ti ti-arrow-narrow-right ms-2"></i></a>
       </div>
-      <div class="p-3 fs-2 my-2 border border-2 border-dashed rounded-3 bg-light d-flex flex-column gap-2 align-items-center">
-        <div class="text-dark">Belum ada Workspace</div>
-        <a href="{{route('agent.workspace.add', request()->route('id'))}}" class="btn btn-dark"><i class="ti ti-plus me-2"></i> Buat</a>
-      </div>
-      
-      <a href="#" class="p-3 d-block text-decoration-none text-dark mb-2 bg-light text-dark rounded-3 position-relative">
-        <div class="position-absolute top-0 end-0 bg-secondary rounded-3 p-1 px-2 text-white m-2 fs-1 fw-semibold">
-          Pending
-        </div>
+      @forelse ($workspaces as $workspace)
+          <a href="{{ route('agent.workspace.show', $workspace->id) }}" class="p-3 d-block text-decoration-none text-dark mb-2 bg-light text-dark rounded-3 position-relative">
+              <div class="position-absolute top-0 end-0 bg-{{$workspace->getStatus()['color']}} rounded-3 p-1 px-2 text-white m-2 fs-1 fw-semibold">
+                  {{ $workspace->getStatus()['name'] }}
+              </div>
 
-        <div class="fs-3 fw-semibold">Umroh Pak Sobron</div>
-        <div class="fs-1">Calon Jamaah dari bapak combron</div>
-        <div class="d-flex align-items-center gap-3 mt-2">
-          <div class="fs-2"><i class="ti ti-user-circle me-1"></i> 2 Jamaah</div>
-        </div>
+              <div class="fs-3 fw-semibold">{{$workspace->name}}</div>
+                  <div class="fs-1">{{$workspace->description ?? 'tidak ada deskripsi'}}</div>
+                  <div class="d-flex align-items-center gap-3 mt-2">
+                  <div class="fs-2"><i class="ti ti-user-circle me-1"></i> {{$workspace->pilgrims->count()}} Jamaah</div>
+                  <div class="fs-2"><i class="ti ti-timeline-event me-1"></i> <span class="text-primary fw-semibold">2</span> / 5 Stage</div>
+                  <div class="fs-2"><i class="ti ti-subtask me-1"></i> <span class="text-primary fw-semibold">2</span> / 20 Task</div>
+              </div>
+              @if($workspace->getStatus()['message'])
+              <div class="d-flex text-{{$workspace->getStatus()['color']}} align-items-center mt-2 fw-semibold gap-2">
+                  <i class="ti ti-alert-circle"></i>
+                  <div class="fs-1 text-dark">{{$workspace->getStatus()['message']}}</div>
+              </div>
+              @endif
 
-      </a>
-      <a href="#" class="p-3 d-block text-decoration-none text-dark mb-2 bg-light text-dark rounded-3 position-relative">
-        <div class="position-absolute top-0 end-0 bg-warning rounded-3 p-1 px-2 text-white m-2 fs-1 fw-semibold">
-          Berjalan
-        </div>
-
-        <div class="fs-3 fw-semibold">Umroh Pak Sobron</div>
-        <div class="fs-1">Calon Jamaah dari bapak combron</div>
-        <div class="d-flex align-items-center gap-3 mt-2">
-          <div class="fs-2"><i class="ti ti-user-circle me-1"></i> 2 Jamaah</div>
-          <div class="fs-2"><i class="ti ti-timeline-event me-1"></i> <span class="text-primary fw-semibold">2</span> / 5 Stage</div>
-          <div class="fs-2"><i class="ti ti-subtask me-1"></i> <span class="text-primary fw-semibold">2</span> / 20 Task</div>
-        </div>
-        
-        <div class="d-flex text-danger align-items-center mt-2 fw-semibold gap-2">
-          <i class="ti ti-alert-triangle"></i>
-          <div class="fs-1">Deadline stage 1 tersisa 3 hari lagi, stage 2 tersisa 6 hari lagi, stage 5 tersisa 12 hari lagi</div>
-        </div>
-
-        <div class="mt-1">
-          <div class="fs-1 text-dark fw-semibold">Score Terkini</div>
-          <div class="fs-4 fw-bolder text-warning">3122</div>
-        </div>
-      </a>
-      <a href="#" class="p-3 d-block text-decoration-none text-dark mb-2 bg-light text-dark rounded-3 position-relative">
-        <div class="position-absolute top-0 end-0 bg-dark rounded-3 p-1 px-2 text-white m-2 fs-1 fw-semibold">
-          Pengajuan
-        </div>
-
-        <div class="fs-3 fw-semibold">Umroh Pak Sobron</div>
-        <div class="fs-1">Calon Jamaah dari bapak combron</div>
-        <div class="d-flex align-items-center gap-3 mt-2">
-          <div class="fs-2"><i class="ti ti-user-circle me-1"></i> 2 Jamaah</div>
-          <div class="fs-2"><i class="ti ti-timeline-event me-1"></i> <span class="text-primary fw-semibold">3</span>+<span class="text-warning fw-semibold">1</span> / 5 Stage</div>
-          <div class="fs-2"><i class="ti ti-subtask me-1"></i> <span class="text-primary fw-semibold">10</span> / 20 Task</div>
-        </div>
-
-        <div class="mt-1">
-          <div class="fs-1 text-dark fw-semibold">Score Terkini</div>
-          <div class="fs-4 fw-bolder text-warning">212</div>
-        </div>
-
-      </a>
-
-      <a href="#" class="p-3 d-block text-decoration-none text-dark mb-2 bg-light text-dark rounded-3 position-relative">
-        <div class="position-absolute top-0 end-0 bg-danger rounded-3 p-1 px-2 text-white m-2 fs-1 fw-semibold">
-          Ditolak
-        </div>
-
-        <div class="fs-3 fw-semibold">Umroh Pak Sobron</div>
-        <div class="fs-1">Calon Jamaah dari bapak combron</div>
-        <div class="d-flex align-items-center gap-3 mt-2">
-          <div class="fs-2"><i class="ti ti-user-circle me-1"></i> 2 Jamaah</div>
-          <div class="fs-2"><i class="ti ti-timeline-event me-1"></i> <span class="text-primary fw-semibold">2</span> / 5 Stage</div>
-          <div class="fs-2"><i class="ti ti-subtask me-1"></i> <span class="text-primary fw-semibold">2</span> / 20 Task</div>
-        </div>
-        
-        <div class="d-flex text-warning align-items-center mt-2 fw-semibold gap-2">
-          <i class="ti ti-alert-circle"></i>
-          <div class="fs-1 text-dark">Pengajuan Stage ditolak, klik untuk lihat detail</div>
-        </div>
-
-        <div class="mt-1">
-          <div class="fs-1 text-dark fw-semibold">Score Terkini</div>
-          <div class="fs-4 fw-bolder text-warning">312</div>
-        </div>
-      </a>
-
-      <a href="#" class="p-3 d-block text-decoration-none text-dark mb-2 bg-light text-dark rounded-3 position-relative">
-        <div class="position-absolute top-0 end-0 bg-success rounded-3 p-1 px-2 text-white m-2 fs-1 fw-semibold">
-          Selesai
-        </div>
-
-        <div class="fs-3 fw-semibold">Umroh Pak Sobron</div>
-        <div class="fs-1">Calon Jamaah dari bapak combron</div>
-        <div class="d-flex align-items-center gap-3 mt-2">
-          <div class="fs-2"><i class="ti ti-user-circle me-1"></i> 2 Jamaah</div>
-          <div class="fs-2"><i class="ti ti-timeline-event me-1"></i> <span class="text-primary fw-semibold">5</span> / 5 Stage</div>
-          <div class="fs-2"><i class="ti ti-subtask me-1"></i> <span class="text-primary fw-semibold">20</span> / 20 Task</div>
-        </div>
-        
-        <div class="">
-          <div class="fs-1 text-dark fw-semibold">Final Score</div>
-          <div class="fs-4 fw-bolder text-success">3122</div>
-        </div>
-      </a>
+              @if($workspace->status != '0')
+              <div class="mt-1">
+                  <div class="fs-1 text-dark fw-semibold">Score Terkini</div>
+                  <div class="fs-4 fw-bolder text-warning">312</div>
+              </div>
+              @endif
+          </a>
+      @empty
+          <div class="p-3 fs-2 my-2 border border-2 border-dashed rounded-3 bg-light d-flex flex-column gap-2 align-items-center">
+              <div class="text-dark">Belum ada Workspace</div>
+              <a href="{{route('agent.workspace.add')}}" class="btn btn-dark"><i class="ti ti-plus me-2"></i> Buat</a>
+          </div>
+      @endforelse
     </section>
 </div>
 <div class="bg-light p-1"></div>
 <section class="p-3">
   <div class="d-flex mb-2 align-items-center justify-content-between">
     <h6 class="fw-bolder mb-0">Approval Terbaru</h6>
-    <a href="" class="fs-2 tanur-link">Semua<i class="ti ti-arrow-narrow-right ms-2"></i></a>
+    <a href="{{ route('agent.approval.index') }}" class="fs-2 tanur-link">Semua<i class="ti ti-arrow-narrow-right ms-2"></i></a>
   </div>
-  <a href="#" class="p-3 d-block text-decoration-none text-dark rounded-3 border mb-2 border-2 border-dashed">
-    <div class="d-flex align-items-center gap-2 mb-2">
-      <img src="https://placehold.co/100" alt="Image Agent Pengirim Approval" class="d-block rounded-circle" style="width:35px;aspect-ratio:1/1">
-      <div>
-        <div class="fs-2 fw-semibold">Rusdi Ardiansyah</div>
-        <div class="fs-1 text-dark">Executive Syiar</div>
+  @forelse($approvals as $approval)
+    <a href="{{ route('agent.approval.show', $approval->id) }}" class="p-3 d-block text-decoration-none text-dark rounded-3 border mb-2 border-2 border-dashed">
+      <div class="d-flex align-items-center gap-2 mb-2">
+        <img src="https://placehold.co/100" alt="Image Agent Pengirim Approval" class="d-block rounded-circle" style="width:35px;aspect-ratio:1/1">
+        <div>
+          <div class="fs-2 fw-semibold">{{$approval->requester->name}}</div>
+          <div class="fs-1 text-dark">{{$approval->requester->level}}</div>
+        </div>
+        <div class="fs-2 ms-auto fw-semibold"><i class="ti ti-clock me-2"></i>2 hari lalu</div>
       </div>
-      <div class="fs-2 ms-auto fw-semibold"><i class="ti ti-clock me-2"></i>2 hari lalu</div>
-    </div>
-    <div class="fs-1 fw-semibold mb-1">Meminta Persetujuan</div>
-    <button class="btn bg-tanur-green border-0 d-flex w-100 align-items-center gap-2"><i class="ti ti-briefcase"></i> Workspace <i class="ti ti-arrow-narrow-right ms-auto"></i></button>
-  </a>
-
-  <a href="#" class="p-3 d-block text-decoration-none text-dark rounded-3 border border-2 border-dashed">
-    <div class="d-flex align-items-center gap-2 mb-2">
-      <img src="https://placehold.co/100" alt="Image Agent Pengirim Approval" class="d-block rounded-circle" style="width:35px;aspect-ratio:1/1">
-      <div>
-        <div class="fs-2 fw-semibold">Rusdi Ardiansyah</div>
-        <div class="fs-1 text-dark">Executive Syiar</div>
+      <div class="d-flex align-items-center justify-content-between">
+        <div class="fs-1 fw-semibold mb-1">Meminta Persetujuan</div>
+        <div class="fs-1 fw-semibold text-{{ $approval->getStatus()['color'] }} mb-1">{{ $approval->getStatus()['name'] }}</div>
       </div>
-      <div class="fs-2 ms-auto fw-semibold"><i class="ti ti-clock me-2"></i>2 hari lalu</div>
-    </div>
-    <div class="fs-1 fw-semibold mb-1">Meminta Persetujuan</div>
-    <button class="btn bg-tanur-coklat border-0 d-flex w-100 align-items-center gap-2"><i class="ti ti-timeline-event"></i> Stage <i class="ti ti-arrow-narrow-right ms-auto"></i></button>
-    <div class="d-flex align-items-center text-danger mt-2 gap-2">
-      <i class="ti ti-alert-triangle"></i>
-      <div class="fs-1 fw-semibold">Deadline Stage ini sisa 3 hari lagi, beri keputusan segera</div>
-    </div>
-  </a>
-
-  <div class="p-3 fs-2 my-2 border border-2 border-dashed rounded-3 bg-light text-center">
-    Belum ada Permintaan Approval
+      @if($approval->workspace)
+        <button class="btn bg-tanur-green border-0 d-flex w-100 align-items-center gap-2"><i class="ti ti-briefcase"></i> Workspace <i class="ti ti-arrow-narrow-right ms-auto"></i></button>
+      @elseif ($approval->stage)
+        <button class="btn bg-tanur-coklat border-0 d-flex w-100 align-items-center gap-2"><i class="ti ti-timeline-event"></i> Stage <i class="ti ti-arrow-narrow-right ms-auto"></i></button>
+        <div class="d-flex align-items-center text-danger mt-2 gap-2">
+          <i class="ti ti-alert-triangle"></i>
+          <div class="fs-1 fw-semibold">Deadline Stage ini sisa 3 hari lagi, beri keputusan segera</div>
+        </div>
+      @endif
+    </a>
+  @empty
+  <div class="p-3 fs-2 border border-2 border-dashed rounded-3 bg-light text-center">
+      <p class="fs-2 mb-0">Belum ada permintaan Approval</p>
   </div>
+  @endforelse
 </section>
 @endsection
 

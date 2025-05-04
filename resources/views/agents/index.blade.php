@@ -84,7 +84,10 @@
                 <tr>
                     <td>
                         <div>
-                            <div class="badge bg-primary-subtle text-primary fw-semibold fs-1 mb-1">Agent No: {{ $agent['agent_no'] }}</div>
+                            <div class="d-flex align-items-center gap-1">
+                                <div class="badge bg-tanur-coklat text-primary fw-semibold fs-1 mb-1">ID: {{ $agent['id'] }}</div>
+                                <div class="badge bg-primary-subtle text-primary fw-semibold fs-1 mb-1">Agent No: {{ $agent['agent_no'] }}</div>
+                            </div>
                             <div class="fw-normal fs-1 text-muted">Nama Agent</div>
                             <h6 class="fw-semibold text-dark mb-1 fs-3">{{ $agent['name'] }}</h6>
                         </div>
@@ -123,12 +126,27 @@
                             </a>
                             <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                                 <li>
-                                    <a href="{{route('agent.workspace.index', $agent['id'])}}" class="dropdown-item d-flex bg-primary text-white align-items-center gap-3"><i class="fs-4 ti ti-analyze"></i>Workspace</a>
+                                    <button
+                                        class="req-with-header dropdown-item d-flex bg-primary text-white align-items-center gap-3"
+                                        data-agent-id="{{ $agent['id'] }}"
+                                        data-agent-role="{{ $agent['id_level'] }}"
+                                        data-route="{{ route('agent.workspace.index') }}"
+                                    >
+                                        <i class="fs-4 ti ti-analyze"></i>Workspace
+                                    </button>
                                 </li>
                                 <li>
-                                    <a href="#" class="dropdown-item d-flex bg-primary-subtle text-dark align-items-center gap-3"><i class="fs-4 ti ti-list-check"></i>Approval</a>
+                                    <button
+                                        class="req-with-header dropdown-item d-flex bg-primary-subtle text-dark align-items-center gap-3"
+                                        data-agent-id="{{ $agent['id'] }}"
+                                        data-agent-role="{{ $agent['id_level'] }}"
+                                        data-route="{{ route('agent.approval.index') }}"
+                                    >
+                                        <i class="fs-4 ti ti-list-check"></i>Approval
+                                    </button>
                                 </li>
                             </ul>
+
                         </div>
                     </td>
                 </tr>
@@ -195,6 +213,32 @@ $(document).ready(function () {
 
         // Update form action
         $('#deleteAttachmentForm').attr('action', '/agents/' + agentId + '/attachments/' + attachmentId);
+    });
+});
+document.querySelectorAll('.req-with-header').forEach(button => {
+    button.addEventListener('click', function () {
+        const agentId = this.getAttribute('data-agent-id');
+        const agentRole = this.getAttribute('data-agent-role');
+        const route = this.getAttribute('data-route');
+
+        fetch(route, {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Tanur-Agent-Id': agentId,
+                'Tanur-Agent-Role': agentRole
+            },
+            credentials: 'same-origin'
+        })
+        .then(response => {
+            if (!response.ok) throw new Error('Request failed');
+        })
+        .then(() => {
+            window.location.href = `/agent/dashboard`;
+        })
+        .catch(error => {
+            alert('Error: ' + error.message);
+        });
     });
 });
 </script>

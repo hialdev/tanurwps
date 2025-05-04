@@ -3,38 +3,46 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Api\TanurController;
+use App\Models\Stage;
 use App\Models\Workspace;
 use App\Models\WorkspaceApproval;
+use App\Models\WorkspaceStageApproval;
 use Illuminate\Http\Request;
 
 class WorkspaceController extends Controller
 {
     protected $tanurapi = null;
-    
+
     public function __construct()
     {
         $this->tanurapi = new TanurController();
     }
 
     //index
-    public function index($id)
+    public function index()
     {
         $apitanur = new TanurController();
-        $data = $apitanur->getAgentDetail($id);
+        $data = $apitanur->getAgentDetail(session('agent_id'));
         $agent = (object) $data['data']['agent'] ?? null;
-        $workspaces = Workspace::where('agent_id', $id)->first();
-        return view('mobile.workspace.index', compact('workspaces', 'agent'));
+        $workspaces = Workspace::where('agent_id', session('agent_id'))->get();
+        $workspace_approvals = WorkspaceApproval::where('approver_id', session('agent_id'))->get();
+        $stage_approvals = WorkspaceStageApproval::where('approver_id', session('agent_id'))->get();
+
+        $approvals = $workspace_approvals->merge($stage_approvals)->sortByDesc('created_at');
+        
+        return view('mobile.workspace.index', compact('workspaces', 'agent', 'approvals'));
     }
 
     // Show
-    public function show($id, $workspace_id)
+    public function show($workspace_id)
     {
         $workspace = Workspace::findOrFail($workspace_id);
-        return view('mobile.workspace.show', compact('workspace'));
+        $stages = Stage::orderBy('order')->with('tasks')->get();
+        return view('mobile.workspace.show', compact('workspace', 'stages'));
     }
 
     //List
-    public function list($id, Request $request)
+    public function list(Request $request)
     {
         $filter = (object) [
             'q' => $request->get('search', ''),
@@ -42,7 +50,7 @@ class WorkspaceController extends Controller
             'order' => $request->get('order') === 'oldest' ? 'asc' : 'desc',
         ];
 
-        $workspaces = Workspace::where('agent_id', $id)
+        $workspaces = Workspace::where('agent_id', session('agent_id'))
             ->where(function ($query) use ($filter) {
                 $query->where('name', 'like', '%' . $filter->q . '%')
                     ->orWhere('description', 'like', '%' . $filter->q . '%');
@@ -60,7 +68,7 @@ class WorkspaceController extends Controller
     }
 
     //Store
-    public function store($id, Request $request)
+    public function store(Request $request)
     {
         $request->validate([
             'name' => 'required|string|max:255',
@@ -80,7 +88,7 @@ class WorkspaceController extends Controller
 
         try {
             $workspace = new Workspace();
-            $workspace->agent_id = $id;
+            $workspace->agent_id = session('agent_id');
             $workspace->name = $request->name;
             $workspace->description = $request->description;
             $workspace->address = $request->address;
@@ -103,7 +111,7 @@ class WorkspaceController extends Controller
             }
 
             //Get Superior Tanur API Agent Detail
-            $fetch = $this->tanurapi->getAgentDetail($id);
+            $fetch = $this->tanurapi->getAgentDetail(session('agent_id'));
             $superiors = $fetch['data']['superiors'] ?? null;
             if ($superiors) {
                 foreach ($superiors as $superior) {
@@ -114,14 +122,14 @@ class WorkspaceController extends Controller
                     $workspaceApproval->save();
                 }
             }
-            return redirect()->route('agent.workspace.list', $id)->with('success', 'Workspace created successfully.');
+            return redirect()->route('agent.workspace.list')->with('success', 'Workspace created successfully.');
         } catch (\Exception $e) {
             return redirect()->back()->withInput()->with('error', 'Failed to create workspace: ' . $e->getMessage());
         }
     }
 
     //Edit
-    public function edit($id, $workspace_id)
+    public function edit($workspace_id)
     {
         $workspace = Workspace::findOrFail($workspace_id);
         $cities = \App\Models\City::orderBy('nama')->get();
@@ -129,10 +137,10 @@ class WorkspaceController extends Controller
     }
 
     //Update
-   public function update(Request $request, $id, $workspace_id)
+   public function update(Request $request, $workspace_id)
     {
         $workspace = Workspace::findOrFail($workspace_id);
-        if($workspace->agent_id != $id){
+        if($workspace->agent_id != session('agent_id')){
             return redirect()->back()->with('error', 'Aksi Ilegal, Anda tidak bisa mengubah Workspace orang lain.');
         }
         if($workspace->status != '0'){
@@ -184,7 +192,7 @@ class WorkspaceController extends Controller
                 ]);
             }
 
-            return redirect()->route('agent.workspace.show', [$id, $workspace_id])->with('success', 'Workspace updated successfully.');
+            return redirect()->route('agent.workspace.show', $workspace_id)->with('success', 'Workspace updated successfully.');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Failed to update workspace: ' . $e->getMessage());
         }
@@ -192,10 +200,10 @@ class WorkspaceController extends Controller
 
 
     //Ajukan
-    public function sendApproval($id)
+    public function sendApproval()
     {
         try {
-            $workspace = Workspace::findOrFail($id);
+            $workspace = Workspace::findOrFail(session('agent_id'));
 
             // Create a new WorkspaceApproval
             $workspaceApproval = new \App\Models\WorkspaceApproval();
@@ -208,18 +216,18 @@ class WorkspaceController extends Controller
             $workspace->status = 1;
             $workspace->save();
 
-            return redirect()->route('agent.workspace.list', $id)->with('success', 'Workspace submitted for approval successfully.');
+            return redirect()->route('agent.workspace.list')->with('success', 'Workspace submitted for approval successfully.');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Failed to submit workspace for approval: ' . $e->getMessage());
         }
     }
 
     //Hapus
-    public function destroy($id, $workspace_id)
+    public function destroy($workspace_id)
     {
         try {
             $workspace = Workspace::findOrFail($workspace_id);
-            if($workspace->agent_id != $id){
+            if($workspace->agent_id != session('agent_id')){
                 return redirect()->back()->with('error', 'Aksi Ilegal, Anda tidak bisa mengubah Workspace orang lain.');
             }
             if($workspace->status != '0'){
@@ -230,7 +238,7 @@ class WorkspaceController extends Controller
             }
             $workspace->delete();
 
-            return redirect()->route('agent.workspace.list', $id)->with('success', 'Workspace deleted successfully.');
+            return redirect()->route('agent.workspace.list')->with('success', 'Workspace deleted successfully.');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Failed to delete workspace: ' . $e->getMessage());
         }

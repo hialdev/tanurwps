@@ -43,9 +43,9 @@ class TaskController extends Controller
             'order' => 'nullable|numeric',
             'score' => 'nullable|numeric',
             'filenames' => 'nullable|array',
-            'filenames.*' => 'string',
+            'filenames.*' => 'nullable|string',
             'attachments' => 'nullable|array',
-            'attachments.*' => 'mimes:jpg,jpeg,png,pdf,doc,docx,xls,xlsx,ppt,pptx,webp|max:5120',
+            'attachments.*' => 'nullable|mimes:jpg,jpeg,png,pdf,doc,docx,xls,xlsx,ppt,pptx,webp|max:5120',
         ]);
 
         try {
@@ -106,9 +106,9 @@ class TaskController extends Controller
             'score' => 'nullable|numeric',
             'deleted_attachments' => 'nullable', // for deleted attachments
             'filenames' => 'nullable|array',
-            'filenames.*' => 'string',
+            'filenames.*' => 'nullable|string',
             'attachments' => 'nullable|array',
-            'attachments.*' => 'mimes:jpg,jpeg,png,pdf,doc,docx,xls,xlsx,ppt,pptx,webp|max:5120',
+            'attachments.*' => 'nullable|mimes:jpg,jpeg,png,pdf,doc,docx,xls,xlsx,ppt,pptx,webp|max:5120',
         ]);
 
         try {

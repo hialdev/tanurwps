@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
@@ -37,6 +38,44 @@ class Stage extends Model
         });
     }
 
+    public function deadlineCount($approved_at)
+    {
+        $deadline_days = $this->deadline_days;
+        $workspace_approved_at = Carbon::parse($approved_at);
+
+        if (!$workspace_approved_at) {
+            return 'Deadline tidak tersedia';
+        }
+
+        $deadline_date = $workspace_approved_at->addDays($deadline_days);
+        $remaining_days = now()->diffInDays($deadline_date, false);
+
+        if ($remaining_days < 0) {
+            return 'Deadline telah berlalu';
+        }
+        $messages = [
+            'still' => ['text' => 'Sisa ' . $remaining_days . ' hari lagi', 'color' => 'secondary'],
+            'short' => ['text' => 'Sisa ' . abs($remaining_days) . ' hari lagi', 'color' => 'warning'],
+            'expired' => ['text' => 'Deadline telah berlalu', 'color' => 'muted'],
+            'today' => ['text' => 'Hari ini adalah deadline', 'color' => 'danger'],
+        ];
+
+        $response = [
+            'remaining_days' => $remaining_days,
+            'deadline_date' => $deadline_date->format('Y-m-d'),
+        ];
+        if ($remaining_days > 0) {
+            $response['message'] = $messages['still'];
+        } elseif ($remaining_days > 0 && $remaining_days < 8) {
+            $response['message'] = $messages['short'];
+        } elseif ($remaining_days == 0) {
+            $response['message'] = $messages['today'];
+        } elseif ($remaining_days < 0) {
+            $response['message'] = $messages['expired'];
+        }
+        return $response;
+    }
+
     public function attachments()
     {
         return $this->hasMany(StageAttachment::class, 'stage_id', 'id');
@@ -44,6 +83,6 @@ class Stage extends Model
     
     public function tasks()
     {
-        return $this->hasMany(Task::class, 'stage_id', 'id');
+        return $this->hasMany(Task::class, 'stage_id', 'id')->orderBy('order', 'asc');
     }
 }

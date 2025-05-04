@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\WorkspaceApproval;
+use App\Models\WorkspaceStage;
 use App\Models\WorkspaceStageApproval;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -10,10 +11,10 @@ use Illuminate\Support\Facades\Storage;
 class ApprovalController extends Controller
 {
     //index
-    public function index($id)
+    public function index()
     {
-        $workspace_approvals = WorkspaceApproval::where('approver_id', $id)->get();
-        $stage_approvals = WorkspaceStageApproval::where('approver_id', $id)->get();
+        $workspace_approvals = WorkspaceApproval::where('approver_id', session('agent_id'))->get();
+        $stage_approvals = WorkspaceStageApproval::where('approver_id', session('agent_id'))->get();
 
         $approvals = $workspace_approvals->merge($stage_approvals)->sortByDesc('created_at');
 
@@ -21,17 +22,17 @@ class ApprovalController extends Controller
     }
 
     //show
-    public function show($id, $approval_id)
+    public function show($approval_id)
     {
         $approval = WorkspaceApproval::findOrFail($approval_id);
         return view('mobile.approval.show', compact('approval'));
     }
 
     //Decision
-    public function decision(Request $request, $id, $approval_id)
+    public function decision(Request $request, $approval_id)
     {
         $approval = WorkspaceApproval::findOrFail($approval_id);
-        if($id != $approval->approver_id){
+        if(session('agent_id') != $approval->approver_id){
             return back()->with('error', 'Anda tidak memiliki akses untuk memutuskan pengajuan ini');
         }
         if($approval->status != '0'){
@@ -56,7 +57,14 @@ class ApprovalController extends Controller
             $approval->save();
 
             $workspace = $approval->workspace;
-            $workspace->status = $request->decision === 'approve' ? '1' : '5';
+            if($workspace->is_approved){
+                $workspace->status = '1';
+                $workspace->approved_at = now();
+            } elseif ($request->decision === 'reject') {
+                $workspace->status = '5';
+            } else {
+                $workspace->status = '0';
+            }
             $workspace->save();
 
             return back()->with('success', $request->decision === 'approve' ? 'Pengajuan berhasil disetujui' : 'Pengajuan berhasil ditolak');
@@ -65,10 +73,10 @@ class ApprovalController extends Controller
         }
     }
 
-    public function updateDecision(Request $request, $id, $approval_id)
+    public function updateDecision(Request $request, $approval_id)
     {
         $approval = WorkspaceApproval::findOrFail($approval_id);
-        if($id != $approval->approver_id){
+        if(session('agent_id') != $approval->approver_id){
             return back()->with('error', 'Anda tidak memiliki akses untuk memutuskan pengajuan ini');
         }
         if($approval->workspace->is_approved){
@@ -93,7 +101,14 @@ class ApprovalController extends Controller
             $approval->save();
 
             $workspace = $approval->workspace;
-            $workspace->status = $request->decision === 'approve' ? '1' : '5';
+            if($workspace->is_approved){
+                $workspace->status = '1';
+                $workspace->approved_at = now();
+            } elseif ($request->decision === 'reject') {
+                $workspace->status = '5';
+            } else {
+                $workspace->status = '0';
+            }
             $workspace->save();
 
             return back()->with('success', $request->decision === 'approve' ? 'Pengajuan berhasil disetujui' : 'Pengajuan berhasil ditolak');
@@ -101,4 +116,5 @@ class ApprovalController extends Controller
             return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
     }
+
 }

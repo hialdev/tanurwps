@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 class HistoryController extends Controller
 {
     //index
-    public function index($id)
+    public function index()
     {
         return view('mobile.history.index');
     }

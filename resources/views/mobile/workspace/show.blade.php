@@ -73,7 +73,7 @@
 
         @if($workspace->status != '0' && $workspace->status != '5')
         <div class="mt-1">
-            <div class="fs-1 text-dark fw-semibold">Score Terkini</div>
+            <div class="fs-1 text-white fw-semibold">Score Terkini</div>
             <div class="fs-4 fw-bolder text-warning">312</div>
         </div>
         @endif
@@ -94,11 +94,11 @@
                     </div>
                     <div class="d-flex mt-2 align-items-center justify-content-between gap-2">
                         <div class="badge fs-1 rounded-3 fw-semibold text-{{$workspace->approver_status[$approver->id]['color']}} bg-{{$workspace->approver_status[$approver->id]['color']}}-subtle">{{ $workspace->approver_status[$approver->id]['name'] }}</div>
-                        <button data-modal-id="reason-modal" class="btn-add-modal btn btn-light btn-sm fs-4 rounded-circle" title="Alasan"><i class="ti ti-text-caption"></i></button>
+                        <button data-modal-id="reason-modal-{{$approver->id}}" class="btn-add-modal btn btn-light btn-sm fs-4 rounded-circle" title="Alasan"><i class="ti ti-text-caption"></i></button>
                         <a target="_blank" href="{{'https://api.whatsapp.com/send?phone=6289671052050&text=Mohon memberikan tanggapan terhadap Approval workspace saya '.$workspace->requester->person['phone'].') dengan kode '.$workspace->code }}" class="btn btn-light rounded-circle btn-sm fs-4"><i class="ti ti-brand-whatsapp"></i></a>
                     </div>
 
-                    <x-modal id="reason-modal" title="Detail Keputusan">
+                    <x-modal id="reason-modal-{{$approver->id}}" title="Detail Keputusan">
                         <div class="mb-2">
                             <div class="d-block fs-1 text-muted form-label mb-1">Alasan Keputusan</div>
                             <div class="fs-2 fw-semibold text-dark">{{$workspace->approver_status[$approver->id]['reason']}}</div>
@@ -118,8 +118,54 @@
     </div>
 </div>
 <div class="bg-white p-3 rounded-top-3" style="margin-top: -1em">
-    <h6 class="fs-3 fw-semibold text-dark">Stage</h6>
+    <h6 class="fs-3 mb-1 fw-semibold text-dark">Misi yang harus kamu jalani</h6>
+    <p class="fs-2">Dapat dikerjakan secara tidak berurutan, Perhatikan deadline pengerjaannya</p>
     @if($workspace->is_approved)
+    @forelse ($stages as $stage)
+        <div class="bg-white mb-2 shadow rounded-3 p-3">
+          <div class="mb-3">
+            <h6 class="fs-3 mb-1 fw-semibold">{{ $stage->name }}</h6>
+            <div class="fs-2">{{ $stage->description }}</div>
+            <div class="fs-1 mt-1 text-{{ $stage->deadlineCount($workspace->approved_at)['message']['color'] }} fw-semibold"> <i class="ti ti-clock me-2"></i> {{ $stage->deadlineCount($workspace->approved_at)['message']['text'] }}</div>
+          </div>
+          <ul class="list-unstyled p-0">
+            @forelse ($stage->tasks as $task)
+            <li class="border-start rounded-3 mb-2 bg-light border-3 p-3 position-relative">
+              <div class="position-absolute top-0 end-0">
+                <div class="d-flex align-items-center gap-0 bg-dark text-white rounded-pill p-2 justify-content-center fw-semibold" style="aspect-ratio:1/1 !important; width:2em; height:2em; margin-top: -1em">
+                  {{ $task->score }}
+                </div>
+              </div>
+              <div class="">
+                <h5 class="fs-2 fw-semibold mb-1">{{$task->name}}</h5>
+                <div class="fs-1">{{ $task->description ?? 'tidak ada deskripsi' }}</div>
+                @if($task->attachments->count() > 0)
+                  <div class="d-flex align-items-center mt-2 gap-1">
+                    @foreach ($task->attachments as $attachment)
+                      <a href="{{ asset('storage/'.$attachment->file) }}" class="fs-2 text-dark border p-1 px-2 d-inline-block border-primary rounded-3" target="_blank"><i class="ti ti-file me-1"></i> {{$attachment->name}}</a>
+                    @endforeach
+                  </div>
+                @endif
+              </div>
+            </li>
+            @empty
+            <div class="p-3 fs-2 rounded-3 bg-light border border-2 text-center">
+                Tidak ada task pada stage ini
+            </div>
+            @endforelse
+          </ul>
+        </div>
+    @empty
+       <div class="bg-white rounded-top-3 p-3 pb-0" style="z-index: 99">
+            <div class="d-flex flex-column align-items-center justify-content-center text-center" style="height: 60vh">
+                <img src="https://img.freepik.com/free-vector/empty-concept-illustration_114360-7416.jpg" alt="Empty Illustration" class="d-block w-100" style="max-width: 10em">
+                <div class="text-center mt-3">
+                    <h2 class="fw-semibold fs-3">Belum ada Data Stage</h2>
+                    <p class="fs-1">Stage dan Task akan muncul disini</p>
+                </div>
+            </div>
+        </div>
+    @endforelse
     @else
     <div class="p-3 fs-2 rounded-3 bg-light border border-2 text-center">
         Workspace ini belum disetujui oleh semua approver, silahkan tunggu hingga semua approver menyetujui workspace ini.

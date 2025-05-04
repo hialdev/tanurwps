@@ -10,7 +10,6 @@ use Illuminate\Support\Facades\Cache;
 class AgentController extends Controller
 {
     protected $tanurapi = null;
-
     public function __construct()
     {
         $this->tanurapi = new TanurController();
@@ -71,8 +70,8 @@ class AgentController extends Controller
         return view('agents.index', compact('agents', 'filter', 'fields'));
     }
 
-    public function detail($id){
-        $fetch = $this->tanurapi->getAgentDetail($id);
+    public function detail(){
+        $fetch = $this->tanurapi->getAgentDetail(session('agent_id'));
         dd($fetch);
     }
 

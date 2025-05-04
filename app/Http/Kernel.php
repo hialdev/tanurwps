@@ -68,5 +68,6 @@ class Kernel extends HttpKernel
         'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
         'check.app.permission' => \App\Http\Middleware\CheckAppPermission::class,
         'api.token' => \App\Http\Middleware\ApiTokenMiddleware::class,
+        'agent.access' => \App\Http\Middleware\ValidateAgentAccess::class,
     ];
 }

@@ -40,7 +40,7 @@
         </div>
         <div class="list bg-white p-2">
             @forelse($approvals as $approval)
-            <a href="{{ route('agent.approval.show', [request()->route('id'), $approval->id]) }}" class="p-3 d-block text-decoration-none text-dark rounded-3 border mb-2 border-2 border-dashed">
+            <a href="{{ route('agent.approval.show', $approval->id) }}" class="p-3 d-block text-decoration-none text-dark rounded-3 border mb-2 border-2 border-dashed">
               <div class="d-flex align-items-center gap-2 mb-2">
                 <img src="https://placehold.co/100" alt="Image Agent Pengirim Approval" class="d-block rounded-circle" style="width:35px;aspect-ratio:1/1">
                 <div>

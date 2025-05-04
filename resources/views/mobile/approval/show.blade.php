@@ -56,7 +56,7 @@
 
         @if($approval->workspace->status != '0' && $approval->workspace->status != '5')
         <div class="mt-1">
-            <div class="fs-1 text-dark fw-semibold">Score Terkini</div>
+            <div class="fs-1 text-white fw-semibold">Score Terkini</div>
             <div class="fs-4 fw-bolder text-warning">312</div>
         </div>
         @endif
@@ -71,17 +71,17 @@
                     <div class="d-flex align-items-center gap-2">
                         <img src="{{$approver->image_url}}" alt="Image approver {{$approver->name}}" class="d-block rounded-circle bg-dark" style="aspect-ratio:1/1" width="40">
                         <div>
-                          <h6 class="fw-bold mb-1 fs-2" style="white-space: nowrap">{{ $approver->name }} {{ $approver->id == request()->route('id') ? '(Anda)' : '' }}</h6>
+                          <h6 class="fw-bold mb-1 fs-2" style="white-space: nowrap">{{ $approver->name }} {{ $approver->id == session('agent_id') ? '(Anda)' : '' }}</h6>
                           <div class="fs-1" style="white-space: nowrap">{{ $approver->level }}</div>
                         </div>
                     </div>
                     <div class="d-flex mt-2 align-items-center justify-content-between gap-2">
                         <div class="badge fs-1 rounded-3 fw-semibold text-{{$approval->workspace->approver_status[$approver->id]['color']}} bg-{{$approval->workspace->approver_status[$approver->id]['color']}}-subtle">{{ $approval->workspace->approver_status[$approver->id]['name'] }}</div>
-                        <button data-modal-id="reason-modal" class="btn-add-modal btn btn-light btn-sm fs-4 rounded-circle" title="Alasan"><i class="ti ti-text-caption"></i></button>
+                        <button data-modal-id="reason-modal-{{$approval->id}}" class="btn-add-modal btn btn-light btn-sm fs-4 rounded-circle" title="Alasan"><i class="ti ti-text-caption"></i></button>
                         <a target="_blank" href="{{'https://api.whatsapp.com/send?phone=6289671052050&text=Mohon memberikan tanggapan terhadap Approval workspace saya '.$approval->workspace->requester->person['phone'].') dengan kode '.$approval->workspace->code }}" class="btn btn-light rounded-circle btn-sm fs-4"><i class="ti ti-brand-whatsapp"></i></a>
                     </div>
 
-                    <x-modal id="reason-modal" title="Detail Keputusan">
+                    <x-modal id="reason-modal-{{$approval->id}}" title="Detail Keputusan">
                         <div class="mb-2">
                             <div class="d-block fs-1 text-muted form-label mb-1">Alasan Keputusan</div>
                             <div class="fs-2 fw-semibold text-dark">{{$approval->workspace->approver_status[$approver->id]['reason']}}</div>
@@ -105,7 +105,7 @@
     <button data-modal-id="make-decision" class="btn-add-modal btn border-0 fw-semibold w-100 fs-2 shadow-lg bg-tanur-coklat rounded-pill">Beri Keputusan</button>
 
     <x-modal id="make-decision" title="Buat Keputusan">
-        <form action="{{ route('agent.approval.decision', [request()->route('id'), $approval->id]) }}" method="POST" enctype="multipart/form-data">
+        <form action="{{ route('agent.approval.decision', $approval->id) }}" method="POST" enctype="multipart/form-data">
             @csrf
             <div class="mb-2">
                 <label for="decision" class="fs-1 text-muted form-label">Keputusan</label>
@@ -153,7 +153,7 @@
         </div>
     </div>
     <x-modal id="edit-decision" title="Buat Keputusan">
-        <form action="{{ route('agent.approval.decision.update', [request()->route('id'), $approval->id]) }}" method="POST" enctype="multipart/form-data">
+        <form action="{{ route('agent.approval.decision.update', $approval->id) }}" method="POST" enctype="multipart/form-data">
             @csrf
             <div class="mb-2">
                 <label for="decision" class="fs-1 text-muted form-label">Keputusan</label>

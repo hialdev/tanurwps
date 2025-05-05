@@ -33,15 +33,15 @@
           <div class="row">
             <div class="col-5">
               <div class="fs-2 text-white">Total Score</div>
-              <div class="fw-bolder fs-5">12394</div>
+              <div class="fw-bolder fs-5">{{$count->total_score}}</div>
             </div>
             <div class="col-7">
               <div class="fs-2 text-white">Workspace</div>
               <div class="d-flex align-items-center gap-2 rounded-2">
-                <div class="fs-3 text-white fw-bolder"><i class="ti ti-checklist me-1"></i>8</div>
-                <div class="fs-3 text-warning fw-bolder"><i class="ti ti-clock me-1"></i>2</div>
-                <div class="fs-3 text-success fw-bolder"><i class="ti ti-heart-handshake me-1"></i>4</div>
-                <div class="fs-3 text-danger fw-bolder"><i class="ti ti-x me-1"></i>2</div>
+                <div class="fs-3 text-white fw-bolder"><i class="ti ti-checklist me-1"></i>{{ $count->total_workspace }}</div>
+                <div class="fs-3 text-warning fw-bolder"><i class="ti ti-clock me-1"></i>{{ $count->workspace->ongoing }}</div>
+                <div class="fs-3 text-success fw-bolder"><i class="ti ti-heart-handshake me-1"></i>{{ $count->workspace->finish }}</div>
+                <div class="fs-3 text-danger fw-bolder"><i class="ti ti-x me-1"></i>{{ $count->workspace->rejected }}</div>
               </div>
             </div>
           </div>
@@ -64,8 +64,8 @@
                   <div class="fs-1">{{$workspace->description ?? 'tidak ada deskripsi'}}</div>
                   <div class="d-flex align-items-center gap-3 mt-2">
                   <div class="fs-2"><i class="ti ti-user-circle me-1"></i> {{$workspace->pilgrims->count()}} Jamaah</div>
-                  <div class="fs-2"><i class="ti ti-timeline-event me-1"></i> <span class="text-primary fw-semibold">2</span> / 5 Stage</div>
-                  <div class="fs-2"><i class="ti ti-subtask me-1"></i> <span class="text-primary fw-semibold">2</span> / 20 Task</div>
+                  <div class="fs-2"><i class="ti ti-timeline-event me-1"></i> <span class="text-primary fw-semibold">{{ $workspace->stageAnalytic()->finished }}</span> / {{ $workspace->stageAnalytic()->total }} Stage</div>
+                  <div class="fs-2"><i class="ti ti-subtask me-1"></i> <span class="text-primary fw-semibold">{{ $workspace->taskAnalytic()->finished }}</span> / {{ $workspace->taskAnalytic()->total }} Task</div>
               </div>
               @if($workspace->getStatus()['message'])
               <div class="d-flex text-{{$workspace->getStatus()['color']}} align-items-center mt-2 fw-semibold gap-2">
@@ -103,11 +103,11 @@
           <div class="fs-2 fw-semibold">{{$approval->requester->name}}</div>
           <div class="fs-1 text-dark">{{$approval->requester->level}}</div>
         </div>
-        <div class="fs-2 ms-auto fw-semibold"><i class="ti ti-clock me-2"></i>2 hari lalu</div>
+        <div class="fs-1 ms-auto fw-semibold"><i class="ti ti-clock me-2"></i>{{ $approval->time_ago }}</div>
       </div>
       <div class="d-flex align-items-center justify-content-between">
         <div class="fs-1 fw-semibold mb-1">Meminta Persetujuan</div>
-        <div class="fs-1 fw-semibold text-{{ $approval->getStatus()['color'] }} mb-1">{{ $approval->getStatus()['name'] }}</div>
+        <div class="fs-2 fw-semibold text-{{ $approval->getStatus()['color'] }} mb-1">{{ $approval->getStatus()['name'] }}</div>
       </div>
       @if($approval->workspace)
         <button class="btn bg-tanur-green border-0 d-flex w-100 align-items-center gap-2"><i class="ti ti-briefcase"></i> Workspace <i class="ti ti-arrow-narrow-right ms-auto"></i></button>

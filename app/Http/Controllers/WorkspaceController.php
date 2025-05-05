@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Api\TanurController;
+use App\Models\Agent;
 use App\Models\Stage;
 use App\Models\Workspace;
 use App\Models\WorkspaceApproval;
@@ -25,12 +26,22 @@ class WorkspaceController extends Controller
         $data = $apitanur->getAgentDetail(session('agent_id'));
         $agent = (object) $data['data']['agent'] ?? null;
         $workspaces = Workspace::where('agent_id', session('agent_id'))->get();
+
         $workspace_approvals = WorkspaceApproval::where('approver_id', session('agent_id'))->get();
         $stage_approvals = WorkspaceStageApproval::where('approver_id', session('agent_id'))->get();
-
         $approvals = $workspace_approvals->merge($stage_approvals)->sortByDesc('created_at');
         
-        return view('mobile.workspace.index', compact('workspaces', 'agent', 'approvals'));
+        $count = (object) [
+            'total_score' => Agent::totalScore(session('agent_id')),
+            'total_workspace' => $workspaces->count(),
+            'workspace' => (object) [
+                'ongoing' => $workspaces->where('status', '0')->count(),
+                'finish' => $workspaces->where('status', '4')->count(),
+                'rejected' => $workspaces->where('status', '5')->count(),
+            ],
+        ];
+
+        return view('mobile.workspace.index', compact('workspaces', 'agent', 'approvals', 'count'));
     }
 
     // Show
@@ -48,6 +59,7 @@ class WorkspaceController extends Controller
             'q' => $request->get('search', ''),
             'field' => $request->get('field', 'code'),
             'order' => $request->get('order') === 'oldest' ? 'asc' : 'desc',
+            'status' => $request->get('status', ''), // tambahkan filter status
         ];
 
         $workspaces = Workspace::where('agent_id', session('agent_id'))
@@ -55,8 +67,12 @@ class WorkspaceController extends Controller
                 $query->where('name', 'like', '%' . $filter->q . '%')
                     ->orWhere('description', 'like', '%' . $filter->q . '%');
             })
+            ->when($request->has('status') && $filter->status !== '', function ($query) use ($filter) {
+                $query->where('status', (string) $filter->status);
+            })
             ->orderBy($filter->field, $filter->order)
             ->paginate(100);
+
         return view('mobile.workspace.list', compact('workspaces', 'filter'));
     }
 

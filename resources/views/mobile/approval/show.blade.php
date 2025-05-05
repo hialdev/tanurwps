@@ -56,8 +56,8 @@
 
         @if($approval->workspace->status != '0' && $approval->workspace->status != '5')
         <div class="mt-1">
-            <div class="fs-1 text-white fw-semibold">Score Terkini</div>
-            <div class="fs-4 fw-bolder text-warning">312</div>
+            <div class="fs-1 text-white fw-semibold">Score Terkumpul</div>
+            <div class="fs-4 fw-bolder text-warning">{{ $approval->workspace->live_score }}</div>
         </div>
         @endif
     </div>

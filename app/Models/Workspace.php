@@ -54,6 +54,57 @@ class Workspace extends Model
         return $this->hasMany(WorkspaceApproval::class, 'workspace_id', 'id');
     }
 
+    public function workspaceStages(){
+        return $this->hasMany(WorkspaceStage::class, 'workspace_id', 'id');
+    }
+
+    public function getLiveScoreAttribute(){
+        $stages = $this->workspaceStages;
+        $totalScore = 0;
+        if($stages->count() > 0){
+            foreach ($stages as $stage) {
+                $tasks = $stage->workspaceTasks;
+                if($tasks->count() > 0){
+                    foreach ($tasks as $task) {
+                        $totalScore += $task->score;
+                    }
+                }
+            }
+        }
+        return $totalScore;
+    }
+
+    public function stageAnalytic(){
+        $total_stages = Stage::count();
+        $total_stage_finished = $this->workspaceStages->count() > 0 ? $this->workspaceStages->whereNotNull('finished_at')->count() : 0;
+        return (object) [
+            'total' => $total_stages,
+            'finished' => $total_stage_finished,
+            'percentage' => $total_stages > 0 ? round(($total_stage_finished / $total_stages) * 100, 2) : 0,
+        ];
+    }
+
+    public function allWorkspaceTasks()
+    {
+        return $this->workspaceStages->flatMap(function ($stage) {
+            return $stage->workspaceTasks;
+        });
+    }
+
+    public function taskAnalytic()
+    {
+        $total_tasks = Task::count();
+        $total_task_finished = $this->allWorkspaceTasks()->whereNotNull('finished_at')->count();
+
+        return (object) [
+            'total' => $total_tasks,
+            'finished' => $total_task_finished,
+            'percentage' => $total_tasks > 0
+                ? round(($total_task_finished / $total_tasks) * 100, 2)
+                : 0,
+        ];
+    }
+
     public function getIsApprovedAttribute(){
         return $this->approvals()->count() > 0 && $this->approvals()->where('status', '1')->count() === $this->approvals()->count();
     }

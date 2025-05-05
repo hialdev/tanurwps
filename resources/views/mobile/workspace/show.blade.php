@@ -49,8 +49,8 @@
         <div class="d-flex align-items-start flex-column gap-2 mt-2">
             <button data-modal-id="list-jamaah" class="btn-add-modal btn btn-light btn-sm rounded-pill"><i class="ti ti-user-circle me-1"></i> {{$workspace->pilgrims->count()}} Jamaah <i class="ti ti-arrow-right ms-2"></i></button>
             @if($workspace->is_approved)
-                <div class="fs-2"><i class="ti ti-timeline-event me-1"></i> <span class="text-white fw-semibold">2</span> / 5 Stage Selesai</div>
-                <div class="fs-2"><i class="ti ti-subtask me-1"></i> <span class="text-white fw-semibold">2</span> / 20 Task Selesai</div>
+                <div class="fs-2"><i class="ti ti-timeline-event me-1"></i> <span class="text-primary fw-semibold">{{ $workspace->stageAnalytic()->finished }}</span> / {{ $workspace->stageAnalytic()->total }} Stage</div>
+                <div class="fs-2"><i class="ti ti-subtask me-1"></i> <span class="text-primary fw-semibold">{{ $workspace->taskAnalytic()->finished }}</span> / {{ $workspace->taskAnalytic()->total }} Task</div>
             @endif
         </div>
         
@@ -73,8 +73,8 @@
 
         @if($workspace->status != '0' && $workspace->status != '5')
         <div class="mt-1">
-            <div class="fs-1 text-white fw-semibold">Score Terkini</div>
-            <div class="fs-4 fw-bolder text-warning">312</div>
+            <div class="fs-1 text-white fw-semibold">Score Terkumpul</div>
+            <div class="fs-4 fw-bolder text-warning">{{ $workspace->live_score }}</div>
         </div>
         @endif
     </div>
@@ -130,11 +130,16 @@
           </div>
           <ul class="list-unstyled p-0">
             @forelse ($stage->tasks as $task)
-            <li class="border-start rounded-3 mb-2 bg-light border-3 p-3 position-relative">
-              <div class="position-absolute top-0 end-0">
-                <div class="d-flex align-items-center gap-0 bg-dark text-white rounded-pill p-2 justify-content-center fw-semibold" style="aspect-ratio:1/1 !important; width:2em; height:2em; margin-top: -1em">
+            <li class="border-start rounded-3 mb-2 border-3 {{$task->isSubmitted($workspace->id) ? 'border-success bg-success-subtle' : 'bg-light'}} p-3 position-relative">
+              <div class="position-absolute top-0 end-0 d-flex align-items-center gap-1" style=" margin-top: -1em">
+                <div class="d-flex fs-2 align-items-center gap-0 bg-dark text-white rounded-pill p-2 justify-content-center fw-semibold" style="aspect-ratio:1/1 !important; width:2em; height:2em;">
                   {{ $task->score }}
                 </div>
+                @if($task->isSubmitted($workspace->id))
+                <div class="rounded-pill fs-2 btn btn-sm border-0 bg-tanur-green text-white"><i class="ti ti-check me-1"></i> Terisi</div>
+                @else
+                <a href="{{ route('agent.workspace.task.show', [$workspace->id, $task->id]) }}" class="rounded-pill fs-2 btn btn-sm border-0 bg-tanur-coklat text-white">Selesaikan <i class="ti ti-arrow-narrow-right"></i></a>
+                @endif
               </div>
               <div class="">
                 <h5 class="fs-2 fw-semibold mb-1">{{$task->name}}</h5>
@@ -147,12 +152,25 @@
                   </div>
                 @endif
               </div>
+
             </li>
             @empty
             <div class="p-3 fs-2 rounded-3 bg-light border border-2 text-center">
                 Tidak ada task pada stage ini
             </div>
             @endforelse
+
+            <button class="btn-add-modal w-100 btn btn-primary rounded-pill" data-modal-id="sendApprove-{{$stage->id}}" {{ $stage->isFilled($workspace->id) ? '' : 'disabled' }}>Ajukan Stage</button>
+          
+            <x-modal id="sendApprove-{{$stage->id}}" title="Konfirmasi Pengajuan Stage">
+                <div class="fs-2">Apakah anda yakin untuk mengajukan stage ini ? <strong>Saat diajukan task akan terkunci tidak dapat diedit, kecuali semua superior level menyatakan penolakan.</strong></div>
+                <div class="d-flex align-items-center justify-content-end gap-2 mt-3">
+                    <form action="" method="POST">
+                        @csrf
+                        <button type="submit" class="btn btn-primary rounded-pill">Mengerti, Ajukan</button>
+                    </form>
+                </div>
+            </x-modal>
           </ul>
         </div>
     @empty

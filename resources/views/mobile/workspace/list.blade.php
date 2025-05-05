@@ -25,19 +25,43 @@
     </div>
     <section class="bg-white rounded-top-3 bg-dark">
         <div class="position-sticky top-0 bg-white rounded-top-3 p-3 pb-0" style="z-index: 99">
-            <div class="d-flex align-items-center gap-2">
-                <input type="text" class="fs-2 form-control form-control-md rounded-pill" placeholder="Cari Workspace" aria-label="Search" >
-                <button class="btn bg-tanur-coklat p-0 rounded-circle d-flex align-items-center border-0 p-2"><i class="ti ti-search"></i></button>
-            </div>
-            <div class="py-2" style="overflow-y: hidden; overflow-x:auto; width:100%">
+            <form method="GET" action="{{ route('agent.workspace.list') }}">
                 <div class="d-flex align-items-center gap-2">
-                    <button class="border border-primary p-1 px-2 fs-2 bg-light rounded-2 text-lowercase" style="white-space:nowrap !important;"> <div class="d-inline-block me-1 text-primary">123</div> Semua</button>
-                    <button class="border p-1 px-2 fs-2 bg-light rounded-2 text-lowercase" style="white-space:nowrap !important;"> <div class="d-inline-block me-1 text-primary">21</div> Pending</button>
-                    <button class="border p-1 px-2 fs-2 bg-light rounded-2 text-lowercase" style="white-space:nowrap !important;"> <div class="d-inline-block me-1 text-primary">32</div> Pengajuan</button>
-                    <button class="border p-1 px-2 fs-2 bg-light rounded-2 text-lowercase" style="white-space:nowrap !important;"> <div class="d-inline-block me-1 text-primary">22</div> Berjalan</button>
-                    <button class="border p-1 px-2 fs-2 bg-light rounded-2 text-lowercase" style="white-space:nowrap !important;"> <div class="d-inline-block me-1 text-primary">26</div> Selesai</button>
+                    <input type="text" name="search" value="{{ request('search') }}" class="fs-2 form-control form-control-md rounded-pill" placeholder="Cari Workspace" aria-label="Search">
+                    <button type="submit" class="btn bg-tanur-coklat p-0 rounded-circle d-flex align-items-center border-0 p-2">
+                        <i class="ti ti-search"></i>
+                    </button>
+                </div>
+            </form>
+            <div class="py-2" style="overflow-y: hidden; overflow-x:auto; width:100%">
+               <div class="d-flex align-items-center gap-2">
+                    @php
+                        $statuses = ['' => 'Semua', '0' => 'Pending', '1' => 'Berjalan', '2' => 'Pengajuan Stage', '3' => 'Stage Ditolak', '4' => 'Selesai', '5' => 'Ditolak'];
+                        $currentStatus = request('status', ''); // pastikan ini sesuai dengan filter yang dikirim ke controller
+                    @endphp
+                    @foreach ($statuses as $key => $label)
+                        @php
+                            // Hitung jumlah workspace sesuai status
+                            $query = \App\Models\Workspace::where('agent_id', session('agent_id'));
+                            if ($key !== '') {
+                                $query->where('status', (string)$key);
+                            }
+                            $count = $query->count();
+
+                            // Tentukan apakah tombol ini aktif
+                            $isActive = ($key === '' && $currentStatus === null) || $currentStatus === (string) $key;
+                        @endphp
+                        <a href="{{ route('agent.workspace.list', array_merge(request()->except('page'), ['status' => $key])) }}"
+                        class="border {{ $isActive ? 'border-primary text-primary' : 'text-dark' }} p-1 px-2 fs-2 bg-light rounded-2 text-lowercase"
+                        style="white-space:nowrap !important;">
+                            <div class="d-inline-block me-1">
+                                {{ $count }}
+                            </div> {{ $label }}
+                        </a>
+                    @endforeach
                 </div>
             </div>
+
         </div>
         <div class="list bg-white p-2">
             @forelse ($workspaces as $workspace)
@@ -50,8 +74,8 @@
                         <div class="fs-1">{{$workspace->description ?? 'tidak ada deskripsi'}}</div>
                         <div class="d-flex align-items-center gap-3 mt-2">
                         <div class="fs-2"><i class="ti ti-user-circle me-1"></i> {{$workspace->pilgrims->count()}} Jamaah</div>
-                        <div class="fs-2"><i class="ti ti-timeline-event me-1"></i> <span class="text-primary fw-semibold">2</span> / 5 Stage</div>
-                        <div class="fs-2"><i class="ti ti-subtask me-1"></i> <span class="text-primary fw-semibold">2</span> / 20 Task</div>
+                        <div class="fs-2"><i class="ti ti-timeline-event me-1"></i> <span class="text-primary fw-semibold">{{ $workspace->stageAnalytic()->finished }}</span> / {{ $workspace->stageAnalytic()->total }} Stage</div>
+                        <div class="fs-2"><i class="ti ti-subtask me-1"></i> <span class="text-primary fw-semibold">{{ $workspace->taskAnalytic()->finished }}</span> / {{ $workspace->taskAnalytic()->total }} Task</div>
                     </div>
                     @if($workspace->getStatus()['message'])
                     <div class="d-flex text-{{$workspace->getStatus()['color']}} align-items-center mt-2 fw-semibold gap-2">
@@ -62,15 +86,15 @@
 
                     @if($workspace->status != '0')
                     <div class="mt-1">
-                        <div class="fs-1 text-dark fw-semibold">Score Terkini</div>
-                        <div class="fs-4 fw-bolder text-warning">312</div>
+                        <div class="fs-1 text-dark fw-semibold">Score Terkumpul</div>
+                        <div class="fs-4 fw-bolder text-warning">{{$workspace->live_score}}</div>
                     </div>
                     @endif
                 </a>
             @empty
                 <div class="p-3 fs-2 my-2 border border-2 border-dashed rounded-3 bg-light d-flex flex-column gap-2 align-items-center">
-                    <div class="text-dark">Belum ada Workspace</div>
-                    <a href="{{route('agent.workspace.add')}}" class="btn btn-dark"><i class="ti ti-plus me-2"></i> Buat</a>
+                    <div class="text-dark">Tidak ada workspace yang ditemukan</div>
+                    <a href="{{route('agent.workspace.add')}}" class="btn btn-dark"><i class="ti ti-plus me-2"></i> Buat Baru</a>
                 </div>
             @endforelse
         </div>

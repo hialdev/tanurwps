@@ -25,18 +25,43 @@
     </div>
     <section class="bg-white rounded-top-3 bg-dark">
         <div class="position-sticky top-0 bg-white rounded-top-3 p-3 pb-0" style="z-index: 99">
-            <div class="d-flex align-items-center gap-2">
-                <input type="text" class="fs-2 form-control form-control-md rounded-pill" placeholder="Cari Approval" aria-label="Search" >
-                <button class="btn bg-tanur-coklat p-0 rounded-circle d-flex align-items-center border-0 p-2"><i class="ti ti-search"></i></button>
-            </div>
-            <div class="py-2" style="overflow-y: hidden; overflow-x:auto; width:100%">
+            <form method="GET" action="{{ route('agent.approval.index') }}">
                 <div class="d-flex align-items-center gap-2">
-                    <button class="border border-primary p-1 px-2 fs-2 bg-light rounded-2 text-lowercase" style="white-space:nowrap !important;"> <div class="d-inline-block me-1 text-primary">123</div> Semua</button>
-                    <button class="border p-1 px-2 fs-2 bg-light rounded-2 text-lowercase" style="white-space:nowrap !important;"> <div class="d-inline-block me-1 text-primary">21</div> Menunggu</button>
-                    <button class="border p-1 px-2 fs-2 bg-light rounded-2 text-lowercase" style="white-space:nowrap !important;"> <div class="d-inline-block me-1 text-primary">32</div> Disetujui</button>
-                    <button class="border p-1 px-2 fs-2 bg-light rounded-2 text-lowercase" style="white-space:nowrap !important;"> <div class="d-inline-block me-1 text-primary">22</div> Ditolak</button>
+                    <input type="text" name="search" value="{{ request('search') }}" class="fs-2 form-control form-control-md rounded-pill" placeholder="Cari Approval" aria-label="Search">
+                    <button type="submit" class="btn bg-tanur-coklat p-0 rounded-circle d-flex align-items-center border-0 p-2">
+                        <i class="ti ti-search"></i>
+                    </button>
+                </div>
+            </form>
+            <div class="py-2" style="overflow-y: hidden; overflow-x:auto; width:100%">
+               <div class="d-flex align-items-center gap-2">
+                    @php
+                        $statuses = ['' => 'Semua', '0' => 'Menunggu', '1' => 'Disetujui', '2' => 'Ditolak'];
+                        $currentStatus = request('status', ''); // pastikan ini sesuai dengan filter yang dikirim ke controller
+                    @endphp
+                    @foreach ($statuses as $key => $label)
+                        @php
+                            // Hitung jumlah workspace sesuai status
+                            $query = \App\Models\WorkspaceApproval::where('approver_id', session('agent_id'));
+                            if ($key !== '') {
+                                $query->where('status', (string)$key);
+                            }
+                            $count = $query->count();
+
+                            // Tentukan apakah tombol ini aktif
+                            $isActive = ($key === '' && $currentStatus === null) || $currentStatus === (string) $key;
+                        @endphp
+                        <a href="{{ route('agent.approval.index', array_merge(request()->except('page'), ['status' => $key])) }}"
+                        class="border {{ $isActive ? 'border-primary text-primary' : 'text-dark' }} p-1 px-2 fs-2 bg-light rounded-2 text-lowercase"
+                        style="white-space:nowrap !important;">
+                            <div class="d-inline-block me-1">
+                                {{ $count }}
+                            </div> {{ $label }}
+                        </a>
+                    @endforeach
                 </div>
             </div>
+
         </div>
         <div class="list bg-white p-2">
             @forelse($approvals as $approval)
@@ -47,11 +72,11 @@
                   <div class="fs-2 fw-semibold">{{$approval->requester->name}}</div>
                   <div class="fs-1 text-dark">{{$approval->requester->level}}</div>
                 </div>
-                <div class="fs-2 ms-auto fw-semibold"><i class="ti ti-clock me-2"></i>2 hari lalu</div>
+                <div class="fs-1 ms-auto fw-semibold"><i class="ti ti-clock me-2"></i>{{ $approval->time_ago }}</div>
               </div>
               <div class="d-flex align-items-center justify-content-between">
                 <div class="fs-1 fw-semibold mb-1">Meminta Persetujuan</div>
-                <div class="fs-1 fw-semibold text-{{ $approval->getStatus()['color'] }} mb-1">{{ $approval->getStatus()['name'] }}</div>
+                <div class="fs-2 fw-semibold text-{{ $approval->getStatus()['color'] }} mb-1">{{ $approval->getStatus()['name'] }}</div>
               </div>
               @if($approval->workspace)
               <button class="btn bg-tanur-green border-0 d-flex w-100 align-items-center gap-2"><i class="ti ti-briefcase"></i> Workspace <i class="ti ti-arrow-narrow-right ms-auto"></i></button>

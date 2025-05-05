@@ -16,6 +16,7 @@ use App\Http\Controllers\StageController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WorkspaceController;
+use App\Http\Controllers\WorkspaceTaskController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -78,6 +79,9 @@ Route::middleware(['web', 'agent.access'])->prefix('agent')->group(function () {
     Route::get('/workspace/{workspace_id}/edit', [WorkspaceController::class, 'edit'])->name('agent.workspace.edit');
     Route::put('/workspace/{workspace_id}/update', [WorkspaceController::class, 'update'])->name('agent.workspace.update');
     Route::get('/workspace/{workspace_id}/destroy', [WorkspaceController::class, 'destroy'])->name('agent.workspace.destroy');
+    
+    Route::get('/workspace/{workspace_id}/task/{task_id}', [WorkspaceTaskController::class, 'show'])->name('agent.workspace.task.show');
+    Route::post('/workspace/{workspace_id}/task/{task_id}/store', [WorkspaceTaskController::class, 'store'])->name('agent.workspace.task.store');
 
     Route::get('/history', [HistoryController::class, 'index'])->name('agent.history.index');
     Route::get('/approval', [ApprovalController::class, 'index'])->name('agent.approval.index');

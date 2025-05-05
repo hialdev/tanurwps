@@ -31,6 +31,13 @@ class Task extends Model
         });
     }
 
+    public function isSubmitted($workspace_id){
+        $task = WorkspaceTask::whereHas('workspaceStage', fn ($q) => ($q->where('workspace_id', $workspace_id)))
+                                ->where('stage_task_id', $this->id)->first();
+        if($task) return true;
+        return false;
+    }
+
     public function stage()
     {
         return $this->belongsTo(Stage::class, 'stage_id', 'id');

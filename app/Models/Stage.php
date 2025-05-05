@@ -76,6 +76,21 @@ class Stage extends Model
         return $response;
     }
 
+    public function isFilled($workspace_id){
+        $wstage = WorkspaceStage::where('workspace_id', $workspace_id)->where('stage_id', $this->id)->first();
+        if ($wstage) {
+            $tasks = $wstage->workspaceTasks;
+            if ($tasks->count() > 0) {
+                foreach ($tasks as $task) {
+                    if ($task->finished_at == null) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+        }
+    }
+
     public function attachments()
     {
         return $this->hasMany(StageAttachment::class, 'stage_id', 'id');

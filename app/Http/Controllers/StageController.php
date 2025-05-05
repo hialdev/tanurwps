@@ -40,9 +40,9 @@ class StageController extends Controller
             'order' => 'nullable|numeric',
             'deadline_days' => 'required|numeric',
             'filenames' => 'nullable|array',
-            'filenames.*' => 'string',
+            'filenames.*' => 'nullable|string',
             'attachments' => 'nullable|array',
-            'attachments.*' => 'mimes:jpg,jpeg,png,pdf,doc,docx,xls,xlsx,ppt,pptx,webp|max:5120',
+            'attachments.*' => 'nullable|mimes:jpg,jpeg,png,pdf,doc,docx,xls,xlsx,ppt,pptx,webp|max:5120',
         ]);
 
         try {
@@ -104,9 +104,9 @@ class StageController extends Controller
             'deadline_days' => 'required|numeric',
             'deleted_attachments' => 'nullable', // for deleted attachments
             'filenames' => 'nullable|array', // add this for new filenames
-            'filenames.*' => 'string',
+            'filenames.*' => 'nullable|string',
             'attachments' => 'nullable|array',
-            'attachments.*' => 'mimes:jpg,jpeg,png,pdf,doc,docx,xls,xlsx,ppt,pptx,webp|max:5120',
+            'attachments.*' => 'nullable|mimes:jpg,jpeg,png,pdf,doc,docx,xls,xlsx,ppt,pptx,webp|max:5120',
         ]);
 
 

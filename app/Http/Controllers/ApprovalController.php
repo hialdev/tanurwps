@@ -11,15 +11,32 @@ use Illuminate\Support\Facades\Storage;
 class ApprovalController extends Controller
 {
     //index
-    public function index()
+    public function index(Request $request)
     {
-        $workspace_approvals = WorkspaceApproval::where('approver_id', session('agent_id'))->get();
-        $stage_approvals = WorkspaceStageApproval::where('approver_id', session('agent_id'))->get();
+        $search = $request->get('search', '');
+        $status = $request->get('status', '');
+
+        $workspace_approvals = WorkspaceApproval::where('approver_id', session('agent_id'))
+            ->when($status !== '', fn($q) => $q->where('status', 'LIKE', '%'.(string) $status))
+            ->when($search, fn($q) => $q->where(function ($q) use ($search) {
+                $q->where('note', 'like', "%{$search}%")
+                ->orWhereHas('workspace', fn($q) => $q->where('name', 'like', "%{$search}%"));
+            }))
+            ->get();
+
+        $stage_approvals = WorkspaceStageApproval::where('approver_id', session('agent_id'))
+            ->when($status !== '', fn($q) => $q->where('status', 'LIKE', '%'.(string) $status))
+            ->when($search, fn($q) => $q->where(function ($q) use ($search) {
+                $q->where('note', 'like', "%{$search}%")
+                ->orWhereHas('workspaceStage.workspace', fn($q) => $q->where('name', 'like', "%{$search}%"));
+            }))
+            ->get();
 
         $approvals = $workspace_approvals->merge($stage_approvals)->sortByDesc('created_at');
 
-        return view('mobile.approval.index', compact('approvals'));
+        return view('mobile.approval.index', compact('approvals', 'search', 'status'));
     }
+
 
     //show
     public function show($approval_id)

@@ -96,7 +96,7 @@
     <a href="{{ route('agent.approval.index') }}" class="fs-2 tanur-link">Semua<i class="ti ti-arrow-narrow-right ms-2"></i></a>
   </div>
   @forelse($approvals as $approval)
-    <a href="{{ route('agent.approval.show', $approval->id) }}" class="p-3 d-block text-decoration-none text-dark rounded-3 border mb-2 border-2 border-dashed">
+    <a href="{{ $approval->workspace ? route('agent.approval.show', $approval->id) : route('agent.approval.stage.show', $approval->id) }}" class="p-3 d-block text-decoration-none text-dark rounded-3 border mb-2 border-2 border-dashed">
       <div class="d-flex align-items-center gap-2 mb-2">
         <img src="https://placehold.co/100" alt="Image Agent Pengirim Approval" class="d-block rounded-circle" style="width:35px;aspect-ratio:1/1">
         <div>
@@ -110,13 +110,13 @@
         <div class="fs-2 fw-semibold text-{{ $approval->getStatus()['color'] }} mb-1">{{ $approval->getStatus()['name'] }}</div>
       </div>
       @if($approval->workspace)
-        <button class="btn bg-tanur-green border-0 d-flex w-100 align-items-center gap-2"><i class="ti ti-briefcase"></i> Workspace <i class="ti ti-arrow-narrow-right ms-auto"></i></button>
-      @elseif ($approval->stage)
-        <button class="btn bg-tanur-coklat border-0 d-flex w-100 align-items-center gap-2"><i class="ti ti-timeline-event"></i> Stage <i class="ti ti-arrow-narrow-right ms-auto"></i></button>
-        <div class="d-flex align-items-center text-danger mt-2 gap-2">
-          <i class="ti ti-alert-triangle"></i>
-          <div class="fs-1 fw-semibold">Deadline Stage ini sisa 3 hari lagi, beri keputusan segera</div>
-        </div>
+      <button class="btn bg-tanur-green border-0 d-flex w-100 align-items-center gap-2"><i class="ti ti-briefcase"></i> {{$approval->workspace->name}} <i class="ti ti-arrow-narrow-right ms-auto"></i></button>
+      @elseif($approval->workspaceStage)
+      <button class="btn bg-tanur-coklat border-0 d-flex w-100 align-items-center gap-2"><i class="ti ti-timeline-event"></i> {{$approval->workspaceStage->stage->name}} <i class="ti ti-arrow-narrow-right ms-auto"></i></button>
+      <div class="d-flex align-items-center text-{{ $approval->workspaceStage->deadlineCount()['message']['color'] }} mt-2 gap-2">
+        <i class="ti ti-alert-circle"></i>
+        <div class="fs-1 fw-semibold">Deadline Stage {{ $approval->workspaceStage->deadlineCount()['message']['text'] }}</div>
+      </div>
       @endif
     </a>
   @empty

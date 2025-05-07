@@ -38,6 +38,11 @@ class Task extends Model
         return false;
     }
 
+    public function answer($workspace_stage_id){
+        $task = WorkspaceTask::where('workspace_stage_id', $workspace_stage_id)->where('stage_task_id', $this->id)->first();
+        return $task;
+    }
+
     public function stage()
     {
         return $this->belongsTo(Stage::class, 'stage_id', 'id');
@@ -46,5 +51,11 @@ class Task extends Model
     public function attachments()
     {
         return $this->hasMany(TaskAttachment::class, 'stage_task_id', 'id');
+    }
+
+    public function wTask($workspace_id){
+        $wtask = WorkspaceTask::whereHas('workspaceStage', fn ($q) => ($q->where('workspace_id', $workspace_id)))
+                                ->where('stage_task_id', $this->id)->first();
+        return $wtask;
     }
 }

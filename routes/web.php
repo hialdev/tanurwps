@@ -12,6 +12,7 @@ use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\HistoryController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SettingController;
+use App\Http\Controllers\StageApprovalController;
 use App\Http\Controllers\StageController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\UserController;
@@ -80,11 +81,21 @@ Route::middleware(['web', 'agent.access'])->prefix('agent')->group(function () {
     Route::put('/workspace/{workspace_id}/update', [WorkspaceController::class, 'update'])->name('agent.workspace.update');
     Route::get('/workspace/{workspace_id}/destroy', [WorkspaceController::class, 'destroy'])->name('agent.workspace.destroy');
     
+    Route::post('/workspace/{workspace_id}/stage/{stage_id}/send', [StageApprovalController::class, 'send'])->name('agent.workspace.stage.send');
+    
     Route::get('/workspace/{workspace_id}/task/{task_id}', [WorkspaceTaskController::class, 'show'])->name('agent.workspace.task.show');
     Route::post('/workspace/{workspace_id}/task/{task_id}/store', [WorkspaceTaskController::class, 'store'])->name('agent.workspace.task.store');
+    Route::put('/workspace/{workspace_id}/task/{task_id}/update/{wtask_id}', [WorkspaceTaskController::class, 'update'])->name('agent.workspace.task.update');
+
 
     Route::get('/history', [HistoryController::class, 'index'])->name('agent.history.index');
+    
     Route::get('/approval', [ApprovalController::class, 'index'])->name('agent.approval.index');
+    
+    Route::get('/approval/stage/{approval_id}/detail', [StageApprovalController::class, 'show'])->name('agent.approval.stage.show');
+    Route::post('/approval/stage/{approval_id}/decision', [StageApprovalController::class, 'decision'])->name('agent.approval.stage.decision');
+    Route::post('/approval/stage/{approval_id}/decision/update', [StageApprovalController::class, 'updateDecision'])->name('agent.approval.stage.decision.update');
+    
     Route::get('/approval/{approval_id}/detail', [ApprovalController::class, 'show'])->name('agent.approval.show');
     Route::post('/approval/{approval_id}/decision', [ApprovalController::class, 'decision'])->name('agent.approval.decision');
     Route::post('/approval/{approval_id}/decision/update', [ApprovalController::class, 'updateDecision'])->name('agent.approval.decision.update');

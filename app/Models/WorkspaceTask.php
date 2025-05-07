@@ -24,4 +24,8 @@ class WorkspaceTask extends Model
     public function workspaceStage(){
         return $this->belongsTo(WorkspaceStage::class, 'workspace_stage_id', 'id');
     }
+
+    public function attachments(){
+        return $this->hasMany(WorkspaceTaskAttachment::class, 'workspace_task_id', 'id');
+    }
 }

@@ -9,6 +9,7 @@ use App\Models\WorkspaceStage;
 use App\Models\WorkspaceTask;
 use App\Models\WorkspaceTaskAttachment;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class WorkspaceTaskController extends Controller
 {
@@ -83,5 +84,61 @@ class WorkspaceTaskController extends Controller
         }
 
         return redirect()->route('agent.workspace.show', $id)->with('success', 'Berhasil menyimpan penyelesaian / jawaban Task : '.$task->name);
+    }
+
+    public function update($id, $task_id, $wtask_id, Request $request)
+    {
+        $task = Task::findOrFail($task_id);
+        $workspace = Workspace::findOrFail($id);
+        $wtask = WorkspaceTask::findOrFail($wtask_id);
+
+        $request->validate([
+            'answer_text' => 'required|string',
+            'filenames' => 'nullable|array',
+            'filenames.*' => 'nullable|string',
+            'attachments' => 'nullable|array',
+            'attachments.*' => 'nullable|mimes:jpg,jpeg,png,pdf,doc,docx,xls,xlsx,ppt,pptx,webp|max:5120',
+            'deleted_attachments' => 'nullable|string'
+        ]);
+
+        try {
+            // Update teks jawaban
+            $wtask->answer_text = $request->answer_text;
+            $wtask->status = '1'; // selesai
+            $wtask->finished_at = now();
+            $wtask->save();
+
+            // Hapus lampiran yang ditandai untuk dihapus
+            if ($request->filled('deleted_attachments')) {
+                $ids = explode(',', $request->deleted_attachments);
+                $attachments = WorkspaceTaskAttachment::whereIn('id', $ids)->where('workspace_task_id', $wtask->id)->get();
+                foreach ($attachments as $attachment) {
+                    Storage::disk('public')->delete($attachment->file);
+                    $attachment->delete();
+                }
+            }
+
+            // Tambah lampiran baru
+            if ($request->hasFile('attachments')) {
+                foreach ($request->file('attachments') as $index => $attachment) {
+                    $customName = $request->filenames[$index] ?? $attachment->getClientOriginalName();
+                    $extension = $attachment->getClientOriginalExtension();
+                    $filename = time() . '_' . uniqid() . '_' . $customName . '.' . $extension;
+
+                    $path = $attachment->storeAs('workspace/' . session('agent_id') . '/task', $filename, 'public');
+
+                    $wtaskAttachment = new WorkspaceTaskAttachment();
+                    $wtaskAttachment->workspace_task_id = $wtask->id;
+                    $wtaskAttachment->name = $customName;
+                    $wtaskAttachment->file = $path;
+                    $wtaskAttachment->mime = $attachment->getClientMimeType();
+                    $wtaskAttachment->save();
+                }
+            }
+        } catch (\Exception $e) {
+            return redirect()->back()->withInput()->with('error', 'Gagal memperbarui Task '.$task->name .': '. $e->getMessage());
+        }
+
+        return redirect()->route('agent.workspace.show', $workspace->id)->with('success', 'Berhasil memperbarui laporan Task : '.$task->name);
     }
 }

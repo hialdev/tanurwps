@@ -5,68 +5,44 @@
 @endsection
 
 @section('content')
-<div class="p-4 px-3 bg-tanur-green pb-4">
+<div class="p-4 px-3 bg-tanur-coklat pb-4">
     <div class="d-block text-decoration-none text-dark mb-2 text-white rounded-3 position-relative">
-        <div class="badge bg-tanur-coklat text-white fs-1 fw-semibold mb-2">{{ $approval->workspace->code }}</div>
         <div class="d-flex align-items-center gap-2 position-absolute top-0 end-0 m-2 ">
-            <div class="bg-{{$approval->workspace->getStatus()['color']}} rounded-3 p-1 px-2 text-white fs-1 fw-semibold">
-                {{ $approval->workspace->getStatus()['name'] }}
+            <div class="fs-1 text-{{ $approval->workspaceStage->deadlineCount()['message']['color'] }} fw-semibold"> <i class="ti ti-clock me-2"></i> {{ $approval->workspaceStage->deadlineCount()['message']['text'] }}</div>
+            <div class="bg-{{$approval->workspaceStage->getStatus()['color']}} rounded-3 p-1 px-2 text-white fs-1 fw-semibold">
+                {{ $approval->workspaceStage->getStatus()['name'] }}
             </div>
         </div>
 
         <div class="d-flex align-items-center gap-2 mb-2">
-            <img src="{{$approval->workspace->requester->image_url}}" alt="Image workspace->requester {{$approval->workspace->requester->name}}" class="d-block rounded-circle bg-dark" style="aspect-ratio:1/1" width="40">
+            <img src="{{$approval->requester->image_url}}" alt="Image workspace->requester {{$approval->requester->name}}" class="d-block rounded-circle bg-dark" style="aspect-ratio:1/1" width="40">
             <div>
-              <h6 class="fw-bold text-white mb-1 fs-2" style="white-space: nowrap">{{ $approval->workspace->requester->name }}</h6>
-              <div class="fs-1" style="white-space: nowrap">{{ $approval->workspace->requester->level }}</div>
+              <h6 class="fw-bold text-white mb-1 fs-2" style="white-space: nowrap">{{ $approval->requester->name }}</h6>
+              <div class="fs-1" style="white-space: nowrap">{{ $approval->requester->level }}</div>
             </div>
         </div>
 
-        <div class="fs-3 fw-semibold">{{$approval->workspace->name}}</div>
-        <div class="fs-1">{{$approval->workspace->description ?? 'tidak ada deskripsi'}}</div>
-        <div class="fs-2 mt-1 text-capitalize"><i class="ti ti-package me-2"></i> {{$approval->workspace->product_type}}</div>
-        <div class="fs-2 mt-1"><i class="ti ti-map-pin me-2"></i> {{ $approval->workspace->city.'. '.$approval->workspace->postal_code}}</div>
-        <div class="fs-2 mt-1"><i class="ti ti-user-circle me-2"></i> {{$approval->workspace->pic_name}}</div>
-        <div class="fs-2 mt-1"><i class="ti ti-phone me-2"></i> {{$approval->workspace->pic_phone}}</div>
-        <div class="fs-2 mt-1"><i class="ti ti-mail me-2"></i> {{$approval->workspace->pic_email}}</div>
-        <div class="d-flex align-items-start flex-column gap-2 mt-2">
-            <button data-modal-id="list-jamaah" class="btn-add-modal btn btn-light btn-sm rounded-pill"><i class="ti ti-user-circle me-1"></i> {{$approval->workspace->pilgrims->count()}} Jamaah <i class="ti ti-arrow-right ms-2"></i></button>
-            @if($approval->workspace->is_approved)
-                <div class="fs-2"><i class="ti ti-timeline-event me-1"></i> <span class="text-white fw-semibold">2</span> / 5 Stage Selesai</div>
-                <div class="fs-2"><i class="ti ti-subtask me-1"></i> <span class="text-white fw-semibold">2</span> / 20 Task Selesai</div>
-            @endif
-        </div>
-        
-        <x-modal id="list-jamaah" title="List Jamaah">
-            @foreach ($approval->workspace->pilgrims as $pilgrim)
-                <div class="p-3 rounded-3 bg-white text-dark mb-2 border border-2 border-dashed position-relative">
-                    <div class="fs-2 mb-1 d-flex align-items-center gap-2"><i class="ti ti-user-circle me-2"></i>{{$pilgrim->name}}</div>
-                    <div class="fs-2 mb-1 d-flex align-items-center gap-2"><i class="ti ti-phone me-2"></i>{{$pilgrim->phone}}</div>
-                    <div class="fs-2 mb-1 d-flex align-items-center gap-2 {{$pilgrim->email ? '' : 'd-none'}}"><i class="ti ti-mail me-2"></i>{{$pilgrim->email}}</div>
-                </div>
+        <div class="fs-3 fw-semibold">{{$approval->workspaceStage->stage->name}}</div>
+        <div class="fs-1">{{$approval->workspaceStage->stage->description ?? 'tidak ada deskripsi'}}</div>
+        @if($approval->workspaceStage->stage->attachments->count() > 0)
+            <div class="d-flex align-items-center mt-2 gap-1">
+            @foreach ($approval->workspaceStage->stage->attachments as $attachment)
+                <a href="{{ asset('storage/'.$attachment->file) }}" class="fs-1 text-white p-1 px-2 d-inline-block bg-primary rounded-3" target="_blank"><i class="ti ti-file me-1"></i> {{$attachment->name}}</a>
             @endforeach
-        </x-modal>
-
-        @if($approval->workspace->getStatus()['message'])
-        <div class="d-flex text-{{$approval->workspace->getStatus()['color']}} align-items-center mt-2 fw-semibold gap-2">
-            <i class="ti ti-alert-circle"></i>
-            <div class="fs-1 text-white">{{$approval->workspace->getStatus()['message']}}</div>
-        </div>
+            </div>
         @endif
 
-        @if($approval->workspace->status != '0' && $approval->workspace->status != '5')
         <div class="mt-1">
             <div class="fs-1 text-white fw-semibold">Score Terkumpul</div>
-            <div class="fs-4 fw-bolder text-warning">{{ $approval->workspace->live_score }}</div>
+            <div class="fs-4 fw-bolder text-dark">{{ $approval->workspaceStage->calculateScore()['final'] }}</div>
         </div>
-        @endif
     </div>
 </div>
 <div class="bg-light p-3 pb-4 rounded-top-3" style="margin-top: -1em">
-    <h6 class="fs-3 fw-semibold text-dark">Approver</h6>
+    <h6 class="fs-3 fw-semibold text-dark">Stage Approver</h6>
     <div class="py-2" style="overflow-y: hidden; overflow-x:auto; width:100%">
         <div class="d-flex align-items-center gap-2">
-            @foreach($approval->workspace->approvers as $approver)
+            @foreach($approval->workspaceStage->approvers as $approver)
                 <div class="p-3 shadow-sm bg-white rounded-3">
                     <div class="d-flex align-items-center gap-2">
                         <img src="{{$approver->image_url}}" alt="Image approver {{$approver->name}}" class="d-block rounded-circle bg-dark" style="aspect-ratio:1/1" width="40">
@@ -76,20 +52,20 @@
                         </div>
                     </div>
                     <div class="d-flex mt-2 align-items-center justify-content-between gap-2">
-                        <div class="badge fs-1 rounded-3 fw-semibold text-{{$approval->workspace->approver_status[$approver->id]['color']}} bg-{{$approval->workspace->approver_status[$approver->id]['color']}}-subtle">{{ $approval->workspace->approver_status[$approver->id]['name'] }}</div>
-                        <button data-modal-id="reason-modal-{{$approval->id}}" class="btn-add-modal btn btn-light btn-sm fs-4 rounded-circle" title="Alasan"><i class="ti ti-text-caption"></i></button>
-                        <a target="_blank" href="{{'https://api.whatsapp.com/send?phone=6289671052050&text=Mohon memberikan tanggapan terhadap Approval workspace saya '.$approval->workspace->requester->person['phone'].') dengan kode '.$approval->workspace->code }}" class="btn btn-light rounded-circle btn-sm fs-4"><i class="ti ti-brand-whatsapp"></i></a>
+                        <div class="badge fs-1 rounded-3 fw-semibold text-{{$approval->workspaceStage->approver_status[$approver->id]['color']}} bg-{{$approval->workspaceStage->approver_status[$approver->id]['color']}}-subtle">{{ $approval->workspaceStage->approver_status[$approver->id]['name'] }}</div>
+                        <button data-modal-id="reason-modal-{{$approver->id}}" class="btn-add-modal btn btn-light btn-sm fs-4 rounded-circle" title="Alasan"><i class="ti ti-text-caption"></i></button>
+                        <a target="_blank" href="{{'https://api.whatsapp.com/send?phone=6289671052050&text=Mohon memberikan tanggapan terhadap Approval workspace saya '.$approval->requester->person['phone'].') dengan kode '.$approval->workspaceStage->code }}" class="btn btn-light rounded-circle btn-sm fs-4"><i class="ti ti-brand-whatsapp"></i></a>
                     </div>
 
-                    <x-modal id="reason-modal-{{$approval->id}}" title="Detail Keputusan">
+                    <x-modal id="reason-modal-{{$approver->id}}" title="Detail Keputusan">
                         <div class="mb-2">
                             <div class="d-block fs-1 text-muted form-label mb-1">Alasan Keputusan</div>
-                            <div class="fs-2 fw-semibold text-dark">{{$approval->workspace->approver_status[$approver->id]['reason']}}</div>
+                            <div class="fs-2 fw-semibold text-dark">{{$approval->workspaceStage->approver_status[$approver->id]['reason']}}</div>
                         </div>
                         <div class="mb-2">
                             <label for="" class="d-block fs-1 text-muted form-label">File Pendukung</label>
-                            @if($approval->workspace->approver_status[$approver->id]['attachment'])
-                                <a href="{{ asset('storage/'.$approval->workspace->approver_status[$approver->id]['attachment']) }}" class="fs-2 border p-2 px-3 d-inline-block border-primary rounded-3" target="_blank"><i class="ti ti-file me-2"></i> Lihat File</a>
+                            @if($approval->workspaceStage->approver_status[$approver->id]['attachment'])
+                                <a href="{{ asset('storage/'.$approval->workspaceStage->approver_status[$approver->id]['attachment']) }}" class="fs-2 border p-2 px-3 d-inline-block border-primary rounded-3" target="_blank"><i class="ti ti-file me-2"></i> Lihat File</a>
                             @else
                                 <div class="fs-2">Tidak ada file</div>
                             @endif
@@ -100,12 +76,56 @@
         </div>
     </div>
 </div>
+<div class="bg-white p-3 pb-4 rounded-top-3" style="margin-top: -1em">
+    <h6 class="fs-3 mb-3 fw-semibold text-dark">Pengerjaan Task</h6>
+    <ul class="list-unstyled p-0">
+        @forelse ($approval->workspaceStage->stage->tasks as $task)
+        <li class="border-start rounded-3 mb-2 border-3 bg-light p-3 position-relative">
+            <div class="position-absolute top-0 end-0 d-flex align-items-center gap-1" style=" margin-top: -0.5em">
+                <div class="d-flex fs-2 align-items-center gap-0 bg-dark text-white rounded-pill p-2 justify-content-center fw-semibold" style="aspect-ratio:1/1 !important; width:2em; height:2em;">
+                    {{ $task->score }}
+                </div>
+            </div>
+            <div class="">
+                <h5 class="fs-2 fw-semibold mb-1">{{$task->name}}</h5>
+                <div class="fs-1">{{ $task->description ?? 'tidak ada deskripsi' }}</div>
+                @if($task->attachments->count() > 0)
+                    <div class="d-flex align-items-center mt-2 gap-1">
+                    @foreach ($task->attachments as $attachment)
+                        <a href="{{ asset('storage/'.$attachment->file) }}" class="fs-2 text-dark border p-1 px-2 d-inline-block border-primary rounded-3" target="_blank"><i class="ti ti-file me-1"></i> {{$attachment->name}}</a>
+                    @endforeach
+                    </div>
+                @endif
+            </div>
+
+            <div class="border border-dark p-3 mt-2 rounded-3">
+                <h6 class="fs-2 fw-semibold mb-2">Pengerjaan</h6>
+                @php
+                    $taskAnswer = $task->answer($approval->workspace_stage_id);
+                @endphp
+                <div class="fs-1">{{ $taskAnswer->answer_text ?? 'tidak ada jawaban dalam teks' }}</div>
+                @if($taskAnswer->attachments->count() > 0)
+                    <div class="d-flex align-items-center mt-2 gap-1">
+                    @foreach ($taskAnswer->attachments as $attachment)
+                        <a href="{{ asset('storage/'.$attachment->file) }}" class="fs-2 text-dark border p-1 px-2 d-inline-block border-primary rounded-3" target="_blank"><i class="ti ti-file me-1"></i> {{$attachment->name}}</a>
+                    @endforeach
+                    </div>
+                @endif
+            </div>
+        </li>
+        @empty
+        <div class="p-3 fs-2 rounded-3 bg-light border border-2 text-center">
+            Tidak ada task pada stage ini
+        </div>
+        @endforelse
+    </ul>
+</div>
 <div class="rounded-top-3 p-3 {{ $approval->status == '0' ? 'bg-transparent' : 'bg-white' }} position-sticky" style="bottom:-4em">
     @if($approval->status == '0')
     <button data-modal-id="make-decision" class="btn-add-modal btn border-0 fw-semibold w-100 fs-2 shadow-lg bg-tanur-coklat rounded-pill">Beri Keputusan</button>
 
     <x-modal id="make-decision" title="Buat Keputusan">
-        <form action="{{ route('agent.approval.decision', $approval->id) }}" method="POST" enctype="multipart/form-data">
+        <form action="{{ route('agent.approval.stage.decision', $approval->id) }}" method="POST" enctype="multipart/form-data">
             @csrf
             <div class="mb-2">
                 <label for="decision" class="fs-1 text-muted form-label">Keputusan</label>
@@ -153,7 +173,7 @@
         </div>
     </div>
     <x-modal id="edit-decision" title="Buat Keputusan">
-        <form action="{{ route('agent.approval.decision.update', $approval->id) }}" method="POST" enctype="multipart/form-data">
+        <form action="{{ route('agent.approval.stage.decision.update', $approval->id) }}" method="POST" enctype="multipart/form-data">
             @csrf
             <div class="mb-2">
                 <label for="decision" class="fs-1 text-muted form-label">Keputusan</label>
@@ -182,6 +202,9 @@
 </div>
 @endsection
 
-@section('script')
-
+@section('scripts')
+<script>
+$(document).ready(function(){
+})
+</script>
 @endsection

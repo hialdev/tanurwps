@@ -81,6 +81,9 @@ class Stage extends Model
         if ($wstage) {
             $tasks = $wstage->workspaceTasks;
             if ($tasks->count() > 0) {
+
+                if ($tasks->count() != $this->tasks->count()) return false;
+
                 foreach ($tasks as $task) {
                     if ($task->finished_at == null) {
                         return false;
@@ -89,6 +92,10 @@ class Stage extends Model
                 return true;
             }
         }
+    }
+
+    public function wstage($workspace_id){
+        return WorkspaceStage::where('workspace_id', $workspace_id)->where('stage_id', $this->id)->first();
     }
 
     public function attachments()

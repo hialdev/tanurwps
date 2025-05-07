@@ -49,8 +49,8 @@
         <div class="d-flex align-items-start flex-column gap-2 mt-2">
             <button data-modal-id="list-jamaah" class="btn-add-modal btn btn-light btn-sm rounded-pill"><i class="ti ti-user-circle me-1"></i> {{$workspace->pilgrims->count()}} Jamaah <i class="ti ti-arrow-right ms-2"></i></button>
             @if($workspace->is_approved)
-                <div class="fs-2"><i class="ti ti-timeline-event me-1"></i> <span class="text-primary fw-semibold">{{ $workspace->stageAnalytic()->finished }}</span> / {{ $workspace->stageAnalytic()->total }} Stage</div>
-                <div class="fs-2"><i class="ti ti-subtask me-1"></i> <span class="text-primary fw-semibold">{{ $workspace->taskAnalytic()->finished }}</span> / {{ $workspace->taskAnalytic()->total }} Task</div>
+                <div class="fs-2"><i class="ti ti-timeline-event me-1"></i> <span class="text-white fw-semibold">{{ $workspace->stageAnalytic()->finished }}</span> / {{ $workspace->stageAnalytic()->total }} Stage</div>
+                <div class="fs-2"><i class="ti ti-subtask me-1"></i> <span class="text-white fw-semibold">{{ $workspace->taskAnalytic()->finished }}</span> / {{ $workspace->taskAnalytic()->total }} Task</div>
             @endif
         </div>
         
@@ -122,21 +122,37 @@
     <p class="fs-2">Dapat dikerjakan secara tidak berurutan, Perhatikan deadline pengerjaannya</p>
     @if($workspace->is_approved)
     @forelse ($stages as $stage)
-        <div class="bg-white mb-2 shadow rounded-3 p-3">
+        @php
+            $status = null;
+            $wstage = $stage->wstage($workspace->id);
+            if(!$wstage) {
+                $status['color'] = 'white';
+            }else{
+                $status = $wstage->getStatus();
+            }
+        @endphp
+        <div class="bg-white border border-{{ $status['color'] ?? 'white'}} mb-2 shadow rounded-3 p-3 pb-0">
           <div class="mb-3">
             <h6 class="fs-3 mb-1 fw-semibold">{{ $stage->name }}</h6>
             <div class="fs-2">{{ $stage->description }}</div>
+            @if($stage->attachments->count() > 0)
+                <div class="d-flex align-items-center mt-2 gap-1">
+                @foreach ($stage->attachments as $attachment)
+                    <a href="{{ asset('storage/'.$attachment->file) }}" class="fs-1 text-dark border p-1 px-2 d-inline-block border-primary rounded-3" target="_blank"><i class="ti ti-file me-1"></i> {{$attachment->name}}</a>
+                @endforeach
+                </div>
+            @endif
             <div class="fs-1 mt-1 text-{{ $stage->deadlineCount($workspace->approved_at)['message']['color'] }} fw-semibold"> <i class="ti ti-clock me-2"></i> {{ $stage->deadlineCount($workspace->approved_at)['message']['text'] }}</div>
           </div>
           <ul class="list-unstyled p-0">
             @forelse ($stage->tasks as $task)
             <li class="border-start rounded-3 mb-2 border-3 {{$task->isSubmitted($workspace->id) ? 'border-success bg-success-subtle' : 'bg-light'}} p-3 position-relative">
-              <div class="position-absolute top-0 end-0 d-flex align-items-center gap-1" style=" margin-top: -1em">
+              <div class="position-absolute top-0 end-0 d-flex align-items-center gap-1" style=" margin-top: -0.5em">
                 <div class="d-flex fs-2 align-items-center gap-0 bg-dark text-white rounded-pill p-2 justify-content-center fw-semibold" style="aspect-ratio:1/1 !important; width:2em; height:2em;">
                   {{ $task->score }}
                 </div>
                 @if($task->isSubmitted($workspace->id))
-                <div class="rounded-pill fs-2 btn btn-sm border-0 bg-tanur-green text-white"><i class="ti ti-check me-1"></i> Terisi</div>
+                <a href="{{ route('agent.workspace.task.show', [$workspace->id, $task->id]) }}" class="rounded-pill fs-2 btn btn-sm border-0 bg-tanur-green text-white"><i class="ti ti-check"></i></a>
                 @else
                 <a href="{{ route('agent.workspace.task.show', [$workspace->id, $task->id]) }}" class="rounded-pill fs-2 btn btn-sm border-0 bg-tanur-coklat text-white">Selesaikan <i class="ti ti-arrow-narrow-right"></i></a>
                 @endif
@@ -153,6 +169,12 @@
                 @endif
               </div>
 
+                @if($task->isSubmitted($workspace->id))
+                    <div class="d-flex fs-1 mt-2 align-items-center justify-content-between gap-2">
+                        Diselesaikan {{\Carbon\Carbon::parse($task->finished_at)->format('d M Y')}}
+                        <a href="{{ route('agent.workspace.task.show', [$workspace->id, $task->id]) }}" class="btn fw-semibold text-dark p-0 d-flex align-items-center gap-1">Lihat <i class="ti ti-arrow-narrow-right"></i></a>
+                    </div>
+                @endif
             </li>
             @empty
             <div class="p-3 fs-2 rounded-3 bg-light border border-2 text-center">
@@ -160,17 +182,69 @@
             </div>
             @endforelse
 
+            @if($wstage && $wstage->status != '1')
+            <div class="mt-3">
+                <h6 class="fs-2 fw-semibold">Mengajukan Stage ke</h6>
+                <div class="py-2" style="overflow-y: hidden; overflow-x:auto; width:100%">
+                    <div class="d-flex align-items-center gap-2">
+                        @foreach($wstage->approvers as $approver)
+                            <div class="p-3 shadow-sm bg-white rounded-3">
+                                <div class="d-flex align-items-center gap-2">
+                                    <img src="{{$approver->image_url}}" alt="Image approver {{$approver->name}}" class="d-block rounded-circle bg-dark" style="aspect-ratio:1/1" width="40">
+                                    <div>
+                                    <h6 class="fw-bold mb-1 fs-2" style="white-space: nowrap">{{ $approver->name }}</h6>
+                                    <div class="fs-1" style="white-space: nowrap">{{ $approver->level }}</div>
+                                    </div>
+                                </div>
+                                <div class="d-flex mt-2 align-items-center justify-content-between gap-2">
+                                    <div class="badge fs-1 rounded-3 fw-semibold text-{{$wstage->approver_status[$approver->id]['color']}} bg-{{$wstage->approver_status[$approver->id]['color']}}-subtle">{{ $wstage->approver_status[$approver->id]['name'] }}</div>
+                                    <button data-modal-id="reason-modal-{{$wstage->id}}{{$approver->id}}" class="btn-add-modal btn btn-light btn-sm fs-4 rounded-circle" title="Alasan"><i class="ti ti-text-caption"></i></button>
+                                    <a target="_blank" href="{{'https://api.whatsapp.com/send?phone=6289671052050&text=Mohon memberikan tanggapan terhadap Approval Stage '.$stage->name.' saya '.$workspace->requester->person['phone'].') dengan kode '.$workspace->code }}" class="btn btn-light rounded-circle btn-sm fs-4"><i class="ti ti-brand-whatsapp"></i></a>
+                                </div>
+
+                                <x-modal id="reason-modal-{{$wstage->id}}{{$approver->id}}" title="Detail Keputusan">
+                                    <div class="mb-2">
+                                        <div class="d-block fs-1 text-muted form-label mb-1">Alasan Keputusan</div>
+                                        <div class="fs-2 fw-semibold text-dark">{{$wstage->approver_status[$approver->id]['reason']}}</div>
+                                    </div>
+                                    <div class="mb-2">
+                                        <label for="" class="d-block fs-1 text-muted form-label">File Pendukung</label>
+                                        @if($wstage->approver_status[$approver->id]['attachment'])
+                                            <a href="{{ asset('storage/'.$wstage->approver_status[$approver->id]['attachment']) }}" class="fs-2 border p-2 px-3 d-inline-block border-primary rounded-3" target="_blank"><i class="ti ti-file me-2"></i> Lihat File</a>
+                                        @else
+                                            <div class="fs-2">Tidak ada file</div>
+                                        @endif
+                                    </div>
+                                </x-modal>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+            @elseif ($wstage && $wstage->status == '1')
+            <div class="mt-2 d-flex align-items-center justify-content-between gap-2">
+                <div class="">
+                    <div class="fs-1 fw-semibold text-muted">Stage Diselesaikan pada</div>
+                    <div class="fs-2 fw-bolder">{{\Carbon\Carbon::parse($wstage->finished_at)->format('d M Y')}}</div>
+                </div>
+                <div class=" text-end">
+                    <div class="fs-1 fw-semibold text-muted">Mendapatkan Score</div>
+                    <div class="fs-4 fw-bolder">{{$wstage->calculateScore()['final']}}</div>
+                </div>
+            </div>
+            @else
             <button class="btn-add-modal w-100 btn btn-primary rounded-pill" data-modal-id="sendApprove-{{$stage->id}}" {{ $stage->isFilled($workspace->id) ? '' : 'disabled' }}>Ajukan Stage</button>
           
             <x-modal id="sendApprove-{{$stage->id}}" title="Konfirmasi Pengajuan Stage">
-                <div class="fs-2">Apakah anda yakin untuk mengajukan stage ini ? <strong>Saat diajukan task akan terkunci tidak dapat diedit, kecuali semua superior level menyatakan penolakan.</strong></div>
+                <div class="fs-2">Apakah anda yakin untuk mengajukan stage ini ? <strong>Saat diajukan task akan terkunci tidak dapat diedit, kecuali semua superior level menyatakan penolakan (Untuk Pembenahan).</strong></div>
                 <div class="d-flex align-items-center justify-content-end gap-2 mt-3">
-                    <form action="" method="POST">
+                    <form action="{{route('agent.workspace.stage.send', [$workspace->id, $stage->id])}}" method="POST">
                         @csrf
                         <button type="submit" class="btn btn-primary rounded-pill">Mengerti, Ajukan</button>
                     </form>
                 </div>
             </x-modal>
+            @endif
           </ul>
         </div>
     @empty

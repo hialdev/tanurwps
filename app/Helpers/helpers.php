@@ -144,3 +144,7 @@ if (!function_exists('isPdf')) {
         return str_ends_with($fileName, '.pdf');
     }
 }
+
+if (!function_exists('createHistory')) {
+    // function createHistory($)
+}

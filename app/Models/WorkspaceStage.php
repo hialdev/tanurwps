@@ -151,4 +151,11 @@ class WorkspaceStage extends Model
     public function approvals(){
         return $this->hasMany(WorkspaceStageApproval::class, 'workspace_stage_id', 'id');
     }
+
+    public function isRequested(){
+        $tasks = Task::where('stage_id', $this->stage_id)->count();
+        $wstasks = WorkspaceTask::where('workspace_stage_id', $this->id)->count();
+        if($tasks == $wstasks) return true;
+        return false;
+    }
 }

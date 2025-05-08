@@ -25,6 +25,19 @@
     </div>
     <section class="bg-white rounded-top-3 bg-dark">
         <div class="bg-white rounded-top-3 p-3 pb-0" style="z-index: 99">
+            @forelse ($histories as $history)
+            <div class="row">
+                <div class="col-2">
+                    <div class="d-flex align-items-center justify-content-center position-relative">
+                        <div style="aspect-ratio:1/1;" class="bg-danger text-white p-2 rounded-circle"><i class="ti ti-briefcase fs-4"></i></div>
+                        <div class="border border-dashed border-2" style="width: 1px; height:8px"></div>
+                    </div>
+                </div>
+                <div class="col-10">
+                    
+                </div>
+            </div>   
+            @empty
             <div class="d-flex flex-column align-items-center justify-content-center text-center" style="height: 60vh">
                 <img src="https://img.freepik.com/free-vector/empty-concept-illustration_114360-7416.jpg" alt="Empty Illustration" class="d-block w-100" style="max-width: 10em">
                 <div class="text-center mt-3">
@@ -32,6 +45,7 @@
                     <p class="fs-1">History akan muncul disini</p>
                 </div>
             </div>
+            @endforelse
         </div>
     </section>
 </div>

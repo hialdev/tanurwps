@@ -182,7 +182,7 @@
             </div>
             @endforelse
 
-            @if($wstage && $wstage->status != '1')
+            @if($wstage && $wstage->finished_at)
             <div class="mt-3">
                 <h6 class="fs-2 fw-semibold">Mengajukan Stage ke</h6>
                 <div class="py-2" style="overflow-y: hidden; overflow-x:auto; width:100%">

@@ -19,13 +19,45 @@
                 </a>
                 <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                     <li>
-                        <a href="{{route('agent.workspace.edit', [$workspace->agent_id, $workspace->id])}}" class="dropdown-item fs-2 d-flex align-items-center gap-2"><i
+                        <a href="{{route('agent.workspace.edit', $workspace->id)}}" class="dropdown-item fs-2 d-flex align-items-center gap-2"><i
                                 class="fs-2 ti ti-edit"></i>Edit</a>
                     </li>
                     <li>
                         <button type="button" class="dropdown-item d-flex align-items-center fs-2 gap-2"
                             data-bs-toggle="modal" data-bs-target="#deleteModal-{{$workspace->id}}"><i
                                 class="fs-2 ti ti-trash"></i>Delete</button>
+                        
+                        <!-- Delete Modal -->
+                        <div id="deleteModal-{{$workspace->id}}" class="modal fade" tabindex="-1"
+                            aria-labelledby="danger-header-modalLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+                                <div class="modal-content p-3 modal-filled bg-danger">
+                                    <div class="modal-header modal-colored-header text-white">
+                                        <h4 class="modal-title text-white" id="danger-header-modalLabel">
+                                            Yakin ingin menghapus {{$workspace->name}} ?
+                                        </h4>
+                                        <button type="button" class="btn-close btn-close-white"
+                                            data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body" style="width: fit-content; white-space:normal">
+                                        <h5 class="mt-0 text-white">Workspace "{{$wrokspace->name}}" akan dihapus</h5>
+                                        <p class="text-white">Segala data yang berkaitan dengan Workspace tersebut juga akan dihapus secara permanen.</p>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">
+                                            Close
+                                        </button>
+                                        <form action="{{route('agent.workspace.destroy', $workspace->id)}}" method="POST">
+                                          @csrf
+                                          @method('delete')
+                                          <button type="submit" class="btn btn-dark">Ya, Hapus</button>
+                                        </form>
+                                    </div>
+                                </div>
+                                <!-- /.modal-content -->
+                            </div>
+                            <!-- /.modal-dialog -->
+                        </div>
                     </li>
                 </ul>
             </div>

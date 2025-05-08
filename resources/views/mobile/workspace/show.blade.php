@@ -40,7 +40,7 @@
                                             data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
                                     <div class="modal-body" style="width: fit-content; white-space:normal">
-                                        <h5 class="mt-0 text-white">Workspace "{{$wrokspace->name}}" akan dihapus</h5>
+                                        <h5 class="mt-0 text-white">Workspace "{{$workspace->name}}" akan dihapus</h5>
                                         <p class="text-white">Segala data yang berkaitan dengan Workspace tersebut juga akan dihapus secara permanen.</p>
                                     </div>
                                     <div class="modal-footer">

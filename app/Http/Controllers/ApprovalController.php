@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\History;
 use App\Models\WorkspaceApproval;
 use App\Models\WorkspaceStage;
 use App\Models\WorkspaceStageApproval;
@@ -84,6 +85,22 @@ class ApprovalController extends Controller
             }
             $workspace->save();
 
+            $history = new History();
+            $history->agent_id = session('agent_id');
+            $history->relation_id = $approval->id;
+            $history->type = 'workspace_approval';
+            $history->message = ($request->decision === 'approve' ? 'Menyetujui' : 'Menolak' ).' Workspace '.$workspace->name;
+            $history->color = $request->decision === 'approve' ? 'success' : 'danger';
+            $history->save();
+
+            $history = new History();
+            $history->agent_id = $workspace->agent_id;
+            $history->relation_id = $workspace->id;
+            $history->type = 'workspace';
+            $history->message = 'Salah Satu Approver '.($request->decision === 'approve' ? 'Menyetujui' : 'Menolak' ).' Workspace '.$workspace->name;
+            $history->color = $request->decision === 'approve' ? 'success' : 'danger';
+            $history->save();
+
             return back()->with('success', $request->decision === 'approve' ? 'Pengajuan berhasil disetujui' : 'Pengajuan berhasil ditolak');
         } catch (\Exception $e) {
             return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
@@ -127,6 +144,22 @@ class ApprovalController extends Controller
                 $workspace->status = '0';
             }
             $workspace->save();
+
+            $history = new History();
+            $history->agent_id = session('agent_id');
+            $history->relation_id = $approval->id;
+            $history->type = 'workspace_approval';
+            $history->message = '[Diperbarui] '.($request->decision === 'approve' ? 'Menyetujui' : 'Menolak' ).' Workspace '.$workspace->name;
+            $history->color = $request->decision === 'approve' ? 'success' : 'danger';
+            $history->save();
+
+            $history = new History();
+            $history->agent_id = $workspace->agent_id;
+            $history->relation_id = $workspace->id;
+            $history->type = 'workspace';
+            $history->message = '[Diperbarui] Salah Satu Approver '.($request->decision === 'approve' ? 'Menyetujui' : 'Menolak' ).' Workspace '.$workspace->name;
+            $history->color = $request->decision === 'approve' ? 'success' : 'danger';
+            $history->save();
 
             return back()->with('success', $request->decision === 'approve' ? 'Pengajuan berhasil disetujui' : 'Pengajuan berhasil ditolak');
         } catch (\Exception $e) {

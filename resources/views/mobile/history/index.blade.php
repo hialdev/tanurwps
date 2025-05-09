@@ -27,14 +27,20 @@
         <div class="bg-white rounded-top-3 p-3 pb-0" style="z-index: 99">
             @forelse ($histories as $history)
             <div class="row">
-                <div class="col-2">
-                    <div class="d-flex align-items-center justify-content-center position-relative">
-                        <div style="aspect-ratio:1/1;" class="bg-danger text-white p-2 rounded-circle"><i class="ti ti-briefcase fs-4"></i></div>
-                        <div class="border border-dashed border-2" style="width: 1px; height:8px"></div>
+                <div class="col-2 h-100">
+                    <div class="d-flex align-items-center justify-content-center position-relative h-100">
+                        <div style="aspect-ratio:1/1;width:2em;height:2em" class="bg-{{ $history->color }} text-white d-flex align-items-center justify-content-center rounded-circle position-absolute top-0"><i class="ti ti-{{$history->icon}} fs-3"></i></div>
+                        <div class="border-start bg-dark" style="width: 2px; height:5.5em"></div>
                     </div>
                 </div>
                 <div class="col-10">
-                    
+                    <div>
+                        <div class="fs-2 mb-2 fw-semibold">{{ $history->message }}</div>
+                        <div class="fs-1 d-flex align-items-center gap-2 justify-content-between">
+                            <div class=""><i class="ti ti-clock me-2"></i>{{ $history->time_ago }}</div>
+                            <div class=""><i class="ti ti-calendar me-2"></i>{{ \Carbon\Carbon::parse($history->created_at)->format('d M Y H:i:s') }}</div>
+                        </div>
+                    </div>
                 </div>
             </div>   
             @empty

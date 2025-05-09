@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Api\TanurController;
 use App\Models\Agent;
+use App\Models\History;
 use App\Models\Stage;
 use App\Models\Workspace;
 use App\Models\WorkspaceApproval;
@@ -126,6 +127,14 @@ class WorkspaceController extends Controller
                 $workspacePilgrim->save();
             }
 
+            $history = new History();
+            $history->agent_id = session('agent_id');
+            $history->relation_id = $workspace->id;
+            $history->type = 'workspace';
+            $history->message = 'Workspace dibuat dan diajukan '.$workspace->name;
+            $history->color = 'dark';
+            $history->save();
+
             //Get Superior Tanur API Agent Detail
             $fetch = $this->tanurapi->getAgentDetail(session('agent_id'));
             $superiors = $fetch['data']['superiors'] ?? null;
@@ -134,10 +143,19 @@ class WorkspaceController extends Controller
                     $workspaceApproval = new WorkspaceApproval();
                     $workspaceApproval->workspace_id = $workspace->id;
                     $workspaceApproval->approver_id = $superior['id'];
-                    $workspaceApproval->status = '0'; // Pending approval
+                    $workspaceApproval->status = '0';
                     $workspaceApproval->save();
+                
+                    $history = new History();
+                    $history->agent_id = $superior['id'];
+                    $history->relation_id = $workspaceApproval->id;
+                    $history->type = 'workspace_approval';
+                    $history->message = 'Pengajuan Workspace '.$workspace->name. ' dari '.$fetch['data']['agent']['name'];
+                    $history->color = 'dark';
+                    $history->save();
                 }
             }
+                
             return redirect()->route('agent.workspace.list')->with('success', 'Workspace created successfully.');
         } catch (\Exception $e) {
             return redirect()->back()->withInput()->with('error', 'Failed to create workspace: ' . $e->getMessage());
@@ -149,6 +167,7 @@ class WorkspaceController extends Controller
     {
         $workspace = Workspace::findOrFail($workspace_id);
         $cities = \App\Models\City::orderBy('nama')->get();
+
         return view('mobile.workspace.edit', compact('workspace', 'cities'));
     }
 
@@ -208,6 +227,14 @@ class WorkspaceController extends Controller
                 ]);
             }
 
+            $history = new History();
+            $history->agent_id = session('agent_id');
+            $history->relation_id = $workspace->id;
+            $history->type = 'workspace';
+            $history->message = 'Memperbarui Workspace '.$workspace->name;
+            $history->color = 'dark';
+            $history->save();
+
             return redirect()->route('agent.workspace.show', $workspace_id)->with('success', 'Workspace updated successfully.');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Failed to update workspace: ' . $e->getMessage());
@@ -253,6 +280,14 @@ class WorkspaceController extends Controller
                 return redirect()->back()->with('error', 'Workspace tidak dapat dihapus, telah disetujui oleh salah satu atau lebih dari seluruh Superior Level.');
             }
             $workspace->delete();
+
+            $history = new History();
+            $history->agent_id = session('agent_id');
+            $history->relation_id = $workspace->id;
+            $history->type = 'workspace';
+            $history->message = 'Menghapus Workspace '.$workspace->name;
+            $history->color = 'danger';
+            $history->save();
 
             return redirect()->route('agent.workspace.list')->with('success', 'Workspace deleted successfully.');
         } catch (\Exception $e) {

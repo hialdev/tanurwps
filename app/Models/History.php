@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -52,7 +53,7 @@ class History extends Model
         return null;
     }
 
-    public function content($message, $color){
+    public function getIconAttribute(){
         $icons = [
             'workspace' => 'briefcase',
             'workspace_approval' => 'checklist',
@@ -60,10 +61,43 @@ class History extends Model
             'stage_approval' => 'checklist',
             'task' => 'subtask',
         ];
-        return [
-            'icon' => $icons[$this->type],
-            'message' => $message,
-            'color' => $color,
-        ];
+        return $icons[$this->type];
+    }
+
+    public function getTimeAgoAttribute()
+    {
+        $now = Carbon::now();
+        $created = $this->created_at;
+
+        $diffInSeconds = $created->diffInSeconds($now);
+        if ($diffInSeconds < 60) {
+            return $diffInSeconds . ' detik lalu';
+        }
+
+        $diffInMinutes = $created->diffInMinutes($now);
+        if ($diffInMinutes < 60) {
+            return $diffInMinutes . ' menit lalu';
+        }
+
+        $diffInHours = $created->diffInHours($now);
+        if ($diffInHours < 24) {
+            return $diffInHours . ' jam lalu';
+        }
+
+        $diffInDays = $created->diffInDays($now);
+        if ($diffInDays < 30) {
+            return $diffInDays . ' hari lalu';
+        }
+
+        // Untuk bulan dan sisa hari
+        $diffInMonths = $created->diffInMonths($now);
+        $remainderDays = $created->addMonths($diffInMonths)->diffInDays($now);
+
+        $result = $diffInMonths . ' bulan';
+        if ($remainderDays > 0) {
+            $result .= ' ' . $remainderDays . ' hari';
+        }
+
+        return $result . ' lalu';
     }
 }

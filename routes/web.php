@@ -79,7 +79,7 @@ Route::middleware(['web', 'agent.access'])->prefix('agent')->group(function () {
     Route::get('/workspace/{workspace_id}/detail', [WorkspaceController::class, 'show'])->name('agent.workspace.show');
     Route::get('/workspace/{workspace_id}/edit', [WorkspaceController::class, 'edit'])->name('agent.workspace.edit');
     Route::put('/workspace/{workspace_id}/update', [WorkspaceController::class, 'update'])->name('agent.workspace.update');
-    Route::get('/workspace/{workspace_id}/destroy', [WorkspaceController::class, 'destroy'])->name('agent.workspace.destroy');
+    Route::delete('/workspace/{workspace_id}/destroy', [WorkspaceController::class, 'destroy'])->name('agent.workspace.destroy');
     
     Route::post('/workspace/{workspace_id}/stage/{stage_id}/send', [StageApprovalController::class, 'send'])->name('agent.workspace.stage.send');
     

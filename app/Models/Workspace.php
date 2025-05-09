@@ -22,6 +22,19 @@ class Workspace extends Model
             $model->id = (string) \Illuminate\Support\Str::uuid();
             $model->code = self::generateCode();
         });
+
+        static::deleting(function ($model) {
+            if($model->approvals->count() > 0){
+                foreach ($model->approvals as $approval) {
+                    $approval->delete();
+                }
+            }
+            if($model->pilgrims->count() > 0){
+                foreach ($model->pilgrims as $pilgrim) {
+                    $pilgrim->delete();
+                }
+            }
+        });
     }
 
     private static function generateCode()

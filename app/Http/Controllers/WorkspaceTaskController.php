@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\History;
 use App\Models\Stage;
 use App\Models\Task;
 use App\Models\Workspace;
@@ -78,7 +79,15 @@ class WorkspaceTaskController extends Controller
                     }
                 }
             }
-
+            
+            $history = new History();
+            $history->agent_id = $workspace->agent_id;
+            $history->relation_id = $wtask->id;
+            $history->type = 'task';
+            $history->message = 'Menyelesaikan Task '.$task->name;
+            $history->color = 'success';
+            $history->save();
+            
         } catch (\Exception $e) {
             return redirect()->back()->withInput()->with('error', 'Gagal menyelesaikan Task '.$task->name .': '. $e->getMessage());
         }
@@ -135,6 +144,15 @@ class WorkspaceTaskController extends Controller
                     $wtaskAttachment->save();
                 }
             }
+
+            $history = new History();
+            $history->agent_id = $workspace->agent_id;
+            $history->relation_id = $wtask->id;
+            $history->type = 'task';
+            $history->message = 'Memperbarui Task '.$task->name;
+            $history->color = 'dark';
+            $history->save();
+
         } catch (\Exception $e) {
             return redirect()->back()->withInput()->with('error', 'Gagal memperbarui Task '.$task->name .': '. $e->getMessage());
         }

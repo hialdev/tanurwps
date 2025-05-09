@@ -98,7 +98,7 @@
         }
 
         /* Responsive: hilangkan frame saat layar kecil */
-        @media (max-width: 576px) {
+        @media (max-width: 767px) {
             .device-wrapper {
                 padding: 0;
             }

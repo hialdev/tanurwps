@@ -130,33 +130,35 @@ Route::middleware(['auth'])->group(function(){
         Route::post('/application/{id}/update',[ApplicationController::class, 'update'])->name('application.update');
         Route::delete('/application/{id}/destroy',[ApplicationController::class, 'destroy'])->name('application.destroy');
 
-        Route::get('/stage',[StageController::class, 'index'])->name('stage.index');
-        Route::get('/stage/add',[StageController::class, 'add'])->name('stage.add');
-        Route::post('/stage/store',[StageController::class, 'store'])->name('stage.store');
-        Route::get('/stage/{id}/edit',[StageController::class, 'edit'])->name('stage.edit');
-        Route::post('/stage/{id}/update',[StageController::class, 'update'])->name('stage.update');
-        Route::delete('/stage/{id}/destroy',[StageController::class, 'destroy'])->name('stage.destroy');
-        Route::delete('/stage/{id}/attachment/{attachment_id}/delete',[StageController::class, 'attachmentDelete'])->name('stage.attachment.delete');
-
-        Route::get('/task',[TaskController::class, 'index'])->name('task.index');
-        Route::get('/task/add',[TaskController::class, 'add'])->name('task.add');
-        Route::post('/task/store',[TaskController::class, 'store'])->name('task.store');
-        Route::get('/task/{id}/edit',[TaskController::class, 'edit'])->name('task.edit');
-        Route::post('/task/{id}/update',[TaskController::class, 'update'])->name('task.update');
-        Route::delete('/task/{id}/destroy',[TaskController::class, 'destroy'])->name('task.destroy');
-        Route::delete('/task/{id}/attachment/{attachment_id}/delete',[TaskController::class, 'attachmentDelete'])->name('task.attachment.delete');
-
-        Route::get('/user',[UserController::class, 'index'])->name('user.index');
-        Route::get('/user/add',[UserController::class, 'add'])->name('user.add');
-        Route::post('/user/store',[UserController::class, 'store'])->name('user.store');
-        Route::get('/user/{id}/edit',[UserController::class, 'edit'])->name('user.edit');
-        Route::post('/user/{id}/update',[UserController::class, 'update'])->name('user.update');
-        Route::delete('/user/{id}/destroy',[UserController::class, 'destroy'])->name('user.destroy');
         
-        Route::get('/setting',[SettingController::class, 'index'])->name('setting.index');
-        Route::post('/setting',[SettingController::class, 'store'])->name('setting.store');
-        Route::post('/setting/{id}',[SettingController::class, 'update'])->name('setting.update');
-        Route::post('/setting/{id}/clear',[SettingController::class, 'clear'])->name('setting.clear');
         Route::delete('/setting/{id}',[SettingController::class, 'destroy'])->name('setting.destroy');
     });
+
+    Route::get('/stage',[StageController::class, 'index'])->name('stage.index');
+    Route::get('/stage/add',[StageController::class, 'add'])->name('stage.add');
+    Route::post('/stage/store',[StageController::class, 'store'])->name('stage.store');
+    Route::get('/stage/{id}/edit',[StageController::class, 'edit'])->name('stage.edit');
+    Route::post('/stage/{id}/update',[StageController::class, 'update'])->name('stage.update');
+    Route::delete('/stage/{id}/destroy',[StageController::class, 'destroy'])->name('stage.destroy');
+    Route::delete('/stage/{id}/attachment/{attachment_id}/delete',[StageController::class, 'attachmentDelete'])->name('stage.attachment.delete');
+
+    Route::get('/task',[TaskController::class, 'index'])->name('task.index');
+    Route::get('/task/add',[TaskController::class, 'add'])->name('task.add');
+    Route::post('/task/store',[TaskController::class, 'store'])->name('task.store');
+    Route::get('/task/{id}/edit',[TaskController::class, 'edit'])->name('task.edit');
+    Route::post('/task/{id}/update',[TaskController::class, 'update'])->name('task.update');
+    Route::delete('/task/{id}/destroy',[TaskController::class, 'destroy'])->name('task.destroy');
+    Route::delete('/task/{id}/attachment/{attachment_id}/delete',[TaskController::class, 'attachmentDelete'])->name('task.attachment.delete');
+
+    Route::get('/user',[UserController::class, 'index'])->name('user.index');
+    Route::get('/user/add',[UserController::class, 'add'])->name('user.add');
+    Route::post('/user/store',[UserController::class, 'store'])->name('user.store');
+    Route::get('/user/{id}/edit',[UserController::class, 'edit'])->name('user.edit');
+    Route::post('/user/{id}/update',[UserController::class, 'update'])->name('user.update');
+    Route::delete('/user/{id}/destroy',[UserController::class, 'destroy'])->name('user.destroy');
+    
+    Route::get('/setting',[SettingController::class, 'index'])->name('setting.index');
+    Route::post('/setting',[SettingController::class, 'store'])->name('setting.store');
+    Route::post('/setting/{id}',[SettingController::class, 'update'])->name('setting.update');
+    Route::post('/setting/{id}/clear',[SettingController::class, 'clear'])->name('setting.clear');
 });

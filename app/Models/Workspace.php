@@ -59,6 +59,13 @@ class Workspace extends Model
         return $statuses[$now] ?? ['color' => 'secondary', 'name' => 'Unknown', 'message' => 'Status tidak diketahui'];
     }
 
+    public function getAllStageApprovedAttribute(){
+        $wstage = WorkspaceStage::where('workspace_id', $this->id)->count();
+        $wstageApproved = WorkspaceStage::where('workspace_id', $this->id)->whereNotNull('approved_at')->count();
+        if($wstage > 0 && $wstage == $wstageApproved) return true;
+        return false;
+    }
+
     public function pilgrims(){
         return $this->hasMany(WorkspacePilgrim::class, 'workspace_id', 'id');
     }
@@ -72,24 +79,20 @@ class Workspace extends Model
     }
 
     public function getLiveScoreAttribute(){
-        $stages = $this->workspaceStages;
+        $stages = $this->workspaceStages()->whereNotNull('approved_at')->get();
         $totalScore = 0;
         if($stages->count() > 0){
             foreach ($stages as $stage) {
-                $tasks = $stage->workspaceTasks;
-                if($tasks->count() > 0){
-                    foreach ($tasks as $task) {
-                        $totalScore += $task->score;
-                    }
-                }
+                $totalScore += $stage->calculateScore()['final'];
             }
         }
         return $totalScore;
     }
 
     public function stageAnalytic(){
-        $total_stages = Stage::count();
-        $total_stage_finished = $this->workspaceStages->count() > 0 ? $this->workspaceStages->whereNotNull('finished_at')->count() : 0;
+        $total_stages = Stage::whereHas('tasks')->count();
+        if($this->all_stage_approved) $total_stages = $this->workspaceStages->count();
+        $total_stage_finished = $this->workspaceStages->count() > 0 ? $this->workspaceStages->whereNotNull('approved_at')->count() : 0;
         return (object) [
             'total' => $total_stages,
             'finished' => $total_stage_finished,
@@ -107,6 +110,7 @@ class Workspace extends Model
     public function taskAnalytic()
     {
         $total_tasks = Task::count();
+        if($this->all_stage_approved) $total_tasks = $this->allWorkspaceTasks()->count();
         $total_task_finished = $this->allWorkspaceTasks()->whereNotNull('finished_at')->count();
 
         return (object) [
@@ -152,6 +156,12 @@ class Workspace extends Model
         $tanurApi = new TanurController();
         $data = $tanurApi->getAgentDetail($this->agent_id);
         return (object) $data['data']['agent'] ?? null;
+    }
+
+    public function isAllStageApproved(){
+        $totalStages = $this->workspaceStages()->count();
+        $approvedStages = $this->workspaceStages()->where('status', '1')->count();
+        return $totalStages > 0 && $totalStages === $approvedStages;
     }
     
 }

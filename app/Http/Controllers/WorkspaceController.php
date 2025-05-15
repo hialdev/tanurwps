@@ -8,6 +8,7 @@ use App\Models\History;
 use App\Models\Stage;
 use App\Models\Workspace;
 use App\Models\WorkspaceApproval;
+use App\Models\WorkspaceStage;
 use App\Models\WorkspaceStageApproval;
 use Illuminate\Http\Request;
 
@@ -49,7 +50,11 @@ class WorkspaceController extends Controller
     public function show($workspace_id)
     {
         $workspace = Workspace::findOrFail($workspace_id);
-        $stages = Stage::orderBy('order')->with('tasks')->get();
+        $stages = Stage::whereHas('tasks')->orderBy('order')->with('tasks')->get();
+        if($workspace->all_stage_approved){
+            $wstages = WorkspaceStage::where('workspace_id', $workspace_id)->get()->pluck('stage_id');
+            $stages = Stage::whereHas('tasks')->whereIn('id', $wstages)->get();
+        }
         return view('mobile.workspace.show', compact('workspace', 'stages'));
     }
 

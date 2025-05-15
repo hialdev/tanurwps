@@ -25,6 +25,9 @@ class WorkspaceTaskController extends Controller
     public function store($id, $task_id, Request $request){
         $task = Task::findOrFail($task_id);
         $workspace = Workspace::findOrFail($id);
+        if(!$workspace->is_approved || $workspace->status == '0' || $workspace->status == '5'){
+            return back()->with('error', 'Workspace Belum Disetujui');
+        }
 
         $request->validate([
             'answer_text' => 'required|string',

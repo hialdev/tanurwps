@@ -32,8 +32,8 @@
         <div class="d-flex align-items-start flex-column gap-2 mt-2">
             <button data-modal-id="list-jamaah" class="btn-add-modal btn btn-light btn-sm rounded-pill"><i class="ti ti-user-circle me-1"></i> {{$approval->workspace->pilgrims->count()}} Jamaah <i class="ti ti-arrow-right ms-2"></i></button>
             @if($approval->workspace->is_approved)
-                <div class="fs-2"><i class="ti ti-timeline-event me-1"></i> <span class="text-white fw-semibold">2</span> / 5 Stage Selesai</div>
-                <div class="fs-2"><i class="ti ti-subtask me-1"></i> <span class="text-white fw-semibold">2</span> / 20 Task Selesai</div>
+                <div class="fs-2"><i class="ti ti-timeline-event me-1"></i> <span class="text-white fw-semibold">{{ $approval->workspace->stageAnalytic()->finished }}</span> / {{ $approval->workspace->stageAnalytic()->total }} Stage</div>
+                <div class="fs-2"><i class="ti ti-subtask me-1"></i> <span class="text-white fw-semibold">{{ $approval->workspace->taskAnalytic()->finished }}</span> / {{ $approval->workspace->taskAnalytic()->total }} Task</div>
             @endif
         </div>
         

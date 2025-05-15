@@ -95,7 +95,7 @@ class Stage extends Model
     }
 
     public function wstage($workspace_id){
-        return WorkspaceStage::where('workspace_id', $workspace_id)->where('stage_id', $this->id)->first();
+        return WorkspaceStage::where('workspace_id', $workspace_id)->where('stage_id', $this->id)->with('workspaceTasks.task')->first();
     }
 
     public function attachments()

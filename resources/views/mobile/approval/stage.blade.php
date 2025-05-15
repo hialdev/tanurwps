@@ -7,8 +7,7 @@
 @section('content')
 <div class="p-4 px-3 bg-tanur-coklat pb-4">
     <div class="d-block text-decoration-none text-dark mb-2 text-white rounded-3 position-relative">
-        <div class="d-flex align-items-center gap-2 position-absolute top-0 end-0 m-2 ">
-            <div class="fs-1 text-{{ $approval->workspaceStage->deadlineCount()['message']['color'] }} fw-semibold"> <i class="ti ti-clock me-2"></i> {{ $approval->workspaceStage->deadlineCount()['message']['text'] }}</div>
+        <div class="d-flex flex-column align-items-end gap-1 position-absolute top-0 end-0 m-2 ">
             <div class="bg-{{$approval->workspaceStage->getStatus()['color']}} rounded-3 p-1 px-2 text-white fs-1 fw-semibold">
                 {{ $approval->workspaceStage->getStatus()['name'] }}
             </div>
@@ -32,9 +31,12 @@
             </div>
         @endif
 
-        <div class="mt-1">
-            <div class="fs-1 text-white fw-semibold">Score Terkumpul</div>
-            <div class="fs-4 fw-bolder text-dark">{{ $approval->workspaceStage->calculateScore()['final'] }}</div>
+        <div class="d-flex mt-2 align-items-center justify-content-between gap-2">
+            <div class="">
+                <div class="fs-1 text-white fw-semibold">Score Stage</div>
+                <div class="fs-4 fw-bolder text-dark">{{ $approval->workspaceStage->calculateScore()['final'] }}</div>
+            </div>
+            <div class="fs-1 text-{{ $approval->workspaceStage->deadlineCount()['message']['color'] }} fw-semibold"> <i class="ti ti-clock me-2"></i> {{ $approval->workspaceStage->deadlineCount()['message']['text'] }}</div>
         </div>
     </div>
 </div>

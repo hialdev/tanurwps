@@ -80,6 +80,9 @@ class StageApprovalController extends Controller
         if($approval->workspaceStage->status != '0'){
             return back()->with('error', 'Pengajuan ini sudah diproses sebelumnya');
         }
+        if($approval->workspaceStage->workspace->status == '4'){
+            return back()->with('error', 'Workspace Telah Diselesaikan!');
+        }
 
         try {
             $request->validate([
@@ -98,6 +101,9 @@ class StageApprovalController extends Controller
             $wstage = $approval->workspaceStage;
             if($wstage->is_approved){
                 $wstage->status = '1';
+                $wstage->total_score = $wstage->calculateScore()['total'];
+                $wstage->reduce_score = $wstage->calculateScore()['reduce'];
+                $wstage->final_score = $wstage->calculateScore()['final'];
                 $wstage->approved_at = now();
             } elseif ($request->decision === 'reject') {
                 $wstage->status = '2';
@@ -123,6 +129,19 @@ class StageApprovalController extends Controller
             $history->color = $request->decision === 'approve' ? 'success' : 'danger';
             $history->save();
 
+            if ($wstage->workspace->isAllStageApproved()) {
+                $wstage->workspace->status = '4';
+                $wstage->workspace->save();
+
+                $history = new History();
+                $history->agent_id = $wstage->workspace->agent_id;
+                $history->relation_id = $wstage->workspace->id;
+                $history->type = 'workspace';
+                $history->message = 'Workspace '.$wstage->workspace->name. ' Selesai';
+                $history->color = 'success';
+                $history->save();
+            }
+
             return back()->with('success', $request->decision === 'approve' ? 'Pengajuan Stage berhasil disetujui' : 'Pengajuan Stage berhasil ditolak');
         } catch (\Exception $e) {
             return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
@@ -137,6 +156,9 @@ class StageApprovalController extends Controller
         }
         if($approval->workspaceStage->is_approved){
             return back()->with('error', 'Pengajuan ini sudah disetujui oleh semua Superior Level / Approver');
+        }
+        if($approval->workspaceStage->workspace->status == '4'){
+            return back()->with('error', 'Workspace Telah Diselesaikan!');
         }
 
         try {
@@ -159,6 +181,9 @@ class StageApprovalController extends Controller
             $wstage = $approval->workspaceStage;
             if($wstage->is_approved){
                 $wstage->status = '1';
+                $wstage->total_score = $wstage->calculateScore()['total'];
+                $wstage->reduce_score = $wstage->calculateScore()['reduce'];
+                $wstage->final_score = $wstage->calculateScore()['final'];
                 $wstage->approved_at = now();
             } elseif ($request->decision === 'reject') {
                 $wstage->status = '2';
@@ -183,6 +208,19 @@ class StageApprovalController extends Controller
             $history->message = '[Diperbarui] Salah Satu Approver '.($request->decision === 'approve' ? 'Menyetujui' : 'Menolak' ).' Stage '.$wstage->stage->name;
             $history->color = $request->decision === 'approve' ? 'success' : 'danger';
             $history->save();
+
+            if ($wstage->workspace->isAllStageApproved()) {
+                $wstage->workspace->status = '4';
+                $wstage->workspace->save();
+
+                $history = new History();
+                $history->agent_id = $wstage->workspace->agent_id;
+                $history->relation_id = $wstage->workspace->id;
+                $history->type = 'workspace';
+                $history->message = 'Workspace '.$wstage->workspace->name. ' Selesai';
+                $history->color = 'success';
+                $history->save();
+            }
 
             return back()->with('success', $request->decision === 'approve' ? 'Pengajuan Stage berhasil disetujui' : 'Pengajuan Stage berhasil ditolak');
         } catch (\Exception $e) {

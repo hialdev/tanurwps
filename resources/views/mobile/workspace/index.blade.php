@@ -77,7 +77,7 @@
               @if($workspace->status != '0')
               <div class="mt-1">
                   <div class="fs-1 text-dark fw-semibold">Score Terkumpul</div>
-                  <div class="fs-4 fw-bolder text-warning">{{$workspace->live_score}}</div>
+                  <div class="fs-4 fw-bolder text-{{$workspace->getStatus()['color']}}">{{$workspace->live_score}}</div>
               </div>
               @endif
           </a>
@@ -98,7 +98,7 @@
   @forelse($approvals as $approval)
     <a href="{{ $approval->workspace ? route('agent.approval.show', $approval->id) : route('agent.approval.stage.show', $approval->id) }}" class="p-3 d-block text-decoration-none text-dark rounded-3 border mb-2 border-2 border-dashed">
       <div class="d-flex align-items-center gap-2 mb-2">
-        <img src="https://placehold.co/100" alt="Image Agent Pengirim Approval" class="d-block rounded-circle" style="width:35px;aspect-ratio:1/1">
+        <img src="{{$approval->requester->image_url}}" alt="Image Agent Pengirim {{$approval->requester->name}} - {{$approval->id}}" class="d-block rounded-circle" style="width:35px;aspect-ratio:1/1">
         <div>
           <div class="fs-2 fw-semibold">{{$approval->requester->name}}</div>
           <div class="fs-1 text-dark">{{$approval->requester->level}}</div>

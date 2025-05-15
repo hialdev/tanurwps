@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\History;
+use App\Models\Stage;
 use App\Models\WorkspaceApproval;
 use App\Models\WorkspaceStage;
 use App\Models\WorkspaceStageApproval;
@@ -78,6 +79,14 @@ class ApprovalController extends Controller
             if($workspace->is_approved){
                 $workspace->status = '1';
                 $workspace->approved_at = now();
+                foreach (Stage::whereHas('tasks')->get() as $stage){
+                    $wstage = new WorkspaceStage();
+                    $wstage->workspace_id = $approval->workspace->id;
+                    $wstage->stage_id = $stage->id;
+                    $wstage->deadline_at = $stage->deadlineCount($workspace->approved_at)['deadline_date'];
+                    $wstage->status = '0';
+                    $wstage->save();
+                }
             } elseif ($request->decision === 'reject') {
                 $workspace->status = '5';
             } else {
@@ -113,7 +122,7 @@ class ApprovalController extends Controller
         if(session('agent_id') != $approval->approver_id){
             return back()->with('error', 'Anda tidak memiliki akses untuk memutuskan pengajuan ini');
         }
-        if($approval->workspace->is_approved){
+        if($approval->workspace->is_approved && ($approval->workspace->status != '0' && $approval->workspace->status != '5')){
             return back()->with('error', 'Pengajuan ini sudah disetujui oleh semua Superior Level / Approver');
         }
 
@@ -138,6 +147,14 @@ class ApprovalController extends Controller
             if($workspace->is_approved){
                 $workspace->status = '1';
                 $workspace->approved_at = now();
+                foreach (Stage::whereHas('tasks')->get() as $stage){
+                    $wstage = new WorkspaceStage();
+                    $wstage->workspace_id = $approval->workspace->id;
+                    $wstage->stage_id = $stage->id;
+                    $wstage->deadline_at = $stage->deadlineCount($workspace->approved_at)['deadline_date'];
+                    $wstage->status = '0';
+                    $wstage->save();
+                }
             } elseif ($request->decision === 'reject') {
                 $workspace->status = '5';
             } else {

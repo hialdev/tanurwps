@@ -157,6 +157,7 @@ class StageController extends Controller
     public function destroy($id)
     {
         $stage = Stage::findOrFail($id);
+        if($stage->wstages->count() > 0) return redirect()->back()->with('error', 'Tidak dapat menghapus stage, karena sudah ada workspace yang menggunakan stage ini!');
         $stage->delete();
 
         return redirect()->route('stage.index')->with('success', 'Stage deleted successfully.');

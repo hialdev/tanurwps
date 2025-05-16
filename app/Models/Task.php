@@ -43,6 +43,10 @@ class Task extends Model
         return $task;
     }
 
+    public function answers(){
+        return $this->hasMany(WorkspaceTask::class, 'stage_task_id');
+    }
+
     public function stage()
     {
         return $this->belongsTo(Stage::class, 'stage_id', 'id');

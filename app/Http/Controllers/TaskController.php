@@ -165,6 +165,7 @@ class TaskController extends Controller
     public function destroy($id)
     {
         $task = Task::findOrFail($id);
+        if($task->answers->count() > 0) return redirect()->back()->with('error', 'Tidak dapat menghapus karena Task sudah digunakan dalam Workspace!');
         $task->delete();
 
         return redirect()->route('task.index')->with('success', 'Task deleted successfully.');

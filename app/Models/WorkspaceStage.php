@@ -96,7 +96,7 @@ class WorkspaceStage extends Model
         $response = [
             'remaining_days' => $remaining_days,
             'deadline_date' => $deadline_date->format('Y-m-d'),
-            'messages' => [
+            'message' => [
                 'text' => "Tidak diketahui",
                 'color' => "danger",
             ],

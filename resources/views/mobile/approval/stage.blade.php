@@ -36,7 +36,7 @@
                 <div class="fs-1 text-white fw-semibold">Score Stage</div>
                 <div class="fs-4 fw-bolder text-dark">{{ $approval->workspaceStage->calculateScore()['final'] }}</div>
             </div>
-            <div class="fs-1 text-{{ $approval->workspaceStage->deadlineCount()['message']['color'] }} fw-semibold"> <i class="ti ti-clock me-2"></i> {{ $approval->workspaceStage->deadlineCount()['message']['text'] }}</div>
+            <div class="fs-1 text-{{ $approval->workspaceStage->deadlineCount()['message']['color'] ?? 'muted' }} fw-semibold"> <i class="ti ti-clock me-2"></i> {{ $approval->workspaceStage->deadlineCount()['message']['text'] ?? 'tidak diketahui'}}</div>
         </div>
     </div>
 </div>

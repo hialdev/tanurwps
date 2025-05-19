@@ -96,6 +96,10 @@ class WorkspaceStage extends Model
         $response = [
             'remaining_days' => $remaining_days,
             'deadline_date' => $deadline_date->format('Y-m-d'),
+            'messages' => [
+                'text' => "Tidak diketahui",
+                'color' => "danger",
+            ],
         ];
         if ($remaining_days > 0) {
             $response['message'] = $messages['still'];

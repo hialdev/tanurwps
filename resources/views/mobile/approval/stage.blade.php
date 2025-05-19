@@ -91,7 +91,7 @@
             <div class="">
                 <h5 class="fs-2 fw-semibold mb-1">{{$task->name}}</h5>
                 <div class="fs-1">{{ $task->description ?? 'tidak ada deskripsi' }}</div>
-                @if($task->attachments->count() > 0)
+                @if(isset($task->attachments) && $task->attachments->count() > 0)
                     <div class="d-flex align-items-center mt-2 gap-1">
                     @foreach ($task->attachments as $attachment)
                         <a href="{{ asset('storage/'.$attachment->file) }}" class="fs-2 text-dark border p-1 px-2 d-inline-block border-primary rounded-3" target="_blank"><i class="ti ti-file me-1"></i> {{$attachment->name}}</a>
@@ -106,7 +106,7 @@
                     $taskAnswer = $task->answer($approval->workspace_stage_id);
                 @endphp
                 <div class="fs-1">{{ $taskAnswer->answer_text ?? 'tidak ada jawaban dalam teks' }}</div>
-                @if($taskAnswer->attachments->count() > 0)
+                @if(isset($taskAnswer) && $taskAnswer->attachments->count() > 0)
                     <div class="d-flex align-items-center mt-2 gap-1">
                     @foreach ($taskAnswer->attachments as $attachment)
                         <a href="{{ asset('storage/'.$attachment->file) }}" class="fs-2 text-dark border p-1 px-2 d-inline-block border-primary rounded-3" target="_blank"><i class="ti ti-file me-1"></i> {{$attachment->name}}</a>

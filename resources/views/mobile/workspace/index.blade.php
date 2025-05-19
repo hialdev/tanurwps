@@ -111,11 +111,11 @@
       </div>
       @if($approval->workspace)
       <button class="btn bg-tanur-green border-0 d-flex w-100 align-items-center gap-2"><i class="ti ti-briefcase"></i> {{$approval->workspace->name}} <i class="ti ti-arrow-narrow-right ms-auto"></i></button>
-      @elseif($approval->workspaceStage)
+      @elseif(isset($approval->workspaceStage))
       <button class="btn bg-tanur-coklat border-0 d-flex w-100 align-items-center gap-2"><i class="ti ti-timeline-event"></i> {{$approval->workspaceStage->stage->name}} <i class="ti ti-arrow-narrow-right ms-auto"></i></button>
-      <div class="d-flex align-items-center text-{{ $approval->workspaceStage->deadlineCount()['message']['color'] }} mt-2 gap-2">
+      <div class="d-flex align-items-center text-{{ $approval?->workspaceStage?->deadlineCount()['message']['color'] }} mt-2 gap-2">
         <i class="ti ti-alert-circle"></i>
-        <div class="fs-1 fw-semibold">Deadline Stage {{ $approval->workspaceStage->deadlineCount()['message']['text'] }}</div>
+        <div class="fs-1 fw-semibold">Deadline Stage {{ $approval?->workspaceStage?->deadlineCount()['message']['text'] }}</div>
       </div>
       @endif
     </a>

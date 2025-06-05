@@ -26,23 +26,23 @@ class History extends Model
         $type = $this->type;
         switch ($type) {
             case 'workspace':
-                return Workspace::findOrFail($this->relation_id);
+                return Workspace::find($this->relation_id);
                 
                 break;
             case 'workspace_approval':
-                return WorkspaceApproval::findOrFail($this->relation_id);
+                return WorkspaceApproval::find($this->relation_id);
                 
                 break;
             case 'stage':
-                return WorkspaceStage::findOrFail($this->relation_id);
+                return WorkspaceStage::find($this->relation_id);
                 
                 break;
             case 'stage_approval':
-                return WorkspaceStageApproval::findOrFail($this->relation_id);
+                return WorkspaceStageApproval::find($this->relation_id);
                 
                 break;
             case 'task':
-                return WorkspaceTask::findOrFail($this->relation_id);
+                return WorkspaceTask::find($this->relation_id);
                 break;
             
             default:

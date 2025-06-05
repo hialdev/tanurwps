@@ -9,4 +9,10 @@ use Illuminate\Routing\Controller as BaseController;
 class Controller extends BaseController
 {
     use AuthorizesRequests, ValidatesRequests;
+    public $tanurApi;
+
+    public function __construct()
+    {
+        $this->tanurApi = new \App\Http\Controllers\Api\TanurController();
+    }
 }

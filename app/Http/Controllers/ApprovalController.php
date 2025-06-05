@@ -102,6 +102,8 @@ class ApprovalController extends Controller
             $history->color = $request->decision === 'approve' ? 'success' : 'danger';
             $history->save();
 
+            $this->tanurApi->notify($workspace->agent_id, 1, 1, 1,($request->decision === 'approve' ? 'Menyetujui' : 'Menolak' ).' Workspace '.$workspace->name, "Berhasil memberikan aksi terhadap approval, silahkan lihat di aplikasi pada menu WPS", 1);
+
             $history = new History();
             $history->agent_id = $workspace->agent_id;
             $history->relation_id = $workspace->id;
@@ -109,6 +111,8 @@ class ApprovalController extends Controller
             $history->message = 'Salah Satu Approver '.($request->decision === 'approve' ? 'Menyetujui' : 'Menolak' ).' Workspace '.$workspace->name;
             $history->color = $request->decision === 'approve' ? 'success' : 'danger';
             $history->save();
+
+            $this->tanurApi->notify($workspace->agent_id, 1, 1, 1,'Salah Satu Approver '.($request->decision === 'approve' ? 'Menyetujui' : 'Menolak' ).' Workspace '.$workspace->name, "Terdapat pembaruan status pada approval, silahkan lihat di aplikasi pada menu WPS", 1);
 
             return back()->with('success', $request->decision === 'approve' ? 'Pengajuan berhasil disetujui' : 'Pengajuan berhasil ditolak');
         } catch (\Exception $e) {
@@ -169,7 +173,9 @@ class ApprovalController extends Controller
             $history->message = '[Diperbarui] '.($request->decision === 'approve' ? 'Menyetujui' : 'Menolak' ).' Workspace '.$workspace->name;
             $history->color = $request->decision === 'approve' ? 'success' : 'danger';
             $history->save();
-
+            
+            $this->tanurApi->notify(session('agent_id'), 1, 1, 1,'[Diperbarui] '.($request->decision === 'approve' ? 'Menyetujui' : 'Menolak' ).' Workspace '.$workspace->name, "Anda berhasil melakukan aksi terhadap approval, silahkan lihat di aplikasi pada menu WPS", 1);
+            
             $history = new History();
             $history->agent_id = $workspace->agent_id;
             $history->relation_id = $workspace->id;
@@ -177,6 +183,8 @@ class ApprovalController extends Controller
             $history->message = '[Diperbarui] Salah Satu Approver '.($request->decision === 'approve' ? 'Menyetujui' : 'Menolak' ).' Workspace '.$workspace->name;
             $history->color = $request->decision === 'approve' ? 'success' : 'danger';
             $history->save();
+
+            $this->tanurApi->notify($workspace->agent_id, 1, 1, 1,'[Diperbarui] Salah Satu Approver '.($request->decision === 'approve' ? 'Menyetujui' : 'Menolak' ).' Workspace '.$workspace->name, "Terdapat pembaruan status approval, silahkan lihat di aplikasi pada menu WPS", 1);
 
             return back()->with('success', $request->decision === 'approve' ? 'Pengajuan berhasil disetujui' : 'Pengajuan berhasil ditolak');
         } catch (\Exception $e) {

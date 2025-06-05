@@ -90,6 +90,9 @@ class WorkspaceTaskController extends Controller
             $history->message = 'Menyelesaikan Task '.$task->name;
             $history->color = 'success';
             $history->save();
+
+            $this->tanurApi->notify($workspace->agent_id, 1, 1, 1, 'Menyelesaikan Task '.$task->name, "Terdapat pembaruan terkait task pada workspace", 1);
+
             
         } catch (\Exception $e) {
             return redirect()->back()->withInput()->with('error', 'Gagal menyelesaikan Task '.$task->name .': '. $e->getMessage());
@@ -156,6 +159,8 @@ class WorkspaceTaskController extends Controller
             $history->color = 'dark';
             $history->save();
 
+            $this->tanurApi->notify($workspace->agent_id, 1, 1, 1,'Memperbarui Task '.$task->name, "Terdapat pembaruan terkait task pada workspace", 1);
+            
         } catch (\Exception $e) {
             return redirect()->back()->withInput()->with('error', 'Gagal memperbarui Task '.$task->name .': '. $e->getMessage());
         }

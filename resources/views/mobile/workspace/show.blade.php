@@ -181,7 +181,7 @@
             <ul class="list-unstyled p-0">
                 @php
                     $tasks = $stage->tasks;
-                    if($wstage->approved_at != null){
+                    if(isset($wstage?->approved_at)){
                         $tasks = $wstage->workspaceTasks->pluck('task')->all();
                     }
                 @endphp
@@ -273,7 +273,7 @@
                     </div>
                 </div>
                 @else
-                <button class="btn-add-modal w-100 btn btn-primary rounded-pill" data-modal-id="sendApprove-{{$stage->id}}" {{ $stage->isFilled($workspace->id) ? '' : 'disabled' }}>Ajukan Stage</button>
+                <button class="btn-add-modal w-100 btn {{ $stage->isFilled($workspace->id) ? 'btn-primary' : 'btn-neutral' }} rounded-pill" data-modal-id="sendApprove-{{$stage->id}}" {{ $stage->isFilled($workspace->id) ? '' : 'disabled' }}>Ajukan Stage</button>
             
                 <x-modal id="sendApprove-{{$stage->id}}" title="Konfirmasi Pengajuan Stage">
                     <div class="fs-2">Apakah anda yakin untuk mengajukan stage ini ? <strong>Saat diajukan task akan terkunci tidak dapat diedit, kecuali semua superior level menyatakan penolakan (Untuk Pembenahan).</strong></div>

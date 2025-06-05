@@ -109,6 +109,22 @@
         <div class="fs-1 fw-semibold mb-1">Meminta Persetujuan</div>
         <div class="fs-2 fw-semibold text-{{ $approval->getStatus()['color'] }} mb-1">{{ $approval->getStatus()['name'] }}</div>
       </div>
+      <div class="p-3 mb-2 bg-light rounded-3">
+        @php
+            $workspace = $approval->workspace ?? $approval->workspaceStage?->workspace;
+        @endphp
+        <div class="position-absolute top-0 end-0 bg-{{$workspace->getStatus()['color']}} rounded-3 p-1 px-2 text-white m-2 fs-1 fw-semibold">
+            {{ $workspace->getStatus()['name'] }}
+        </div>
+
+        <div class="fs-2 fw-semibold">{{$workspace->name}}</div>
+            <div class="fs-1">{{$workspace->description ?? 'tidak ada deskripsi'}}</div>
+            <div class="d-flex align-items-center gap-3 mt-2">
+            <div class="fs-2"><i class="ti ti-user-circle me-1"></i> {{$workspace->pilgrims->count()}} Jamaah</div>
+            <div class="fs-2"><i class="ti ti-timeline-event me-1"></i> <span class="text-primary fw-semibold">{{ $workspace->stageAnalytic()->finished }}</span> / {{ $workspace->stageAnalytic()->total }} Stage</div>
+            <div class="fs-2"><i class="ti ti-subtask me-1"></i> <span class="text-primary fw-semibold">{{ $workspace->taskAnalytic()->finished }}</span> / {{ $workspace->taskAnalytic()->total }} Task</div>
+        </div>
+      </div>
       @if($approval->workspace)
       <button class="btn bg-tanur-green border-0 d-flex w-100 align-items-center gap-2"><i class="ti ti-briefcase"></i> {{$approval->workspace->name}} <i class="ti ti-arrow-narrow-right ms-auto"></i></button>
       @elseif(isset($approval->workspaceStage))

@@ -133,13 +133,16 @@ class WorkspaceStage extends Model
     public function getApproversAttribute(){
         $tanurApi = new TanurController();
         $approvers = [];
+        $customOrder = ['ES', 'BC', 'BM', 'MD'];
         foreach ($this->approvals as $approval) {
             $data = $tanurApi->getAgentDetail($approval->approver_id);
             if (isset($data['data']['agent'])) {
                 $approvers[] = (object) $data['data']['agent'];
             }
         }
-        return $approvers;
+        return collect($approvers)->sortBy(function ($approver) use ($customOrder) {
+            return array_search($approver->id_level, $customOrder);
+        })->values();
     }
 
     public function getApproverStatusAttribute(){

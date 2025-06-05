@@ -38,10 +38,13 @@ class StageApprovalController extends Controller
                     $history = new History();
                     $history->agent_id = $superior['id'];
                     $history->relation_id = $stageApproval->id;
-                    $history->type = 'stage';
+                    $history->type = 'stage_approval';
                     $history->message = 'Pengajuan Stage '.$wstage->stage->name.' dari '.$fetch['data']['agent']['name'];
                     $history->color = 'warning';
                     $history->save();
+
+                    $this->tanurApi->notify($superior['id'], 1, 1, 1,'Pengajuan Stage '.$wstage->stage->name.' dari '.$fetch['data']['agent']['name'], "Terdapat pengajuan stage baru, silahkan lihat di aplikasi pada menu WPS", 1);
+
                 }
             }
             $wstage->save();
@@ -53,6 +56,8 @@ class StageApprovalController extends Controller
             $history->message = 'Mengajukan Stage '.$wstage->stage->name;
             $history->color = 'warning';
             $history->save();
+
+            $this->tanurApi->notify($wstage->workspace->agent_id, 1, 1, 1,'Mengajukan Stage '.$wstage->stage->name, "Berhasil mengajukan stage, silahkan lihat di aplikasi pada menu WPS", 1);
 
             return back()->with('success', 'Berhasil mengajukan Stage '.$wstage->stage->name.' ke Superior / Approver');
         } catch (\Exception $e) {
@@ -120,14 +125,18 @@ class StageApprovalController extends Controller
             $history->message = ($request->decision === 'approve' ? 'Menyetujui' : 'Menolak' ).' Stage '.$wstage->stage->name;
             $history->color = $request->decision === 'approve' ? 'success' : 'danger';
             $history->save();
+            
+            $this->tanurApi->notify($wstage->workspace->agent_id, 1, 1, 1,($request->decision === 'approve' ? 'Menyetujui' : 'Menolak' ).' Stage '.$wstage->stage->name, "Berhasil memberikan aksi terhadap approval, silahkan lihat di aplikasi pada menu WPS", 1);
 
             $history = new History();
-            $history->agent_id = $wstage->workspace->agent_id;
+            $history->agent_id = session('agent_id');
             $history->relation_id = $wstage->id;
             $history->type = 'stage';
             $history->message = 'Salah Satu Approver '.($request->decision === 'approve' ? 'Menyetujui' : 'Menolak' ).' Stage '.$wstage->stage->name;
             $history->color = $request->decision === 'approve' ? 'success' : 'danger';
             $history->save();
+
+            $this->tanurApi->notify(session('agent_id'), 1, 1, 1,'Salah Satu Approver '.($request->decision === 'approve' ? 'Menyetujui' : 'Menolak' ).' Stage '.$wstage->stage->name, "Terdapat status approval terbaru, silahkan lihat di aplikasi pada menu WPS", 1);
 
             if ($wstage->workspace->isAllStageApproved()) {
                 $wstage->workspace->status = '4';
@@ -140,6 +149,9 @@ class StageApprovalController extends Controller
                 $history->message = 'Workspace '.$wstage->workspace->name. ' Selesai';
                 $history->color = 'success';
                 $history->save();
+
+                $this->tanurApi->notify($wstage->workspace->agent_id, 1, 1, 1,'Workspace '.$wstage->workspace->name. ' Selesai', "Workspace selesai!, silahkan lihat di aplikasi pada menu WPS", 1);
+
             }
 
             return back()->with('success', $request->decision === 'approve' ? 'Pengajuan Stage berhasil disetujui' : 'Pengajuan Stage berhasil ditolak');
@@ -201,6 +213,9 @@ class StageApprovalController extends Controller
             $history->color = $request->decision === 'approve' ? 'success' : 'danger';
             $history->save();
 
+            $this->tanurApi->notify(session('agent_id'), 1, 1, 1,'[Diperbarui] '.($request->decision === 'approve' ? 'Menyetujui' : 'Menolak' ).' Stage '.$wstage->stage->name, "Memperbarui aksi terhadap approval, silahkan lihat di aplikasi pada menu WPS", 1);
+
+
             $history = new History();
             $history->agent_id = $wstage->workspace->agent_id;
             $history->relation_id = $wstage->id;
@@ -208,6 +223,8 @@ class StageApprovalController extends Controller
             $history->message = '[Diperbarui] Salah Satu Approver '.($request->decision === 'approve' ? 'Menyetujui' : 'Menolak' ).' Stage '.$wstage->stage->name;
             $history->color = $request->decision === 'approve' ? 'success' : 'danger';
             $history->save();
+
+            $this->tanurApi->notify($wstage->workspace->agent_id, 1, 1, 1, '[Diperbarui] Salah Satu Approver '.($request->decision === 'approve' ? 'Menyetujui' : 'Menolak' ).' Stage '.$wstage->stage->name, "Terdapat pembaruan status approval, silahkan lihat di aplikasi pada menu WPS", 1);
 
             if ($wstage->workspace->isAllStageApproved()) {
                 $wstage->workspace->status = '4';
@@ -220,6 +237,8 @@ class StageApprovalController extends Controller
                 $history->message = 'Workspace '.$wstage->workspace->name. ' Selesai';
                 $history->color = 'success';
                 $history->save();
+            
+                $this->tanurApi->notify($wstage->workspace->agent_id, 1, 1, 1,'Workspace '.$wstage->workspace->name. ' Selesai', "Workspace selesai!, silahkan lihat di aplikasi pada menu WPS", 1);
             }
 
             return back()->with('success', $request->decision === 'approve' ? 'Pengajuan Stage berhasil disetujui' : 'Pengajuan Stage berhasil ditolak');

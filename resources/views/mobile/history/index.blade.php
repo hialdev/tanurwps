@@ -26,6 +26,15 @@
     <section class="bg-white rounded-top-3 bg-dark">
         <div class="bg-white rounded-top-3 p-3 pb-0" style="z-index: 99">
             @forelse ($histories as $history)
+            @php
+                $routes = [
+                    'workspace' => $history?->relation() !== null ? url('/agent/workspace/'. $history?->relation()?->id.'/detail') : "#",
+                    'workspace_approval' => $history?->relation() !== null ? url('/agent/workspace/'. $history?->relation()?->workspace_id.'/detail') : "#",
+                    'stage' => $history?->relation() !== null ? url('/agent/workspace/'. $history?->relation()?->workspace_id.'/detail') : "#",
+                    'stage_approval' => $history?->relation() !== null ? url('/agent/workspace/'. $history?->relation()?->workspaceStage?->workspace_id.'/detail') : "#",
+                    'task' => $history?->relation() !== null ? url('/agent/workspace/'. $history?->relation()?->workspaceStage?->workspace_id.'/detail') : "#",
+                ];
+            @endphp
             <div class="row">
                 <div class="col-2 h-100">
                     <div class="d-flex align-items-center justify-content-center position-relative h-100">
@@ -34,13 +43,13 @@
                     </div>
                 </div>
                 <div class="col-10">
-                    <div>
+                    <a href="{{ $routes[$history->type]}}" class="d-block text-dark text-decoration-none">
                         <div class="fs-2 mb-2 fw-semibold">{{ $history->message }}</div>
                         <div class="fs-1 d-flex align-items-center gap-2 justify-content-between">
                             <div class=""><i class="ti ti-clock me-2"></i>{{ $history->time_ago }}</div>
                             <div class=""><i class="ti ti-calendar me-2"></i>{{ \Carbon\Carbon::parse($history->created_at)->format('d M Y H:i:s') }}</div>
                         </div>
-                    </div>
+                    </a>
                 </div>
             </div>   
             @empty

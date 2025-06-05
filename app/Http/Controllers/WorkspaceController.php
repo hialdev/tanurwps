@@ -29,8 +29,8 @@ class WorkspaceController extends Controller
         $agent = (object) $data['data']['agent'] ?? null;
         $workspaces = Workspace::where('agent_id', session('agent_id'))->get();
 
-        $workspace_approvals = WorkspaceApproval::where('approver_id', session('agent_id'))->get();
-        $stage_approvals = WorkspaceStageApproval::where('approver_id', session('agent_id'))->get();
+        $workspace_approvals = WorkspaceApproval::where('approver_id', session('agent_id'))->where('status', '0')->limit(6)->get();
+        $stage_approvals = WorkspaceStageApproval::where('approver_id', session('agent_id'))->where('status', '0')->limit(6)->get();
         $approvals = $workspace_approvals->merge($stage_approvals)->sortByDesc('created_at');
         
         $count = (object) [
@@ -140,6 +140,8 @@ class WorkspaceController extends Controller
             $history->color = 'dark';
             $history->save();
 
+            $this->tanurApi->notify(session('agent_id'), 1, 1, 1,'Workspace dibuat dan diajukan '.$workspace->name, "Membuat dan mengajukan workspace baru, silahkan lihat di aplikasi pada menu WPS", 1);
+
             //Get Superior Tanur API Agent Detail
             $fetch = $this->tanurapi->getAgentDetail(session('agent_id'));
             $superiors = $fetch['data']['superiors'] ?? null;
@@ -158,6 +160,9 @@ class WorkspaceController extends Controller
                     $history->message = 'Pengajuan Workspace '.$workspace->name. ' dari '.$fetch['data']['agent']['name'];
                     $history->color = 'dark';
                     $history->save();
+
+                    $this->tanurApi->notify($superior['id'], 1, 1, 1,'Pengajuan Workspace '.$workspace->name. ' dari '.$fetch['data']['agent']['name'], "Terdapat pengajuan workspace baru, silahkan lihat di aplikasi pada menu WPS", 1);
+                    
                 }
             }
                 
@@ -240,6 +245,8 @@ class WorkspaceController extends Controller
             $history->color = 'dark';
             $history->save();
 
+            $this->tanurApi->notify(session('agent_id'), 0, 0, 1,'Memperbarui Workspace '.$workspace->name, "Terdapat pembaruan pada workspace, silahkan lihat di aplikasi pada menu WPS", 1);
+
             return redirect()->route('agent.workspace.show', $workspace_id)->with('success', 'Workspace updated successfully.');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Failed to update workspace: ' . $e->getMessage());
@@ -293,6 +300,8 @@ class WorkspaceController extends Controller
             $history->message = 'Menghapus Workspace '.$workspace->name;
             $history->color = 'danger';
             $history->save();
+
+            $this->tanurApi->notify(session('agent_id'), 0, 0, 1,'Menghapus Workspace '.$workspace->name, "Terdapat penghapusan workspace, silahkan lihat di aplikasi pada menu WPS", 1);
 
             return redirect()->route('agent.workspace.list')->with('success', 'Workspace deleted successfully.');
         } catch (\Exception $e) {

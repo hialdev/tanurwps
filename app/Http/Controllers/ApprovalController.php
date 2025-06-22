@@ -12,6 +12,12 @@ use Illuminate\Support\Facades\Storage;
 
 class ApprovalController extends Controller
 {
+    public $tanurApi;
+
+    public function __construct()
+    {
+        $this->tanurApi = new \App\Http\Controllers\Api\TanurController();
+    }
     //index
     public function index(Request $request)
     {

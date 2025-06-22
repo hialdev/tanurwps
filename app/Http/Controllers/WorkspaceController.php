@@ -14,11 +14,11 @@ use Illuminate\Http\Request;
 
 class WorkspaceController extends Controller
 {
-    protected $tanurapi = null;
+    protected $tanurApi = null;
 
     public function __construct()
     {
-        $this->tanurapi = new TanurController();
+        $this->tanurApi = new TanurController();
     }
 
     //index

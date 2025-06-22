@@ -80,7 +80,7 @@ class TanurController
             'pushnotification' => $pushnotification,
             'subject' => $subject,
             'message' => $message,
-            'template' => $forAgent != null ? ($forAgent == 1 ? 'informasi_agent' : 'informasi') : null,
+            'template' => $forAgent != null ? ($forAgent == 1 ? 'informasi_agen' : 'informasi') : null,
         ]);
 
         if ($response->successful()) {

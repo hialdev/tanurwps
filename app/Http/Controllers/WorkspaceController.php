@@ -143,7 +143,7 @@ class WorkspaceController extends Controller
             $this->tanurApi->notify(session('agent_id'), 1, 1, 1,'Workspace dibuat dan diajukan '.$workspace->name, "Membuat dan mengajukan workspace baru, silahkan lihat di aplikasi pada menu WPS", 1);
 
             //Get Superior Tanur API Agent Detail
-            $fetch = $this->tanurapi->getAgentDetail(session('agent_id'));
+            $fetch = $this->tanurApi->getAgentDetail(session('agent_id'));
             $superiors = $fetch['data']['superiors'] ?? null;
             if ($superiors) {
                 foreach ($superiors as $superior) {

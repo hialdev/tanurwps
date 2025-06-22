@@ -11,11 +11,11 @@ use Illuminate\Support\Facades\Storage;
 
 class StageApprovalController extends Controller
 {
-    protected $tanurapi = null;
+    public $tanurApi;
 
     public function __construct()
     {
-        $this->tanurapi = new TanurController();
+        $this->tanurApi = new \App\Http\Controllers\Api\TanurController();
     }
 
     //Send Approval
@@ -25,7 +25,7 @@ class StageApprovalController extends Controller
             $wstage->finished_at = now();
             $wstage->status = '0';
 
-            $fetch = $this->tanurapi->getAgentDetail(session('agent_id'));
+            $fetch = $this->tanurApi->getAgentDetail(session('agent_id'));
             $superiors = $fetch['data']['superiors'] ?? null;
             if ($superiors) {
                 foreach ($superiors as $superior) {

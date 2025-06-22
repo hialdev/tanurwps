@@ -14,6 +14,13 @@ use Illuminate\Support\Facades\Storage;
 
 class WorkspaceTaskController extends Controller
 {
+
+    public $tanurApi;
+
+    public function __construct()
+    {
+        $this->tanurApi = new \App\Http\Controllers\Api\TanurController();
+    }
     //Show
     public function show($id, $task_id){
         $workspace = Workspace::find($id);

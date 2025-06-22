@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Storage;
 
 class ApprovalController extends Controller
 {
-    public $tanurApi;
+    protected $tanurApi;
 
     public function __construct()
     {

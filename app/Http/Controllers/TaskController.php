@@ -121,7 +121,7 @@ class TaskController extends Controller
             $task->save();
 
             // Handle deleted attachments
-            if ($request->has('deleted_attachments')) {
+            if ($request->has('deleted_attachments') && $request->get('deleted_attachments')->count() > 0) {
                 $deletedAttachments = explode(',', $request->deleted_attachments);
                 foreach ($deletedAttachments as $attachmentId) {
                     $attachment = TaskAttachment::findOrFail($attachmentId);

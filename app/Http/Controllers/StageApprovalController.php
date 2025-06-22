@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Storage;
 
 class StageApprovalController extends Controller
 {
-    public $tanurApi;
+    protected $tanurApi;
 
     public function __construct()
     {

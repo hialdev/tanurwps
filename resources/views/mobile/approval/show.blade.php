@@ -78,7 +78,7 @@
                     <div class="d-flex mt-2 align-items-center justify-content-between gap-2">
                         <div class="badge fs-1 rounded-3 fw-semibold text-{{$approval->workspace->approver_status[$approver->id]['color']}} bg-{{$approval->workspace->approver_status[$approver->id]['color']}}-subtle">{{ $approval->workspace->approver_status[$approver->id]['name'] }}</div>
                         <button data-modal-id="reason-modal-{{$approval->id}}" class="btn-add-modal btn btn-light btn-sm fs-4 rounded-circle" title="Alasan"><i class="ti ti-text-caption"></i></button>
-                        <a target="_blank" href="{{'https://api.whatsapp.com/send?phone=6289671052050&text=Mohon memberikan tanggapan terhadap Approval workspace saya '.$approval->workspace->requester->person['phone'].') dengan kode '.$approval->workspace->code }}" class="btn btn-light rounded-circle btn-sm fs-4"><i class="ti ti-brand-whatsapp"></i></a>
+                        <a target="_blank" href="{{'https://api.whatsapp.com/send?phone='.$approver->person['phone'].'&text=Mohon memberikan tanggapan terhadap Approval workspace saya '.$approval->workspace->requester->person['phone'].') dengan kode '.$approval->workspace->code }}" class="btn btn-light rounded-circle btn-sm fs-4"><i class="ti ti-brand-whatsapp"></i></a>
                     </div>
 
                     <x-modal id="reason-modal-{{$approval->id}}" title="Detail Keputusan">

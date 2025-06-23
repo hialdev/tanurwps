@@ -140,6 +140,20 @@
     <div class="preloader">
         <img src="/assets/images/logos/favicon.png" alt="loader" class="lds-ripple img-fluid" />
     </div>
+    <!-- Global Page Transition Loader -->
+      <div id="pageLoader" style="
+         position: fixed;
+         inset: 0;
+         z-index: 9999;
+         background: rgb(255, 255, 255);
+         align-items: center;
+         justify-content: center;
+         transition: opacity 0.3s ease;
+         display: none;
+      ">
+         <img id="loaderImage" src="/assets/images/logos/favicon.png" alt="loader image"
+            style="width: 70px; height: 70px; opacity: 1; object-fit:contain" />
+      </div>
     <div class="device-wrapper">
         <div class="device-frame">
             <div class="device-screen position-relative">
@@ -283,20 +297,74 @@
     <script src="https://cdn.jsdelivr.net/npm/iconify-icon@1.0.8/dist/iconify-icon.min.js"></script>
     <script>
         $(document).ready(function () {
-        // Open modal
-        $(document).on('click', '.btn-add-modal', function () {
-            let modalId = $(this).data('modal-id');
-            $(`#${modalId}`).slideToggle(300);
-            $('.mobile-menu').hide();
-        });
+            // Open modal
+            $(document).on('click', '.btn-add-modal', function () {
+                  let modalId = $(this).data('modal-id');
+                  $(`#${modalId}`).slideToggle(300);
+                  $('.mobile-menu').hide();
+            });
 
-        // Close modal
-        $(document).on('click', '.btn-close-modal', function () {
-            let modalId = $(this).data('modal-id');
-            $(`#${modalId}`).slideToggle(300);
-            $('.mobile-menu').show();
-        });
-    });
+            // Close modal
+            $(document).on('click', '.btn-close-modal', function () {
+                  let modalId = $(this).data('modal-id');
+                  $(`#${modalId}`).slideToggle(300);
+                  $('.mobile-menu').show();
+            });
+         });
+
+         $(document).ready(function () {
+            let formSubmitting = false;
+
+            function showPageLoader() {
+               $('#pageLoader').css('display', 'flex');
+               let opacity = 0;
+               let increasing = true;
+
+               const interval = setInterval(function () {
+                     if (increasing) {
+                        opacity += 0.05;
+                        if (opacity >= 1) increasing = false;
+                     } else {
+                        opacity -= 0.05;
+                        if (opacity <= 0) increasing = true;
+                     }
+                     $('#loaderImage').css('opacity', opacity);
+               }, 50);
+
+               $('#pageLoader').data('interval', interval);
+            }
+
+            // Set flag saat form submit
+            $(document).on('submit', 'form', function () {
+               formSubmitting = true;
+            });
+
+            // Show loader on link click (internal link)
+            $(document).on('click', 'a[href]:not([target="_blank"]):not([href^="#"]):not(.no-loader)', function (e) {
+               const href = $(this).attr('href');
+
+               const isInternal = href && !href.startsWith('http') && !href.startsWith('mailto:') && !href.startsWith('javascript:');
+
+               if (isInternal) {
+                     showPageLoader();
+               }
+            });
+
+            // Show loader on beforeunload hanya jika bukan karena submit form
+            $(window).on('beforeunload', function () {
+               if (!formSubmitting) {
+                     showPageLoader();
+               }
+               // kalau formSubmitting true, abaikan supaya loader gak muncul
+            });
+
+            window.addEventListener('pageshow', function (event) {
+               if (event.persisted) {
+                     $('#pageLoader').hide();
+                     clearInterval($('#pageLoader').data('interval'));
+               }
+            });
+         });
     </script>
     @yield('scripts')
 </body>

@@ -24,7 +24,7 @@
 @endsection
 
 @section('content')
-<div class="">
+<div class="" style="position: relative">
     <div class="p-3 bg-tanur-green pb-4" style="margin-bottom: -0.7rem">
         <h1 class="fw-semibold fs-3 mb-0 text-white text-center text-uppercase">Tambah Workspace</h1>
     </div>
@@ -99,6 +99,26 @@
                 <button type="submit" class="btn shadow-lg mt-3 bg-tanur-green fw-semibold text-white border-0 w-100">Buat & Ajukan Workspace <i class="ti ti-send ms-2"></i></button>
             </div>
         </form>
+
+        <!-- Loading overlay -->
+         <div id="loadingOverlay" style="
+            display:none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 9999;
+            color: white;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-align: center;
+            padding-top: 30vh;
+            user-select: none;
+         ">
+            <div class="spinner-border text-light" role="status" style="width:2rem; height:2rem; margin-bottom: 1rem;">
+               <span class="visually-hidden">Loading...</span>
+            </div>
+            <div id="loadingText" style="max-width:15em;margin:0px auto;" class="text-center">memuat...</div>
+         </div>
     </section>
 
     <div id="addJamaahModal" style="display: none; max-width:576px;" class="bg-white rounded-top-3 mx-auto pt-3 position-fixed bottom-0 start-0 end-0 shadow-lg mx-auto" style="z-index:; max-width:576px;">
@@ -118,7 +138,7 @@
             </div>
             <div class="mb-1 d-flex align-items-center gap-2">
                 <i class="ti ti-mail fs-4 text-dark"></i>
-                <input type="email" class="form-control fs-2 bg-white" placeholder="Email" id="email_pilgrims" name="email_pilgrims[]" required>
+                <input type="email" class="form-control fs-2 bg-white" placeholder="Email" id="email_pilgrims" name="email_pilgrims[]">
             </div>
             
 
@@ -212,5 +232,36 @@
     $(document).on('click', '.btn-remove-jamaah', function() {
         $(this).closest('.card').remove();
     });
+
+    $(function() {
+      const loadingOverlay = $('#loadingOverlay');
+      const loadingText = $('#loadingText');
+      const messages = [
+         "membuat dan mengajukan workspace...",
+         "mengambil data superior...",
+         "membuat log...",
+         "memberikan notifikasi..."
+      ];
+      let currentIndex = 0;
+      let intervalId = null;
+
+      $('form').on('submit', function(e) {
+         // Tampilkan loading overlay
+         loadingOverlay.show();
+
+         // Disable semua input & tombol
+         // $(this).find('input, textarea, select, button').attr('disabled', 'disabled');
+
+         // Mulai animasi tulisan loading
+         loadingText.text(messages[currentIndex]);
+         intervalId = setInterval(() => {
+               currentIndex = (currentIndex + 1) % messages.length;
+               loadingText.text(messages[currentIndex]);
+         }, 2000);
+
+         // biarkan submit form berjalan ke server normal
+         // jika kamu mau submit ajax, perlu cancel default event
+      });
+   });
 </script>
 @endsection

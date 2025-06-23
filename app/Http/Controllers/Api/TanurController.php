@@ -35,22 +35,34 @@ class TanurController
     }
 
     public function getAgentDetail($id_agent)
-    {
-        $response = Http::asForm()->post("{$this->baseUrl}/agent/info/detail", [
-            'appid' => $this->appId,
-            'id_agent' => $id_agent,
-        ]);
+   {
+      $sessionKey = "agent_detail_{$id_agent}";
+      $cached = session($sessionKey);
 
-        if ($response->successful()) {
-            return $response->json();
-        }
+      if ($cached && now()->diffInMinutes($cached['cached_at']) < 10) {
+         return $cached['data'];
+      }
 
-        return [
-            'status' => false,
-            'message' => 'Failed to fetch agent detail',
-            'error' => $response->body(),
-        ];
-    }
+      $response = Http::asForm()->post("{$this->baseUrl}/agent/info/detail", [
+         'appid' => $this->appId,
+         'id_agent' => $id_agent,
+      ]);
+
+      if ($response->successful()) {
+         $data = $response->json();
+         session([$sessionKey => [
+               'data' => $data,
+               'cached_at' => now()
+         ]]);
+         return $data;
+      }
+
+      return [
+         'status' => false,
+         'message' => 'Failed to fetch agent detail',
+         'error' => $response->body(),
+      ];
+   }
 
     public function getAgentSuperiors($id_agent)
     {

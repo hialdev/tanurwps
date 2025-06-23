@@ -104,6 +104,26 @@
             </button>
         </div>
     </form>
+
+    <!-- Loading overlay -->
+   <div id="loadingOverlay" style="
+      display:none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.589);
+      z-index: 9999;
+      color: white;
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-align: center;
+      padding-top: 30vh;
+      user-select: none;
+   ">
+      <div class="spinner-border text-light" role="status" style="width:2rem; height:2rem; margin-bottom: 1rem;">
+         <span class="visually-hidden">Loading...</span>
+      </div>
+      <div id="loadingText">memuat...</div>
+   </div>
 </div>
 @endsection
 
@@ -138,6 +158,33 @@ $(document).ready(function () {
         $('#deleted_attachments').val(deletedAttachments.join(','));
         $(this).closest('.attachment-existing').remove();
     });
+
+   $(function() {
+         const loadingOverlay = $('#loadingOverlay');
+         const loadingText = $('#loadingText');
+         const messages = [
+            "menyelesaikan task...",
+            "memeriksa lampiran file...",
+            "membuat log...",
+         ];
+         let currentIndex = 0;
+         let intervalId = null;
+
+         $('form').on('submit', function(e) {
+            // Tampilkan loading overlay
+            loadingOverlay.show();
+
+            // Disable semua input & tombol
+            // $(this).find('input, textarea, select, button').attr('disabled', 'disabled');
+
+            // Mulai animasi tulisan loading
+            loadingText.text(messages[currentIndex]);
+            intervalId = setInterval(() => {
+                  currentIndex = (currentIndex + 1) % messages.length;
+                  loadingText.text(messages[currentIndex]);
+            }, 2000);
+         });
+   });
 });
 </script>
 @endsection

@@ -113,9 +113,6 @@
         @php
             $workspace = $approval->workspace ?? $approval->workspaceStage?->workspace;
         @endphp
-        <div class="position-absolute top-0 end-0 bg-{{$workspace->getStatus()['color']}} rounded-3 p-1 px-2 text-white m-2 fs-1 fw-semibold">
-            {{ $workspace->getStatus()['name'] }}
-        </div>
 
         <div class="fs-2 fw-semibold">{{$workspace->name}}</div>
             <div class="fs-1">{{$workspace->description ?? 'tidak ada deskripsi'}}</div>

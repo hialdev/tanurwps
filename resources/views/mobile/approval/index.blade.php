@@ -86,13 +86,10 @@
                 <div class="fs-1 fw-semibold mb-1">Meminta Persetujuan</div>
                 <div class="fs-2 fw-semibold text-{{ $approval->getStatus()['color'] }} mb-1">{{ $approval->getStatus()['name'] }}</div>
               </div>
-              <div class="p-3 mb-2 bg-light rounded-3">
+              <div class="p-3 mb-2 bg-light rounded-3 position-relative">
                 @php
                     $workspace = $approval->workspace ?? $approval->workspaceStage?->workspace;
                 @endphp
-                <div class="position-absolute top-0 end-0 bg-{{$workspace->getStatus()['color']}} rounded-3 p-1 px-2 text-white m-2 fs-1 fw-semibold">
-                    {{ $workspace->getStatus()['name'] }}
-                </div>
 
                 <div class="fs-2 fw-semibold">{{$workspace->name}}</div>
                     <div class="fs-1">{{$workspace->description ?? 'tidak ada deskripsi'}}</div>

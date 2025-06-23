@@ -66,7 +66,7 @@
         </div>
 
         <div class="d-flex align-items-center gap-2 mb-2">
-            <img src="{{$workspace->requester->image_url}}" alt="Image workspace->requester {{$workspace->requester->name}}" class="d-block rounded-circle bg-dark" style="aspect-ratio:1/1" width="40">
+            <img src="{{$workspace->requester->image_url}}" alt="Image {{$workspace->requester->name}}" class="d-block rounded-circle bg-dark" style="aspect-ratio:1/1" width="40">
             <div>
               <h6 class="fw-bold text-white mb-1 fs-2" style="white-space: nowrap">{{ $workspace->requester->name }}</h6>
               <div class="fs-1" style="white-space: nowrap">{{ $workspace->requester->level }}</div>
@@ -152,6 +152,7 @@
         </div>
     </div>
 </div>
+@if($workspace->requester->id == session('agent_id'))
 <div class="bg-white p-3 rounded-top-3" style="margin-top: -1em">
     <h6 class="fs-3 mb-1 fw-semibold text-dark">Misi yang harus kamu jalani</h6>
     <p class="fs-2">Dapat dikerjakan secara tidak berurutan, Perhatikan deadline pengerjaannya</p>
@@ -306,6 +307,7 @@
     </div>
     @endif
 </div>
+@endif
 @endsection
 
 @section('script')

@@ -36,6 +36,10 @@ class WorkspaceTaskController extends Controller
             return back()->with('error', 'Workspace Belum Disetujui');
         }
 
+        if($workspace->requester->id != session('agent_id')){
+            return back()->with('error', 'Anda tidak ada akses melakukan aksi ini! Perilaku anda tercatat disistem kami');
+        }
+
         $request->validate([
             'answer_text' => 'required|string',
             'filenames' => 'nullable|array',

@@ -28,7 +28,7 @@
         <h1 class="fw-semibold fs-3 mb-0 text-white text-center text-uppercase">Edit Workspace</h1>
     </div>
     <section class="bg-white rounded-top-3 bg-dark">
-        <form action="{{ route('agent.workspace.update', [$workspace->agent_id, $workspace->id]) }}" method="POST">
+        <form action="{{ route('agent.workspace.update', [$workspace->id]) }}" method="POST">
             @csrf
             @method('PUT')
             <div class="bg-white rounded-top-3 p-3 pb-0" style="z-index: 99">

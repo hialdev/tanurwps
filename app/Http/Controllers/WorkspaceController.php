@@ -186,13 +186,13 @@ class WorkspaceController extends Controller
     {
         $workspace = Workspace::findOrFail($workspace_id);
         if($workspace->agent_id != session('agent_id')){
-            return redirect()->back()->with('error', 'Aksi Ilegal, Anda tidak bisa mengubah Workspace orang lain.');
+            return redirect()->route('agent.workspace.show', $workspace_id)->with('error', 'Aksi Ilegal, Anda tidak bisa mengubah Workspace orang lain.');
         }
         if($workspace->status != '0'){
-            return redirect()->back()->with('error', 'Workspace tidak dapat diubah, status sudah bukan pending.');
+            return redirect()->route('agent.workspace.show', $workspace_id)->with('error', 'Workspace tidak dapat diubah, status sudah bukan pending.');
         }
         if($workspace->is_approved || $workspace->has_approved){
-            return redirect()->back()->with('error', 'Workspace tidak dapat diubah, telah disetujui oleh salah satu atau lebih dari seluruh Superior Level.');
+            return redirect()->route('agent.workspace.show', $workspace_id)->with('error', 'Workspace tidak dapat diubah, telah disetujui oleh salah satu atau lebih dari seluruh Superior Level.');
         }
 
         $request->validate([

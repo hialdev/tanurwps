@@ -8,294 +8,326 @@ use App\Models\WorkspaceApproval;
 use App\Models\WorkspaceStage;
 use App\Models\WorkspaceStageApproval;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class ApprovalController extends Controller
 {
-    protected $tanurApi;
+   protected $tanurApi;
 
-    public function __construct()
-    {
-        $this->tanurApi = new \App\Http\Controllers\Api\TanurController();
-    }
-    //index
-    public function index(Request $request)
-    {
-        $search = $request->get('search', '');
-        $status = $request->get('status', '');
+   public function __construct()
+   {
+      $this->tanurApi = new \App\Http\Controllers\Api\TanurController();
+   }
+   //index
+   public function index(Request $request)
+   {
+      $search = $request->get('search', '');
+      $status = $request->get('status', '');
 
-        $workspace_approvals = WorkspaceApproval::where('approver_id', session('agent_id'))
-            ->when($status !== '', fn($q) => $q->where('status', 'LIKE', '%'.(string) $status))
-            ->when($search, fn($q) => $q->where(function ($q) use ($search) {
-                $q->where('note', 'like', "%{$search}%")
-                ->orWhereHas('workspace', fn($q) => $q->where('name', 'like', "%{$search}%"));
-            }))
-            ->get();
+      $workspace_approvals = WorkspaceApproval::where('approver_id', session('agent_id'))
+         ->when($status !== '', fn($q) => $q->where('status', 'LIKE', '%' . (string) $status))
+         ->when($search, fn($q) => $q->where(function ($q) use ($search) {
+            $q->where('note', 'like', "%{$search}%")
+               ->orWhereHas('workspace', fn($q) => $q->where('name', 'like', "%{$search}%"));
+         }))
+         ->get();
 
-        $stage_approvals = WorkspaceStageApproval::where('approver_id', session('agent_id'))
-            ->when($status !== '', fn($q) => $q->where('status', 'LIKE', '%'.(string) $status))
-            ->when($search, fn($q) => $q->where(function ($q) use ($search) {
-                $q->where('note', 'like', "%{$search}%")
-                ->orWhereHas('workspaceStage.workspace', fn($q) => $q->where('name', 'like', "%{$search}%"));
-            }))
-            ->get();
+      $stage_approvals = WorkspaceStageApproval::where('approver_id', session('agent_id'))
+         ->when($status !== '', fn($q) => $q->where('status', 'LIKE', '%' . (string) $status))
+         ->when($search, fn($q) => $q->where(function ($q) use ($search) {
+            $q->where('note', 'like', "%{$search}%")
+               ->orWhereHas('workspaceStage.workspace', fn($q) => $q->where('name', 'like', "%{$search}%"));
+         }))
+         ->get();
 
-        $approvals = $workspace_approvals->merge($stage_approvals)->sortByDesc('created_at');
+      $approvals = $workspace_approvals->merge($stage_approvals)->sortByDesc('created_at');
 
-        return view('mobile.approval.index', compact('approvals', 'search', 'status'));
-    }
+      return view('mobile.approval.index', compact('approvals', 'search', 'status'));
+   }
 
 
-    //show
-    public function show($approval_id)
-    {
-        $approval = WorkspaceApproval::findOrFail($approval_id);
-        return view('mobile.approval.show', compact('approval'));
-    }
+   //show
+   public function show($approval_id)
+   {
+      $approval = WorkspaceApproval::findOrFail($approval_id);
+      return view('mobile.approval.show', compact('approval'));
+   }
 
-    //Decision
-    public function decision(Request $request, $approval_id)
-    {
-        $approval = WorkspaceApproval::findOrFail($approval_id);
-        if(session('agent_id') != $approval->approver_id){
-            return back()->with('error', 'Anda tidak memiliki akses untuk memutuskan pengajuan ini');
-        }
-        if($approval->status != '0'){
-            return back()->with('error', 'Pengajuan ini sudah diproses sebelumnya');
-        }
-        if($approval->workspace->status != '0'){
-            return back()->with('error', 'Pengajuan ini sudah diproses sebelumnya');
-        }
+   //Decision
+   public function decision(Request $request, $approval_id)
+   {
+      $approval = WorkspaceApproval::findOrFail($approval_id);
+      if (session('agent_id') != $approval->approver_id) {
+         return back()->with('error', 'Anda tidak memiliki akses untuk memutuskan pengajuan ini');
+      }
+      if ($approval->status != '0') {
+         return back()->with('error', 'Pengajuan ini sudah diproses sebelumnya');
+      }
+      if ($approval->workspace->status != '0') {
+         return back()->with('error', 'Pengajuan ini sudah diproses sebelumnya');
+      }
 
-        try {
-            $request->validate([
-                'decision' => 'required|in:approve,reject',
-                'reason' => 'required|string',
-                'attachment' => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,ppt,pptx,jpg,jpeg,png,webp|max:5120',
-            ]);
+      try {
+         $request->validate([
+            'decision' => 'required|in:approve,reject',
+            'reason' => 'required|string',
+            'attachment' => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,ppt,pptx,jpg,jpeg,png,webp|max:5120',
+         ]);
 
-            $approval->status = $request->decision === 'approve' ? '1' : '2';
-            $approval->reason = $request->reason;
-            $approval->attachment = $request->file('attachment') ? $request->file('attachment')->store('approval/attachments', 'public') : null;
-            $approval->approved_at = $request->decision === 'approve' ? now() : null;
-            $approval->rejected_at = $request->decision === 'reject' ? now() : null;
-            $approval->save();
+         $approval->status = $request->decision === 'approve' ? '1' : '2';
+         $approval->reason = $request->reason;
+         $approval->attachment = $request->file('attachment') ? $request->file('attachment')->store('approval/attachments', 'public') : null;
+         $approval->approved_at = $request->decision === 'approve' ? now() : null;
+         $approval->rejected_at = $request->decision === 'reject' ? now() : null;
+         $approval->save();
 
-            $workspace = $approval->workspace;
-            if($workspace->is_approved){
-                $workspace->status = '1';
-                $workspace->approved_at = now();
-                foreach (Stage::whereHas('tasks')->get() as $stage){
-                    $wstage = new WorkspaceStage();
-                    $wstage->workspace_id = $approval->workspace->id;
-                    $wstage->stage_id = $stage->id;
-                    $wstage->deadline_at = $stage->deadlineCount($workspace->approved_at)['deadline_date'];
-                    $wstage->status = '0';
-                    $wstage->save();
-                }
-            } elseif ($request->decision === 'reject') {
-                $workspace->status = '5';
-            } else {
-                $workspace->status = '0';
+         $workspace = $approval->workspace;
+         if ($workspace->is_approved) {
+            $workspace->status = '1';
+            $workspace->approved_at = now();
+            foreach (Stage::whereHas('tasks')->get() as $stage) {
+               $wstage = new WorkspaceStage();
+               $wstage->workspace_id = $approval->workspace->id;
+               $wstage->stage_id = $stage->id;
+               $wstage->deadline_at = $stage->deadlineCount($workspace->approved_at)['deadline_date'];
+               $wstage->status = '0';
+               $wstage->save();
             }
-            $workspace->save();
+         } elseif ($request->decision === 'reject') {
+            $workspace->status = '5';
+         } else {
+            $workspace->status = '0';
+         }
+         $workspace->save();
 
-            $history = new History();
-            $history->agent_id = session('agent_id');
-            $history->relation_id = $approval->id;
-            $history->type = 'workspace_approval';
-            $history->message = ($request->decision === 'approve' ? 'Menyetujui' : 'Menolak' ).' Workspace '.$workspace->name;
-            $history->color = $request->decision === 'approve' ? 'success' : 'danger';
-            $history->save();
+         $history = new History();
+         $history->agent_id = session('agent_id');
+         $history->relation_id = $approval->id;
+         $history->type = 'workspace_approval';
+         $history->message = ($request->decision === 'approve' ? 'Menyetujui' : 'Menolak') . ' Workspace ' . $workspace->name;
+         $history->color = $request->decision === 'approve' ? 'success' : 'danger';
+         $history->save();
 
-            $this->tanurApi->notify($workspace->agent_id, 1, 1, 1,($request->decision === 'approve' ? 'Menyetujui' : 'Menolak' ).' Workspace '.$workspace->name, "Berhasil memberikan aksi terhadap approval, silahkan lihat di aplikasi pada menu WPS", 1);
+         $this->tanurApi->notify($workspace->agent_id, 1, 1, 1, ($request->decision === 'approve' ? 'Menyetujui' : 'Menolak') . ' Workspace ' . $workspace->name, "Berhasil memberikan aksi terhadap approval, silahkan lihat di aplikasi pada menu WPS", 1);
 
-            $history = new History();
-            $history->agent_id = $workspace->agent_id;
-            $history->relation_id = $workspace->id;
-            $history->type = 'workspace';
-            $history->message = 'Salah Satu Approver '.($request->decision === 'approve' ? 'Menyetujui' : 'Menolak' ).' Workspace '.$workspace->name;
-            $history->color = $request->decision === 'approve' ? 'success' : 'danger';
-            $history->save();
+         $history = new History();
+         $history->agent_id = $workspace->agent_id;
+         $history->relation_id = $workspace->id;
+         $history->type = 'workspace';
+         $history->message = 'Salah Satu Approver ' . ($request->decision === 'approve' ? 'Menyetujui' : 'Menolak') . ' Workspace ' . $workspace->name;
+         $history->color = $request->decision === 'approve' ? 'success' : 'danger';
+         $history->save();
 
-            $this->tanurApi->notify($workspace->agent_id, 1, 1, 1,'Salah Satu Approver '.($request->decision === 'approve' ? 'Menyetujui' : 'Menolak' ).' Workspace '.$workspace->name, "Terdapat pembaruan status pada approval, silahkan lihat di aplikasi pada menu WPS", 1);
+         $this->tanurApi->notify($workspace->agent_id, 1, 1, 1, 'Salah Satu Approver ' . ($request->decision === 'approve' ? 'Menyetujui' : 'Menolak') . ' Workspace ' . $workspace->name, "Terdapat pembaruan status pada approval, silahkan lihat di aplikasi pada menu WPS", 1);
 
-            return back()->with('success', $request->decision === 'approve' ? 'Pengajuan berhasil disetujui' : 'Pengajuan berhasil ditolak');
-        } catch (\Exception $e) {
-            return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
-        }
-    }
+         return back()->with('success', $request->decision === 'approve' ? 'Pengajuan berhasil disetujui' : 'Pengajuan berhasil ditolak');
+      } catch (\Exception $e) {
+         return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+      }
+   }
 
-    public function updateDecision(Request $request, $approval_id)
-    {
-        $approval = WorkspaceApproval::findOrFail($approval_id);
-        if(session('agent_id') != $approval->approver_id){
-            return back()->with('error', 'Anda tidak memiliki akses untuk memutuskan pengajuan ini');
-        }
-        if($approval->workspace->is_approved && ($approval->workspace->status != '0' && $approval->workspace->status != '5')){
-            return back()->with('error', 'Pengajuan ini sudah disetujui oleh semua Superior Level / Approver');
-        }
+   public function updateDecision(Request $request, $approval_id)
+   {
+      $approval = WorkspaceApproval::findOrFail($approval_id);
+      if (session('agent_id') != $approval->approver_id) {
+         return back()->with('error', 'Anda tidak memiliki akses untuk memutuskan pengajuan ini');
+      }
+      if ($approval->workspace->is_approved && ($approval->workspace->status != '0' && $approval->workspace->status != '5')) {
+         return back()->with('error', 'Pengajuan ini sudah disetujui oleh semua Superior Level / Approver');
+      }
 
-        try {
-            $request->validate([
-                'decision' => 'required|in:approve,reject',
-                'reason' => 'required|string',
-                'attachment' => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,ppt,pptx,jpg,jpeg,png,webp|max:5120',
-            ]);
+      try {
+         $request->validate([
+            'decision' => 'required|in:approve,reject',
+            'reason' => 'required|string',
+            'attachment' => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,ppt,pptx,jpg,jpeg,png,webp|max:5120',
+         ]);
 
-            $approval->status = $request->decision === 'approve' ? '1' : '2';
-            $approval->reason = $request->reason;
-            if ($approval->attachment) {
-                Storage::disk('public')->delete($approval->attachment);
+         $approval->status = $request->decision === 'approve' ? '1' : '2';
+         $approval->reason = $request->reason;
+         if ($approval->attachment) {
+            Storage::disk('public')->delete($approval->attachment);
+         }
+         $approval->attachment = $request->file('attachment') ? $request->file('attachment')->store('approval/attachments', 'public') : $approval->attachment;
+         $approval->approved_at = $request->decision === 'approve' ? now() : null;
+         $approval->rejected_at = $request->decision === 'reject' ? now() : null;
+         $approval->save();
+
+         $workspace = $approval->workspace;
+         if ($workspace->is_approved) {
+            $workspace->status = '1';
+            $workspace->approved_at = now();
+            foreach (Stage::whereHas('tasks')->get() as $stage) {
+               $wstage = new WorkspaceStage();
+               $wstage->workspace_id = $approval->workspace->id;
+               $wstage->stage_id = $stage->id;
+               $wstage->deadline_at = $stage->deadlineCount($workspace->approved_at)['deadline_date'];
+               $wstage->status = '0';
+               $wstage->save();
             }
-            $approval->attachment = $request->file('attachment') ? $request->file('attachment')->store('approval/attachments', 'public') : $approval->attachment;
-            $approval->approved_at = $request->decision === 'approve' ? now() : null;
-            $approval->rejected_at = $request->decision === 'reject' ? now() : null;
-            $approval->save();
+         } elseif ($request->decision === 'reject') {
+            $workspace->status = '5';
+         } else {
+            $workspace->status = '0';
+         }
+         $workspace->save();
 
-            $workspace = $approval->workspace;
-            if($workspace->is_approved){
-                $workspace->status = '1';
-                $workspace->approved_at = now();
-                foreach (Stage::whereHas('tasks')->get() as $stage){
-                    $wstage = new WorkspaceStage();
-                    $wstage->workspace_id = $approval->workspace->id;
-                    $wstage->stage_id = $stage->id;
-                    $wstage->deadline_at = $stage->deadlineCount($workspace->approved_at)['deadline_date'];
-                    $wstage->status = '0';
-                    $wstage->save();
-                }
-            } elseif ($request->decision === 'reject') {
-                $workspace->status = '5';
-            } else {
-                $workspace->status = '0';
-            }
-            $workspace->save();
+         $history = new History();
+         $history->agent_id = session('agent_id');
+         $history->relation_id = $approval->id;
+         $history->type = 'workspace_approval';
+         $history->message = '[Diperbarui] ' . ($request->decision === 'approve' ? 'Menyetujui' : 'Menolak') . ' Workspace ' . $workspace->name;
+         $history->color = $request->decision === 'approve' ? 'success' : 'danger';
+         $history->save();
 
-            $history = new History();
-            $history->agent_id = session('agent_id');
-            $history->relation_id = $approval->id;
-            $history->type = 'workspace_approval';
-            $history->message = '[Diperbarui] '.($request->decision === 'approve' ? 'Menyetujui' : 'Menolak' ).' Workspace '.$workspace->name;
-            $history->color = $request->decision === 'approve' ? 'success' : 'danger';
-            $history->save();
-            
-            $this->tanurApi->notify(session('agent_id'), 1, 1, 1,'[Diperbarui] '.($request->decision === 'approve' ? 'Menyetujui' : 'Menolak' ).' Workspace '.$workspace->name, "Anda berhasil melakukan aksi terhadap approval, silahkan lihat di aplikasi pada menu WPS", 1);
-            
-            $history = new History();
-            $history->agent_id = $workspace->agent_id;
-            $history->relation_id = $workspace->id;
-            $history->type = 'workspace';
-            $history->message = '[Diperbarui] Salah Satu Approver '.($request->decision === 'approve' ? 'Menyetujui' : 'Menolak' ).' Workspace '.$workspace->name;
-            $history->color = $request->decision === 'approve' ? 'success' : 'danger';
-            $history->save();
+         $this->tanurApi->notify(session('agent_id'), 1, 1, 1, '[Diperbarui] ' . ($request->decision === 'approve' ? 'Menyetujui' : 'Menolak') . ' Workspace ' . $workspace->name, "Anda berhasil melakukan aksi terhadap approval, silahkan lihat di aplikasi pada menu WPS", 1);
 
-            $this->tanurApi->notify($workspace->agent_id, 1, 1, 1,'[Diperbarui] Salah Satu Approver '.($request->decision === 'approve' ? 'Menyetujui' : 'Menolak' ).' Workspace '.$workspace->name, "Terdapat pembaruan status approval, silahkan lihat di aplikasi pada menu WPS", 1);
+         $history = new History();
+         $history->agent_id = $workspace->agent_id;
+         $history->relation_id = $workspace->id;
+         $history->type = 'workspace';
+         $history->message = '[Diperbarui] Salah Satu Approver ' . ($request->decision === 'approve' ? 'Menyetujui' : 'Menolak') . ' Workspace ' . $workspace->name;
+         $history->color = $request->decision === 'approve' ? 'success' : 'danger';
+         $history->save();
 
-            return back()->with('success', $request->decision === 'approve' ? 'Pengajuan berhasil disetujui' : 'Pengajuan berhasil ditolak');
-        } catch (\Exception $e) {
-            return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
-        }
-    }
+         $this->tanurApi->notify($workspace->agent_id, 1, 1, 1, '[Diperbarui] Salah Satu Approver ' . ($request->decision === 'approve' ? 'Menyetujui' : 'Menolak') . ' Workspace ' . $workspace->name, "Terdapat pembaruan status approval, silahkan lihat di aplikasi pada menu WPS", 1);
 
-   
+         return back()->with('success', $request->decision === 'approve' ? 'Pengajuan berhasil disetujui' : 'Pengajuan berhasil ditolak');
+      } catch (\Exception $e) {
+         return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+      }
+   }
+
+
 
    // -----------------------
    // Approval Controler API
    // -----------------------
 
-    // POST /approval/fetch
-    public function getApprovals(Request $request)
-    {
-        $apiKey = $request->input('apiKey');
-        $agentId = $request->input('agent_id');
-        $status = $request->input('status', 1); // default 1
+   public function getApprovals(Request $request)
+   {
+      $apiKey = $request->input('apiKey');
+      $agentId = $request->input('agent_id');
+      $status = $request->input('status', 1);
 
-        // Validasi API key
-        if ($apiKey !== env('API_KEY_ACCESS')) {
-            return response()->json([
-                'success' => false,
-                'code' => 401,
-                'message' => 'Unauthorized: Invalid API key',
-                'data' => null,
-            ], 401);
-        }
+      if ($apiKey !== env('API_KEY_ACCESS')) {
+         return response()->json([
+            'success' => false,
+            'code' => 401,
+            'message' => 'Unauthorized: Invalid API key',
+            'data' => null,
+         ], 401);
+      }
 
-        if (!$agentId) {
-            return response()->json([
-                'success' => false,
-                'code' => 400,
-                'message' => 'agent_id is required',
-                'data' => null,
-            ], 400);
-        }
+      if (!$agentId) {
+         return response()->json([
+            'success' => false,
+            'code' => 400,
+            'message' => 'agent_id is required',
+            'data' => null,
+         ], 400);
+      }
 
-        try {
-            $approvals = WorkspaceApproval::where('approver_id', $agentId)
-                ->where('status', $status)
-                ->orderBy('created_at', 'asc') // terlama dulu
-                ->get();
+      try {
+         // Query workspace_approvals
+         $workspaceApprovals = WorkspaceApproval::select(
+            'id',
+            'workspace_id as reference_id',
+            'approver_id',
+            'status',
+            'approved_at',
+            'rejected_at',
+            'reason',
+            'attachment',
+            'created_at',
+            DB::raw("'workspace_approval' as type")
+         )
+            ->where('approver_id', $agentId)
+            ->where('status', $status);
 
-            return response()->json([
-                'success' => true,
-                'code' => 200,
-                'message' => 'Approvals retrieved successfully',
-                'data' => $approvals,
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'code' => 500,
-                'message' => 'Server error: ' . $e->getMessage(),
-                'data' => null,
-            ], 500);
-        }
-    }
+         // Query workspace_stage_approvals
+         $stageApprovals = WorkspaceStageApproval::select(
+            'id',
+            'workspace_stage_id as reference_id',
+            'approver_id',
+            'status',
+            'approved_at',
+            'rejected_at',
+            'reason',
+            'attachment',
+            'created_at',
+            DB::raw("'workspace_stage_approval' as type")
+         )
+            ->where('approver_id', $agentId)
+            ->where('status', $status);
 
-    // POST /approval/check
-    public function getApprovalBoolean(Request $request)
-    {
-        $apiKey = $request->input('apiKey');
-        $agentId = $request->input('agent_id');
-        $status = $request->input('status', 1);
+         // Gabungkan dan urutkan berdasarkan created_at ascending
+         $approvals = $workspaceApprovals->unionAll($stageApprovals)
+            ->orderBy('created_at', 'asc')
+            ->get();
 
-        // Validasi API key
-        if ($apiKey !== env('API_KEY_ACCESS')) {
-            return response()->json([
-                'success' => false,
-                'code' => 401,
-                'message' => 'Unauthorized: Invalid API key',
-                'data' => null,
-            ], 401);
-        }
+         return response()->json([
+            'success' => true,
+            'code' => 200,
+            'message' => 'Approvals retrieved successfully',
+            'data' => $approvals,
+         ]);
+      } catch (\Exception $e) {
+         return response()->json([
+            'success' => false,
+            'code' => 500,
+            'message' => 'Server error: ' . $e->getMessage(),
+            'data' => null,
+         ], 500);
+      }
+   }
 
-        if (!$agentId) {
-            return response()->json([
-                'success' => false,
-                'code' => 400,
-                'message' => 'agent_id is required',
-                'data' => null,
-            ], 400);
-        }
+   public function getApprovalBoolean(Request $request)
+   {
+      $apiKey = $request->input('apiKey');
+      $agentId = $request->input('agent_id');
+      $status = $request->input('status', 1);
 
-        try {
-            $exists = WorkspaceApproval::where('approver_id', $agentId)
-                ->where('status', $status)
-                ->exists();
+      if ($apiKey !== env('API_KEY_ACCESS')) {
+         return response()->json([
+            'success' => false,
+            'code' => 401,
+            'message' => 'Unauthorized: Invalid API key',
+            'data' => null,
+         ], 401);
+      }
 
-            return response()->json([
-                'success' => true,
-                'code' => 200,
-                'message' => 'Approval existence checked successfully',
-                'data' => $exists,
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'code' => 500,
-                'message' => 'Server error: ' . $e->getMessage(),
-                'data' => null,
-            ], 500);
-        }
-    }
+      if (!$agentId) {
+         return response()->json([
+            'success' => false,
+            'code' => 400,
+            'message' => 'agent_id is required',
+            'data' => null,
+         ], 400);
+      }
+
+      try {
+         $exists = WorkspaceApproval::where('approver_id', $agentId)
+            ->where('status', $status)
+            ->exists()
+            || WorkspaceStageApproval::where('approver_id', $agentId)
+            ->where('status', $status)
+            ->exists();
+
+         return response()->json([
+            'success' => true,
+            'code' => 200,
+            'message' => 'Approval existence checked successfully',
+            'data' => $exists,
+         ]);
+      } catch (\Exception $e) {
+         return response()->json([
+            'success' => false,
+            'code' => 500,
+            'message' => 'Server error: ' . $e->getMessage(),
+            'data' => null,
+         ], 500);
+      }
+   }
 }

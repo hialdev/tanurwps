@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ApprovalController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
@@ -54,4 +55,9 @@ Route::middleware('api.token')->post('/delete', function (Request $request) {
     }
 
     return response()->json(['error' => 'File not found'], 404);
+});
+
+Route::prefix('approval')->group(function () {
+    Route::post('/fetch', [ApprovalController::class, 'getApprovals']);
+    Route::post('/check', [ApprovalController::class, 'getApprovalBoolean']);
 });

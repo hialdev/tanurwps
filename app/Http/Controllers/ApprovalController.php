@@ -198,4 +198,104 @@ class ApprovalController extends Controller
         }
     }
 
+   
+
+   // -----------------------
+   // Approval Controler API
+   // -----------------------
+
+    // POST /approval/fetch
+    public function getApprovals(Request $request)
+    {
+        $apiKey = $request->input('apiKey');
+        $agentId = $request->input('agent_id');
+        $status = $request->input('status', 1); // default 1
+
+        // Validasi API key
+        if ($apiKey !== env('API_KEY_ACCESS')) {
+            return response()->json([
+                'success' => false,
+                'code' => 401,
+                'message' => 'Unauthorized: Invalid API key',
+                'data' => null,
+            ], 401);
+        }
+
+        if (!$agentId) {
+            return response()->json([
+                'success' => false,
+                'code' => 400,
+                'message' => 'agent_id is required',
+                'data' => null,
+            ], 400);
+        }
+
+        try {
+            $approvals = WorkspaceApproval::where('approver_id', $agentId)
+                ->where('status', $status)
+                ->orderBy('created_at', 'asc') // terlama dulu
+                ->get();
+
+            return response()->json([
+                'success' => true,
+                'code' => 200,
+                'message' => 'Approvals retrieved successfully',
+                'data' => $approvals,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'code' => 500,
+                'message' => 'Server error: ' . $e->getMessage(),
+                'data' => null,
+            ], 500);
+        }
+    }
+
+    // POST /approval/check
+    public function getApprovalBoolean(Request $request)
+    {
+        $apiKey = $request->input('apiKey');
+        $agentId = $request->input('agent_id');
+        $status = $request->input('status', 1);
+
+        // Validasi API key
+        if ($apiKey !== env('API_KEY_ACCESS')) {
+            return response()->json([
+                'success' => false,
+                'code' => 401,
+                'message' => 'Unauthorized: Invalid API key',
+                'data' => null,
+            ], 401);
+        }
+
+        if (!$agentId) {
+            return response()->json([
+                'success' => false,
+                'code' => 400,
+                'message' => 'agent_id is required',
+                'data' => null,
+            ], 400);
+        }
+
+        try {
+            $exists = WorkspaceApproval::where('approver_id', $agentId)
+                ->where('status', $status)
+                ->exists();
+
+            return response()->json([
+                'success' => true,
+                'code' => 200,
+                'message' => 'Approval existence checked successfully',
+                'data' => $exists,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'code' => 500,
+                'message' => 'Server error: ' . $e->getMessage(),
+                'data' => null,
+            ], 500);
+        }
+    }
 }

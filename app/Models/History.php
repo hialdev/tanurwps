@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 class History extends Model
 {
     use HasFactory;
+    protected $connection = 'wps';
     protected $table = 'histories';
     protected $keyType = 'string';
     public $incrementing = false;

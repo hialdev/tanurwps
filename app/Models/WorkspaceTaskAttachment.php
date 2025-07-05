@@ -11,6 +11,7 @@ class WorkspaceTaskAttachment extends Model
     protected $table = 'workspace_task_attachments';
     protected $keyType = 'string';
     public $incrementing = false;
+    protected $connection = 'wps';
 
     protected static function boot()
     {

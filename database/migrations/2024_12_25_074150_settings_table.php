@@ -14,8 +14,8 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('settings', function (Blueprint $table) {
-            $table->uuid('id')->primary()->default(Str::uuid());
+        Schema::connection('wps')->create('settings', function (Blueprint $table) {
+            $table->uuid('id')->primary();
             $table->string('group');
             $table->string('group_key');
             $table->string('name');
@@ -35,6 +35,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('settings');
+        Schema::connection('wps')->dropIfExists('settings');
     }
 };

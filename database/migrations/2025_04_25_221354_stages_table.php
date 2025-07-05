@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('stages', function (Blueprint $table) {
+        Schema::connection('wps')->create('stages', function (Blueprint $table) {
             $table->uuid('id')->primary();
             
             $table->string('name')->unique();
@@ -32,6 +32,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('stages');
+        Schema::connection('wps')->dropIfExists('stages');
     }
 };

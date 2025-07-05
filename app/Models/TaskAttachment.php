@@ -10,7 +10,7 @@ class TaskAttachment extends Model
     use HasFactory;
     protected $table = 'stage_task_attachments';
     protected $guarded = ['id'];
-
+    protected $connection = 'wps';
     protected $keyType = 'string';
     public $incrementing = false;
     

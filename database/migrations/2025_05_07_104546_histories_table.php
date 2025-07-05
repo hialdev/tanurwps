@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('histories', function (Blueprint $table) {
+        Schema::connection('wps')->create('histories', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('agent_id');
             $table->uuid('relation_id')->nullable();
@@ -33,6 +33,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('histories');
+        Schema::connection('wps')->dropIfExists('histories');
     }
 };

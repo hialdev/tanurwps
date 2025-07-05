@@ -119,7 +119,7 @@ class StageController extends Controller
             $stage->save();
 
             // Delete removed attachments
-            if ($stage->attachments && $request->has('deleted_attachments')) {
+            if ($stage->attachments->count() > 0 && $request->has('deleted_attachments')) {
                 $deleted_attachments = explode(',', $request->deleted_attachments);
                 foreach ($deleted_attachments as $attachment_id) {
                     $attachment = StageAttachment::findOrFail($attachment_id);

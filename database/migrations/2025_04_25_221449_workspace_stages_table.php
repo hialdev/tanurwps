@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('workspace_stages', function (Blueprint $table) {
+        Schema::connection('wps')->create('workspace_stages', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->uuid('workspace_id');
             $table->uuid('stage_id');
@@ -48,6 +48,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('workspace_stages');
+        Schema::connection('wps')->dropIfExists('workspace_stages');
     }
 };

@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('workspace_pilgrims', function (Blueprint $table) {
+        Schema::connection('wps')->create('workspace_pilgrims', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->uuid('workspace_id');
 
@@ -37,6 +37,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('workspace_pilgrims');
+        Schema::connection('wps')->dropIfExists('workspace_pilgrims');
     }
 };

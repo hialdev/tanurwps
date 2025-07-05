@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('workspace_task_attachments', function (Blueprint $table) {
+        Schema::connection('wps')->create('workspace_task_attachments', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->uuid('workspace_task_id');
             
@@ -37,6 +37,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('workspace_task_attachments');
+        Schema::connection('wps')->dropIfExists('workspace_task_attachments');
     }
 };

@@ -88,7 +88,7 @@ class TanurController
             'appid' => $this->appId,
             'id_agent' => $id_agent,
             'email' => $email,
-            'whatsapp' => $whatsapp,
+            'whatsapp' => (int) setting('site.whatsapp-notification') ?? $whatsapp,
             'pushnotification' => $pushnotification,
             'subject' => $subject,
             'message' => $message,

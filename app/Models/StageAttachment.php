@@ -10,6 +10,8 @@ class StageAttachment extends Model
     use HasFactory;
     protected $keyType = 'string';
     public $incrementing = false;
+    protected $connection = 'wps';
+    protected $table = 'stage_attachments';
     
     protected static function boot()
     {

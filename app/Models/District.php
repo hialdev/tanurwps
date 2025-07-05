@@ -9,6 +9,7 @@ class District extends Model
 {
     use HasFactory;
     protected $table = 'm_kecamatan';
+    protected $connection = 'wps';
     protected $keyType = 'string';
     public $incrementing = false;
 

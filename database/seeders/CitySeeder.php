@@ -22,7 +22,7 @@ class CitySeeder extends Seeder
         $sql = file_get_contents($filePath);
 
         // Eksekusi SQL
-        DB::unprepared($sql);
+        DB::connection('wps')->unprepared($sql);
 
         // Tampilkan pesan sukses
         $this->command->info('Inital Cities table seeded successfully!');

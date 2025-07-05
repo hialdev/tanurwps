@@ -9,7 +9,7 @@ class Province extends Model
 {
     use HasFactory;
     protected $table = 'm_propinsi';
-
+    protected $connection = 'wps';
     protected $keyType = 'string';
     public $incrementing = false;
 

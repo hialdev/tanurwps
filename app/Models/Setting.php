@@ -13,7 +13,9 @@ class Setting extends Model
 
     public $incrementing = false;
     protected $keyType = 'string';
-
+    protected $connection = 'wps';
+    protected $table = 'settings';
+    
     /**
      * Set UUID otomatis sebelum menyimpan data
      */

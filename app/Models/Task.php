@@ -10,7 +10,7 @@ class Task extends Model
 {
     use HasFactory;
     protected $table = 'stage_tasks';
-
+    protected $connection = 'wps';
     protected $keyType = 'string';
     public $incrementing = false;
 

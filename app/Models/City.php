@@ -9,7 +9,7 @@ class City extends Model
 {
     use HasFactory;
     protected $table = 'm_kota';
-
+    protected $connection = 'wps';
     protected $keyType = 'string';
     public $incrementing = false;
 

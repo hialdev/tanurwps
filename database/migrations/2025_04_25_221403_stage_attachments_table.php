@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('stage_attachments', function (Blueprint $table) {
+        Schema::connection('wps')->create('stage_attachments', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->uuid('stage_id');
             
@@ -37,6 +37,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('stage_attachments');
+        Schema::connection('wps')->dropIfExists('stage_attachments');
     }
 };

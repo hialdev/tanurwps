@@ -10,6 +10,7 @@ class WorkspaceTask extends Model
     use HasFactory;
     protected $table = 'workspace_tasks';
     protected $keyType = 'string';
+    protected $connection = 'wps';
     public $incrementing = false;
 
     protected static function boot()

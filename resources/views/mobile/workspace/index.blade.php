@@ -52,31 +52,31 @@
     <section class="bg-white rounded-top-4 p-3">
       <div class="d-flex mb-2 align-items-center justify-content-between">
         <h6 class="fw-bolder mb-0">Workspace Terbaru</h6>
-        <a href="{{route('agent.workspace.index')}}" class="fs-2 tanur-link">Semua<i class="ti ti-arrow-narrow-right ms-2"></i></a>
+        <a href="{{route('agent.workspace.list')}}" class="fs-2 tanur-link">Semua<i class="ti ti-arrow-narrow-right ms-2"></i></a>
       </div>
       @forelse ($workspaces as $workspace)
           <a href="{{ route('agent.workspace.show', $workspace->id) }}" class="p-3 d-block text-decoration-none text-dark mb-2 bg-light text-dark rounded-3 position-relative">
-              <div class="position-absolute top-0 end-0 bg-{{$workspace->getStatus()['color']}} rounded-3 p-1 px-2 text-white m-2 fs-1 fw-semibold">
+              <div class="position-absolute top-0 end-0 bg-{{$workspace->getStatus()['color']}} rounded-3 p-1 px-2 text-white m-2 fs-2 fw-semibold">
                   {{ $workspace->getStatus()['name'] }}
               </div>
 
               <div class="fs-3 fw-semibold">{{$workspace->name}}</div>
-                  <div class="fs-1">{{$workspace->description ?? 'tidak ada deskripsi'}}</div>
+                  <div class="fs-2">{{$workspace->description ?? 'tidak ada deskripsi'}}</div>
                   <div class="d-flex align-items-center gap-3 mt-2">
-                  <div class="fs-2"><i class="ti ti-user-circle me-1"></i> {{$workspace->pilgrims->count()}} Jamaah</div>
+                  <div class="fs-2"><i class="ti ti-user-circle me-1"></i> {{$workspace->total_pilgrim_male+$workspace->total_pilgrim_female}} Jamaah <span class="text-secondary mx-1"><i class="ti ti-gender-male me-1"></i>{{$workspace->total_pilgrim_male}}</span> <span class="text-danger"><i class="ti ti-gender-female me-1"></i>{{$workspace->total_pilgrim_female}}</span></div>
                   <div class="fs-2"><i class="ti ti-timeline-event me-1"></i> <span class="text-primary fw-semibold">{{ $workspace->stageAnalytic()->finished }}</span> / {{ $workspace->stageAnalytic()->total }} Stage</div>
                   <div class="fs-2"><i class="ti ti-subtask me-1"></i> <span class="text-primary fw-semibold">{{ $workspace->taskAnalytic()->finished }}</span> / {{ $workspace->taskAnalytic()->total }} Task</div>
               </div>
               @if($workspace->getStatus()['message'])
               <div class="d-flex text-{{$workspace->getStatus()['color']}} align-items-center mt-2 fw-semibold gap-2">
                   <i class="ti ti-alert-circle"></i>
-                  <div class="fs-1 text-dark">{{$workspace->getStatus()['message']}}</div>
+                  <div class="fs-2 text-dark">{{$workspace->getStatus()['message']}}</div>
               </div>
               @endif
 
               @if($workspace->status != '0')
               <div class="mt-1">
-                  <div class="fs-1 text-dark fw-semibold">Score Terkumpul</div>
+                  <div class="fs-2 text-dark fw-semibold">Score Terkumpul</div>
                   <div class="fs-4 fw-bolder text-{{$workspace->getStatus()['color']}}">{{$workspace->live_score}}</div>
               </div>
               @endif
@@ -101,12 +101,12 @@
         <img src="{{$approval->requester->image_url}}" alt="Image Agent Pengirim {{$approval->requester->name}} - {{$approval->id}}" class="d-block rounded-circle" style="width:35px;aspect-ratio:1/1">
         <div>
           <div class="fs-2 fw-semibold">{{$approval->requester->name}}</div>
-          <div class="fs-1 text-dark">{{$approval->requester->level}}</div>
+          <div class="fs-2 text-dark">{{$approval->requester->level}}</div>
         </div>
-        <div class="fs-1 ms-auto fw-semibold"><i class="ti ti-clock me-2"></i>{{ $approval->time_ago }}</div>
+        <div class="fs-2 ms-auto fw-semibold"><i class="ti ti-clock me-2"></i>{{ $approval->time_ago }}</div>
       </div>
       <div class="d-flex align-items-center justify-content-between">
-        <div class="fs-1 fw-semibold mb-1">Meminta Persetujuan</div>
+        <div class="fs-2 fw-semibold mb-1">Meminta Persetujuan</div>
         <div class="fs-2 fw-semibold text-{{ $approval->getStatus()['color'] }} mb-1">{{ $approval->getStatus()['name'] }}</div>
       </div>
       <div class="p-3 mb-2 bg-light rounded-3">
@@ -115,9 +115,9 @@
         @endphp
 
         <div class="fs-2 fw-semibold">{{$workspace->name}}</div>
-            <div class="fs-1">{{$workspace->description ?? 'tidak ada deskripsi'}}</div>
+            <div class="fs-2">{{$workspace->description ?? 'tidak ada deskripsi'}}</div>
             <div class="d-flex align-items-center gap-3 mt-2">
-            <div class="fs-2"><i class="ti ti-user-circle me-1"></i> {{$workspace->pilgrims->count()}} Jamaah</div>
+            <div class="fs-2"><i class="ti ti-user-circle me-1"></i> {{$workspace->total_pilgrim_male+$workspace->total_pilgrim_female}} Jamaah <span class="text-secondary mx-1"><i class="ti ti-gender-male me-1"></i>{{$workspace->total_pilgrim_male}}</span> <span class="text-danger"><i class="ti ti-gender-female me-1"></i>{{$workspace->total_pilgrim_female}}</span></div>
             <div class="fs-2"><i class="ti ti-timeline-event me-1"></i> <span class="text-primary fw-semibold">{{ $workspace->stageAnalytic()->finished }}</span> / {{ $workspace->stageAnalytic()->total }} Stage</div>
             <div class="fs-2"><i class="ti ti-subtask me-1"></i> <span class="text-primary fw-semibold">{{ $workspace->taskAnalytic()->finished }}</span> / {{ $workspace->taskAnalytic()->total }} Task</div>
         </div>
@@ -128,7 +128,7 @@
       <button class="btn bg-tanur-coklat border-0 d-flex w-100 align-items-center gap-2"><i class="ti ti-timeline-event"></i> {{$approval->workspaceStage->stage->name}} <i class="ti ti-arrow-narrow-right ms-auto"></i></button>
       <div class="d-flex align-items-center text-{{ $approval?->workspaceStage?->deadlineCount()['message']['color'] ?? 'muted' }} mt-2 gap-2">
         <i class="ti ti-alert-circle"></i>
-        <div class="fs-1 fw-semibold">Deadline Stage {{ $approval?->workspaceStage?->deadlineCount()['message']['text'] ?? 'undefined' }}</div>
+        <div class="fs-2 fw-semibold">Deadline Stage {{ $approval?->workspaceStage?->deadlineCount()['message']['text'] ?? 'undefined' }}</div>
       </div>
       @endif
     </a>

@@ -108,80 +108,13 @@
                         <i class="ti ti-dots nav-small-cap-icon fs-4"></i>
                         <span class="hide-menu">Site Management</span>
                     </li>
-                    <li class="sidebar-item">
-                        <a class="sidebar-link has-arrow" href="javascript:void(0)" aria-expanded="false">
-                            <span class="d-flex">
-                                <i class="ti ti-apps"></i>
-                            </span>
-                            <span class="hide-menu">Application</span>
-                        </a>
-                        <ul aria-expanded="false" class="collapse first-level">
-                            <li class="sidebar-item">
-                                <a href="{{ route('application.index') }}" class="sidebar-link">
-                                    <div class="round-16 d-flex align-items-center justify-content-center">
-                                        <i class="ti ti-circle"></i>
-                                    </div>
-                                    <span class="hide-menu">Semua Aplikasi</span>
-                                </a>
-                            </li>
-                            <li class="sidebar-item">
-                                <a href="{{ route('application.add') }}" class="sidebar-link">
-                                    <div class="round-16 d-flex align-items-center justify-content-center">
-                                        <i class="ti ti-circle"></i>
-                                    </div>
-                                    <span class="hide-menu">Tambah</span>
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
-                    <li class="sidebar-item">
-                        <a class="sidebar-link has-arrow" href="javascript:void(0)" aria-expanded="false">
-                            <span class="d-flex">
-                                <i class="ti ti-users"></i>
-                            </span>
-                            <span class="hide-menu">User</span>
-                        </a>
-                        <ul aria-expanded="false" class="collapse first-level">
-                            <li class="sidebar-item">
-                                <a href="{{ route('user.index') }}" class="sidebar-link">
-                                    <div class="round-16 d-flex align-items-center justify-content-center">
-                                        <i class="ti ti-circle"></i>
-                                    </div>
-                                    <span class="hide-menu">Semua User</span>
-                                </a>
-                            </li>
-                            <li class="sidebar-item">
-                                <a href="{{ route('user.add') }}" class="sidebar-link">
-                                    <div class="round-16 d-flex align-items-center justify-content-center">
-                                        <i class="ti ti-circle"></i>
-                                    </div>
-                                    <span class="hide-menu">Tambah</span>
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
-                    <li class="sidebar-item {{ Route::is('access.index') ? 'selected' : '' }}">
-                        <a href="{{ route('access.index') }}" class="sidebar-link" aria-expanded="false">
-                            <span>
-                                <i class="ti ti-fingerprint"></i>
-                            </span>
-                            <span class="hide-menu">Access Control</span>
-                        </a>
-                    </li>
+                    
                     <li class="sidebar-item {{ Route::is('setting.index') ? 'selected' : '' }}">
                         <a href="{{ route('setting.index') }}" class="sidebar-link" aria-expanded="false">
                             <span>
                                 <i class="ti ti-settings"></i>
                             </span>
                             <span class="hide-menu">Settings</span>
-                        </a>
-                    </li>
-                    <li class="sidebar-item {{ Route::is('whatsapp.index') ? 'selected' : '' }}">
-                        <a href="{{ route('whatsapp.index') }}" class="sidebar-link" aria-expanded="false">
-                            <span>
-                                <i class="ti ti-brand-whatsapp"></i>
-                            </span>
-                            <span class="hide-menu">Whatsapp OTP</span>
                         </a>
                     </li>
                 @endrole

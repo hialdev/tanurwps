@@ -66,27 +66,27 @@
         <div class="list bg-white p-2">
             @forelse ($workspaces as $workspace)
                 <a href="{{ route('agent.workspace.show', $workspace->id) }}" class="p-3 d-block text-decoration-none text-dark mb-2 bg-light text-dark rounded-3 position-relative">
-                    <div class="position-absolute top-0 end-0 bg-{{$workspace->getStatus()['color']}} rounded-3 p-1 px-2 text-white m-2 fs-1 fw-semibold">
+                    <div class="position-absolute top-0 end-0 bg-{{$workspace->getStatus()['color']}} rounded-3 p-1 px-2 text-white m-2 fs-2 fw-semibold">
                         {{ $workspace->getStatus()['name'] }}
                     </div>
 
                     <div class="fs-3 fw-semibold">{{$workspace->name}}</div>
-                        <div class="fs-1">{{$workspace->description ?? 'tidak ada deskripsi'}}</div>
+                        <div class="fs-2">{{$workspace->description ?? 'tidak ada deskripsi'}}</div>
                         <div class="d-flex align-items-center gap-3 mt-2">
-                        <div class="fs-2"><i class="ti ti-user-circle me-1"></i> {{$workspace->pilgrims->count()}} Jamaah</div>
+                        <div class="fs-2"><i class="ti ti-user-circle me-1"></i> {{$workspace->total_pilgrim_male+$workspace->total_pilgrim_female}} Jamaah <span class="text-secondary mx-1"><i class="ti ti-gender-male me-1"></i>{{$workspace->total_pilgrim_male}}</span> <span class="text-danger"><i class="ti ti-gender-female me-1"></i>{{$workspace->total_pilgrim_female}}</span></div>
                         <div class="fs-2"><i class="ti ti-timeline-event me-1"></i> <span class="text-primary fw-semibold">{{ $workspace->stageAnalytic()->finished }}</span> / {{ $workspace->stageAnalytic()->total }} Stage</div>
                         <div class="fs-2"><i class="ti ti-subtask me-1"></i> <span class="text-primary fw-semibold">{{ $workspace->taskAnalytic()->finished }}</span> / {{ $workspace->taskAnalytic()->total }} Task</div>
                     </div>
                     @if($workspace->getStatus()['message'])
                     <div class="d-flex text-{{$workspace->getStatus()['color']}} align-items-center mt-2 fw-semibold gap-2">
                         <i class="ti ti-alert-circle"></i>
-                        <div class="fs-1 text-dark">{{$workspace->getStatus()['message']}}</div>
+                        <div class="fs-2 text-dark">{{$workspace->getStatus()['message']}}</div>
                     </div>
                     @endif
 
                     @if($workspace->status != '0')
                     <div class="mt-1">
-                        <div class="fs-1 text-dark fw-semibold">Score Terkumpul</div>
+                        <div class="fs-2 text-dark fw-semibold">Score Terkumpul</div>
                         <div class="fs-4 fw-bolder text-{{$workspace->getStatus()['color']}}">{{$workspace->live_score}}</div>
                     </div>
                     @endif

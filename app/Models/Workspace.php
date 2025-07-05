@@ -10,7 +10,7 @@ class Workspace extends Model
 {
     use HasFactory;
     protected $table = 'workspaces';
-
+    protected $connection = 'wps';
     protected $keyType = 'string';
     public $incrementing = false;
 

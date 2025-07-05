@@ -22,7 +22,7 @@
 
 <div class="bg-light pb-4 p-3 rounded-top-3" style="margin-top: -1em">
     <h5 class="fs-3 fw-semibold mb-1">{{ $task->name }}</h5>
-    <div class="fs-1">{{ $task->description ?? 'Tidak ada deskripsi' }}</div>
+    <div class="fs-2">{{ $task->description ?? 'Tidak ada deskripsi' }}</div>
 
     @if($task->attachments->count() > 0)
         <div class="d-flex align-items-center mt-2 gap-1 flex-wrap">
@@ -36,7 +36,7 @@
 
     <div class="d-flex mt-2 align-items-center gap-2">
         <div>
-            <div class="fs-1 text-muted fw-semibold">Score</div>
+            <div class="fs-2 text-muted fw-semibold">Score</div>
             <div class="fs-3 fw-semibold text-primary">+{{ $task->score }}</div>
         </div>
     </div>
@@ -56,13 +56,13 @@
         @endif
 
         <div class="mb-2">
-            <label for="answer_text" class="fs-1 text-muted form-label">Jawab dengan teks</label>
+            <label for="answer_text" class="fs-2 text-muted form-label">Jawab dengan teks</label>
             <textarea class="form-control fs-2" rows="7" id="answer_text" name="answer_text" placeholder="Tulis detail pengerjaan">{{ old('answer_text', $wtask->answer_text ?? '') }}</textarea>
         </div>
 
         <input type="hidden" name="deleted_attachments" id="deleted_attachments">
 
-        <div class="fs-1 text-muted form-label">Lampiran</div>
+        <div class="fs-2 text-muted form-label">Lampiran</div>
         <div id="attachments-box">
             {{-- Existing attachments --}}
             @if($wtask && $wtask->attachments)

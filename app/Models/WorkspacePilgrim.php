@@ -10,6 +10,7 @@ class WorkspacePilgrim extends Model
     use HasFactory;
     protected $table = 'workspace_pilgrims';
     protected $keyType = 'string';
+    protected $connection = 'wps';
     public $incrementing = false;
     protected $guarded = ['id', 'workspace_id', 'created_at', 'updated_at'];
 

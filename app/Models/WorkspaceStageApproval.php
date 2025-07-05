@@ -12,6 +12,7 @@ class WorkspaceStageApproval extends Model
     use HasFactory;
     protected $table = 'workspace_stage_approvals';
     protected $keyType = 'string';
+    protected $connection = 'wps';
     public $incrementing = false;
 
     protected static function boot()

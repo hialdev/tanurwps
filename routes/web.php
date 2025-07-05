@@ -19,6 +19,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\WorkspaceController;
 use App\Http\Controllers\WorkspaceTaskController;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Session;
 
 /*
 |--------------------------------------------------------------------------
@@ -43,16 +44,17 @@ Route::get('/app.css', function () {
 });
 
 // -------------- Auth Routes ----------------
-Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
-Route::post('/login', [LoginController::class, 'login']);
-Route::get('/login/email', [LoginController::class, 'showLoginEmail'])->name('login.email');
-Route::post('/login/email', [LoginController::class, 'withEmail'])->name('login.email');
-Route::get('/login/phone', [LoginController::class, 'showLoginPhone'])->name('login.phone');
-Route::post('/login/phone', [LoginController::class, 'withPhone'])->name('login.phone');
-Route::get('/otp/input', [LoginController::class, 'inputOTP'])->name('otp.input');
-Route::post('/otp/{type}/submit', [LoginController::class, 'submitOTP'])->name('otp.submit');
+Route::get('/login', function () {
+    Session::put('prev_url', env('APP_URL'));
+    return redirect()->to(urlApp('ACC', '/login'));
+})->name('login');
+Route::get('/register', function () {
+    Session::put('prev_url', env('APP_URL'));
+    return redirect()->to(urlApp('ACC', '/register'));
+})->name('register');
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
+// -------------- Auth Routes ----------------
 Route::get('/password/confirm', [ConfirmPasswordController::class, 'showConfirmForm'])->name('password.confirm');
 Route::post('/password/confirm', [ConfirmPasswordController::class, 'confirm']);
 Route::post('/password/email', [ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');

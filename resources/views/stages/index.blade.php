@@ -96,18 +96,18 @@
                 <tr>
                     <td>
                         <div>
-                            <div class="badge bg-primary-subtle text-primary fw-semibold fs-1 mb-1" style="">Urutan ke {{ $stage->order ?? 'belum diatur' }}</div>
+                            <div class="badge bg-primary-subtle text-primary fw-semibold fs-2 mb-1" style="">Urutan ke {{ $stage->order ?? 'belum diatur' }}</div>
                             <h6 class="fw-semibold text-dark mb-1" style="">{{ $stage->name }}</h6>
                         </div>
                     </td>
                     <td>
                         <div>
-                            <div class="fw-normal fs-1 text-muted" style="white-space:normal;">Deadline
+                            <div class="fw-normal fs-2 text-muted" style="white-space:normal;">Deadline
                             </div>
                             <h6 class="fw-semibold text-secondary mb-1 fs-2" style="">{{ $stage->deadline_days }} hari</h6>
                         </div>
                         <div>
-                            <div class="fw-normal fs-1 text-muted" style="white-space:normal;">Description
+                            <div class="fw-normal fs-2 text-muted" style="white-space:normal;">Description
                             </div>
                             <div class="text-dark fs-2 mb-1" style="white-space:normal;">{{ $stage->description ?? 'tidak ada deskripsi' }}</div>
                         </div>
@@ -175,20 +175,20 @@
                                         @forelse ($stage->tasks as $task)
                                             <div class="p-2 border border-dashed rounded-3 mb-2">
                                                 <div>
-                                                    <div class="badge bg-primary-subtle text-primary fw-semibold fs-1 mb-1" style="">Urutan ke {{ $task->order ?? 'belum diatur' }}</div>
-                                                    <div class="fw-normal fs-1 text-muted" style="white-space:normal;">Nama task
+                                                    <div class="badge bg-primary-subtle text-primary fw-semibold fs-2 mb-1" style="">Urutan ke {{ $task->order ?? 'belum diatur' }}</div>
+                                                    <div class="fw-normal fs-2 text-muted" style="white-space:normal;">Nama task
                                                     </div>
                                                     <h6 class="fw-semibold text-dark mb-1 fs-3" style="">{{ $task->name }}</h6>
                                                 </div>
                                                 <div>
-                                                    <div class="fw-normal fs-1 text-muted" style="white-space:normal;">Score Point
+                                                    <div class="fw-normal fs-2 text-muted" style="white-space:normal;">Score Point
                                                     </div>
                                                     <div class="text-primary fs-2 fw-semibold mb-1" style="white-space:normal;">{{ $task->score ?? 'belum diatur' }} Point</div>
                                                 </div>
                                                 <div>
-                                                    <div class="fw-normal fs-1 text-muted" style="white-space:normal;">Description
+                                                    <div class="fw-normal fs-2 text-muted" style="white-space:normal;">Description
                                                     </div>
-                                                    <div class="text-dark fs-1 mb-1" style="white-space:normal;">{{ $task->description ?? 'tidak ada deskripsi' }}</div>
+                                                    <div class="text-dark fs-2 mb-1" style="white-space:normal;">{{ $task->description ?? 'tidak ada deskripsi' }}</div>
                                                 </div>
                                             </div>
                                         @empty

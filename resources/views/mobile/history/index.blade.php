@@ -45,7 +45,7 @@
                 <div class="col-10">
                     <a href="{{ $routes[$history->type]}}" class="d-block text-dark text-decoration-none">
                         <div class="fs-2 mb-2 fw-semibold">{{ $history->message }}</div>
-                        <div class="fs-1 d-flex align-items-center gap-2 justify-content-between">
+                        <div class="fs-2 d-flex align-items-center gap-2 justify-content-between">
                             <div class=""><i class="ti ti-clock me-2"></i>{{ $history->time_ago }}</div>
                             <div class=""><i class="ti ti-calendar me-2"></i>{{ \Carbon\Carbon::parse($history->created_at)->format('d M Y H:i:s') }}</div>
                         </div>
@@ -57,7 +57,7 @@
                 <img src="https://img.freepik.com/free-vector/empty-concept-illustration_114360-7416.jpg" alt="Empty Illustration" class="d-block w-100" style="max-width: 10em">
                 <div class="text-center mt-3">
                     <h2 class="fw-semibold fs-3">Belum ada History</h2>
-                    <p class="fs-1">History akan muncul disini</p>
+                    <p class="fs-2">History akan muncul disini</p>
                 </div>
             </div>
             @endforelse

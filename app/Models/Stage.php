@@ -13,6 +13,8 @@ class Stage extends Model
 
     protected $keyType = 'string';
     public $incrementing = false;
+    protected $connection = 'wps';
+    protected $table = 'stages';
 
     protected static function boot()
     {

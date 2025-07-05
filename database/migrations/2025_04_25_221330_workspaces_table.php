@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('workspaces', function (Blueprint $table) {
+        Schema::connection('wps')->create('workspaces', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('agent_id');
             $table->string('code')->unique();
@@ -22,8 +22,10 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->text('address');
             $table->string('city');
-            $table->string('postal_code');
 
+            $table->integer('total_pilgrim_male')->default(0);
+            $table->integer('total_pilgrim_female')->default(0);
+            
             $table->string('pic_name');
             $table->string('pic_phone');
             $table->string('pic_email')->nullable();
@@ -45,6 +47,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('workspaces');
+        Schema::connection('wps')->dropIfExists('workspaces');
     }
 };

@@ -19,7 +19,8 @@ class DatabaseSeeder extends Seeder
             SettingsSeeder::class,
             // URPSeeder::class,
             // ApplicationSeeder::class,
-            // CitySeeder::class,
+            CitySeeder::class,
+            CityDistrictSeeder::class,
         ]);
     }
 }

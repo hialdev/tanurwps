@@ -14,14 +14,17 @@
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
--- Dumping data for table tanur_wps.settings: ~15 rows (approximately)
+-- Dumping data for table tanur_wps.settings: ~18 rows (approximately)
 REPLACE INTO `settings` (`id`, `group`, `group_key`, `name`, `key`, `description`, `input_type`, `value`, `is_urgent`, `created_at`, `updated_at`) VALUES
 	('07180d50-193d-42b7-87a2-b4f5c23bd6f8', 'Site', 'site', 'Mobile Menu Logo', 'mobile-logo', 'Logo untuk mobile menu', 'image', 'settings/P2cWSztZq5qwmnJu3jWBC1PLJAbyLQ2UaDAaURoV.webp', 1, '2025-04-29 17:21:59', '2025-04-29 17:22:13'),
 	('0dce868d-08f8-4c65-8904-3636ae2af53d', 'Site', 'site', 'Logo', 'logo', 'Logo untuk website', 'image', 'settings/6TxMsmR4PS8vO8RVt4CU8XXD0WvyApN2LPYXESny.webp', 1, '2024-12-25 21:05:21', '2025-04-28 16:45:53'),
 	('1626205a-3961-4cb4-a1aa-ad3ab5720eeb', 'Site', 'site', 'Favicon', 'favicon', 'Upload gambar dengan rasio 1:1', 'image', 'settings/tvDWkKcLua02oGVGnYhBUCpJJBzmeqHmwVFsnSKM.webp', 1, '2024-12-25 21:05:54', '2025-04-28 16:45:44'),
 	('239f1c78-7d44-42c2-8f10-f678396c5e9d', 'Theme', 'theme', 'Button Border Color', 'btn-border', 'Nilai Default \'#926e38\'', 'text', '#027673', 1, '2024-12-26 05:17:30', '2025-01-17 13:11:57'),
 	('3313cff0-3ae7-429a-88b7-2ade63680ddd', 'Company', 'company', 'Company City', 'city', 'Alamat Kota Perusahaan untuk keperluan sistem lebih lanjut', 'text', 'Jakarta Selatan', 1, '2025-01-23 17:15:17', '2025-01-23 17:15:26'),
+	('3a8d9b93-85af-4d5b-9289-3499a8258b48', 'Site', 'site', 'Notification Hour', 'notification-hour', 'Jam notifikasi kapan di jalankan, format 24 jam dengan penulisan hh:mm di WIB (Waktu Indonesia Barat), contoh 01:30 atau 14:00', 'text', '06:00', 1, '2025-07-03 15:05:07', '2025-07-03 15:28:09'),
 	('40aa2835-2e30-451f-bcb8-6fc4f5a29559', 'Theme', 'theme', 'Background Subtle', 'bg-subtle', 'Nilai default \'#926e380c\'', 'text', '#f8f4ee', 1, '2024-12-26 05:16:10', '2025-01-17 13:12:50'),
+	('5c766860-eedc-4e76-be3a-ec0fbf321557', 'Site', 'site', 'Whatsapp Notification', 'whatsapp-notification', 'Jika aktif maka notifikasi whatsapp akan diaktifkan', 'toggle', '1', 1, '2025-07-03 14:50:28', '2025-07-03 15:28:27'),
+	('6ad1ab81-31e3-4e7b-a827-f412946d35af', 'Site', 'site', 'Notification reminder frequent', 'notification-reminder-frequent', 'Frekuensi (Hari) untuk Pengingat Approval pending ke semua', 'number', '1', 1, '2025-07-03 15:03:25', '2025-07-03 15:29:07'),
 	('6d6de589-6acd-437b-b86a-7f8074ae667d', 'Theme', 'theme', 'Button Hover Background', 'btn-hover-bg', 'Nilai default \'#a47d42\'', 'text', '#027673', 1, '2024-12-26 05:18:02', '2025-01-17 17:39:50'),
 	('7fcfe7da-a8cf-42aa-af87-d0c3114443ad', 'Company', 'company', 'Company Phone', 'phone', 'Telp yang mewakili Perusahaan untuk keperluan sistem lebih lanjut', 'number', '089671052052', 1, '2025-01-23 17:04:50', '2025-01-23 17:11:06'),
 	('8e5d7803-d425-4e13-a645-dea51a9362f9', 'Theme', 'theme', 'Button Background', 'btn-bg', 'Nilai Default #926e38', 'text', '#027673', 1, '2024-12-26 05:16:58', '2025-01-19 12:43:37'),

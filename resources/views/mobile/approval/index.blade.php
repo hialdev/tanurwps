@@ -1,4 +1,4 @@
-@extends('layouts.mobile')
+@extends('layouts.mobile', ['showMenu' => true])
 
 @section('css')
 <style>

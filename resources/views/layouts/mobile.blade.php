@@ -163,6 +163,7 @@
                     @yield('content')
                 </div>
 
+                @if($showMenu ?? false)
                 {{-- Mobile Menu --}}
                 <div class="mobile-menu p-3">
                     <div class="d-flex align-items-center justify-content-around gap-3 bg-white p-2 rounded-3 shadow-sm">
@@ -216,6 +217,7 @@
                         </a>
                     </div>
                 </div>
+                @endif
             </div>
         </div>
     </div>

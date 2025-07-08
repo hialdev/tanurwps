@@ -108,8 +108,8 @@ class WorkspaceController extends Controller
           'pic_name' => 'required|string|max:255',
           'pic_phone' => 'required|string|min:4|max:15',
           'pic_email' => 'nullable|email|max:255',
-          'total_pilgrim_male' => 'nullable|numeric|min:0',
-          'total_pilgrim_female' => 'nullable|numeric|min:0',
+          'total_pilgrim_male' => 'nullable|numeric|min:0|max:999',
+          'total_pilgrim_female' => 'nullable|numeric|min:0|max:999',
       ], [
           'total_pilgrim_male.min' => 'Total Jamaah Laki Laki minimal angka 0',
           'total_pilgrim_male.numeric' => 'Total Jamaah Laki Laki harus berupa angka',
@@ -233,8 +233,8 @@ class WorkspaceController extends Controller
          'pic_name' => 'required|string|max:255',
          'pic_phone' => 'required|string|min:4|max:15',
          'pic_email' => 'nullable|email|max:255',
-         'total_pilgrim_male' => 'nullable|numeric|min:0',
-         'total_pilgrim_female' => 'nullable|numeric|min:0',
+         'total_pilgrim_male' => 'nullable|numeric|min:0|max:999',
+         'total_pilgrim_female' => 'nullable|numeric|min:0|max:999',
       ], [
           'total_pilgrim_male.min' => 'Total Jamaah Laki Laki minimal angka 0',
           'total_pilgrim_male.numeric' => 'Total Jamaah Laki Laki harus berupa angka',

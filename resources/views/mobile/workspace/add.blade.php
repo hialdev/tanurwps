@@ -86,11 +86,11 @@
                 <div class="fs-3 text-muted form-label mt-2">Total Jamaah</div>
                 <div class="mb-1 d-flex align-items-center gap-2">
                     <i class="ti ti-gender-male fs-4 text-dark"></i>
-                    <input type="number" class="form-control form-control-lg fs-3 bg-white" placeholder="Total Jamaah Laki Laki" id="total_pilgrim_male" name="total_pilgrim_male" value="{{old('total_pilgrim_male')}}" max="999">
+                    <input type="number" class="form-control form-control-lg fs-3 bg-white" placeholder="Total Jamaah Laki Laki" id="total_pilgrim_male" name="total_pilgrim_male" value="{{old('total_pilgrim_male')}}" max="999" maxlength="3">
                 </div>
                 <div class="mb-1 d-flex align-items-center gap-2">
                     <i class="ti ti-gender-female fs-4 text-dark"></i>
-                    <input type="number" class="form-control form-control-lg fs-3 bg-white" placeholder="Total Jamaah Perempuan" id="total_pilgrim_female" name="total_pilgrim_female" value="{{old('total_pilgrim_female')}}" max="999">
+                    <input type="number" class="form-control form-control-lg fs-3 bg-white" placeholder="Total Jamaah Perempuan" id="total_pilgrim_female" name="total_pilgrim_female" value="{{old('total_pilgrim_female')}}" max="999" maxlength="3">
                 </div>
 
                 <button type="submit" class="btn shadow-lg mt-3 bg-tanur-green fw-semibold text-white border-0 w-100">Buat & Ajukan Workspace <i class="ti ti-send ms-2"></i></button>

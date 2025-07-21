@@ -61,7 +61,7 @@
                                     @if ($app?->icon)
                                         <i class="ti ti-{{$app?->icon}} fs-12"></i>
                                     @else
-                                        <img src="{{$app?->image ? filePath($app->image) : filePath(setting('site.logo'))}}" width="50" height="50" class="mb-3 object-fit-contain"
+                                        <img src="{{$app?->image ? filePath($app->image) : env('APP_URL').'/storage/'.setting('site.logo')}}" width="50" height="50" class="mb-3 object-fit-contain"
                                         alt="" />
                                     @endif
                                     <p class="fw-semibold fs-5 mt-4 mb-1">

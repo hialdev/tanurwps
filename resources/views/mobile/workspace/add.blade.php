@@ -140,6 +140,14 @@
 <script src="/assets/libs/select2/dist/js/select2.full.min.js"></script>
 <script src="/assets/libs/select2/dist/js/select2.min.js"></script>
 <script>
+    $(document).ready(function() {
+        $('.select2').each(function () {
+            $(this).select2({
+            });
+        });
+    });
+</script>
+<script>
     $(function() {
       const loadingOverlay = $('#loadingOverlay');
       const loadingText = $('#loadingText');

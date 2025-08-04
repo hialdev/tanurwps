@@ -20,6 +20,7 @@ class ApprovalController extends Controller
       $this->tanurApi = new \App\Http\Controllers\Api\TanurController();
    }
    //index
+   // Index - supports both web and API response
    public function index(Request $request)
    {
       $search = $request->get('search', '');
@@ -43,14 +44,40 @@ class ApprovalController extends Controller
 
       $approvals = $workspace_approvals->merge($stage_approvals)->sortByDesc('created_at');
 
+      // If request expects JSON (API), return JSON response
+      if ($request->wantsJson() || $request->is('api/*')) {
+         return response()->json([
+            'success' => true,
+            'code' => 200,
+            'message' => 'Approvals retrieved successfully',
+            'data' => $approvals->values(),
+         ]);
+      }
+
+      // Otherwise, return web view
       return view('mobile.approval.index', compact('approvals', 'search', 'status'));
    }
 
 
    //show
-   public function show($approval_id)
+   public function show(Request $request, $approval_id)
    {
-      $approval = WorkspaceApproval::findOrFail($approval_id);
+      $approval = WorkspaceApproval::find($approval_id);
+
+      if (!$approval) {
+         return abort(404, 'Approval not found');
+      }
+
+      // If request expects JSON (API), return JSON response
+      if ($request->wantsJson() || $request->is('api/*')) {
+         return response()->json([
+            'success' => true,
+            'code' => 200,
+            'message' => 'Approval retrieved successfully',
+            'data' => $approval,
+         ]);
+      }
+
       return view('mobile.approval.show', compact('approval'));
    }
 
@@ -59,12 +86,41 @@ class ApprovalController extends Controller
    {
       $approval = WorkspaceApproval::findOrFail($approval_id);
       if (session('agent_id') != $approval->approver_id) {
+         // If request expects JSON (API), return JSON response
+         if ($request->wantsJson() || $request->is('api/*')) {
+            return response()->json([
+               'success' => false,
+               'code' => 401,
+               'message' => 'Anda tidak memiliki akses untuk memutuskan pengajuan ini',
+               'data' => null,
+            ]);
+         }
          return back()->with('error', 'Anda tidak memiliki akses untuk memutuskan pengajuan ini');
       }
       if ($approval->status != '0') {
+         // If request expects JSON (API), return JSON response
+         if ($request->wantsJson() || $request->is('api/*')) {
+            return response()->json([
+               'success' => false,
+               'code' => 401,
+               'message' => 'Pengajuan ini sudah diproses sebelumnya',
+               'data' => null,
+            ]);
+         }
+
          return back()->with('error', 'Pengajuan ini sudah diproses sebelumnya');
+         
       }
       if ($approval->workspace->status != '0') {
+         // If request expects JSON (API), return JSON response
+         if ($request->wantsJson() || $request->is('api/*')) {
+            return response()->json([
+               'success' => false,
+               'code' => 401,
+               'message' => 'Pengajuan ini sudah diproses sebelumnya',
+               'data' => null,
+            ]);
+         }
          return back()->with('error', 'Pengajuan ini sudah diproses sebelumnya');
       }
 
@@ -120,9 +176,27 @@ class ApprovalController extends Controller
          $history->save();
 
          $this->tanurApi->notify($workspace->agent_id, 1, 1, 1, 'Salah Satu Approver ' . ($request->decision === 'approve' ? 'Menyetujui' : 'Menolak') . ' Workspace ' . $workspace->name, "Terdapat pembaruan status pada approval, silahkan lihat di aplikasi pada menu WPS", 1);
+         // If request expects JSON (API), return JSON response
+         if ($request->wantsJson() || $request->is('api/*')) {
+            return response()->json([
+               'success' => true,
+               'code' => 200,
+               'message' => $request->decision === 'approve' ? 'Pengajuan berhasil disetujui' : 'Pengajuan berhasil ditolak',
+               'data' => null,
+            ]);
+         }
 
          return back()->with('success', $request->decision === 'approve' ? 'Pengajuan berhasil disetujui' : 'Pengajuan berhasil ditolak');
       } catch (\Exception $e) {
+         // If request expects JSON (API), return JSON response
+         if ($request->wantsJson() || $request->is('api/*')) {
+            return response()->json([
+               'success' => false,
+               'code' => 500,
+               'message' => 'Terjadi kesalahan: ' . $e->getMessage(),
+               'data' => null,
+            ]);
+         }
          return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
       }
    }
@@ -131,9 +205,29 @@ class ApprovalController extends Controller
    {
       $approval = WorkspaceApproval::findOrFail($approval_id);
       if (session('agent_id') != $approval->approver_id) {
+         // If request expects JSON (API), return JSON response
+         if ($request->wantsJson() || $request->is('api/*')) {
+            return response()->json([
+               'success' => false,
+               'code' => 401,
+               'message' => 'Anda tidak memiliki akses untuk memutuskan pengajuan ini',
+               'data' => null,
+            ]);
+         }
+
          return back()->with('error', 'Anda tidak memiliki akses untuk memutuskan pengajuan ini');
       }
       if ($approval->workspace->is_approved && ($approval->workspace->status != '0' && $approval->workspace->status != '5')) {
+         // If request expects JSON (API), return JSON response
+         if ($request->wantsJson() || $request->is('api/*')) {
+            return response()->json([
+               'success' => false,
+               'code' => 401,
+               'message' => 'Pengajuan ini sudah disetujui oleh semua Superior Level / Approver',
+               'data' => null,
+            ]);
+         }
+
          return back()->with('error', 'Pengajuan ini sudah disetujui oleh semua Superior Level / Approver');
       }
 
@@ -192,14 +286,30 @@ class ApprovalController extends Controller
          $history->save();
 
          $this->tanurApi->notify($workspace->agent_id, 1, 1, 1, '[Diperbarui] Salah Satu Approver ' . ($request->decision === 'approve' ? 'Menyetujui' : 'Menolak') . ' Workspace ' . $workspace->name, "Terdapat pembaruan status approval, silahkan lihat di aplikasi pada menu WPS", 1);
+         // If request expects JSON (API), return JSON response
+         if ($request->wantsJson() || $request->is('api/*')) {
+            return response()->json([
+               'success' => true,
+               'code' => 200,
+               'message' => $request->decision === 'approve' ? 'Pengajuan berhasil disetujui' : 'Pengajuan berhasil ditolak',
+               'data' => null,
+            ]);
+         }
 
          return back()->with('success', $request->decision === 'approve' ? 'Pengajuan berhasil disetujui' : 'Pengajuan berhasil ditolak');
       } catch (\Exception $e) {
+         // If request expects JSON (API), return JSON response
+         if ($request->wantsJson() || $request->is('api/*')) {
+            return response()->json([
+               'success' => false,
+               'code' => 500,
+               'message' => 'Terjadi kesalahan: ' . $e->getMessage(),
+               'data' => null,
+            ]);
+         }
          return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
       }
    }
-
-
 
    // -----------------------
    // Approval Controler API

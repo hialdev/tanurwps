@@ -15,167 +15,224 @@ use Illuminate\Support\Facades\Storage;
 class WorkspaceTaskController extends Controller
 {
 
-    protected $tanurApi;
+   protected $tanurApi;
 
-    public function __construct()
-    {
-        $this->tanurApi = new \App\Http\Controllers\Api\TanurController();
-    }
-    //Show
-    public function show($id, $task_id){
-        $workspace = Workspace::find($id);
-        $task = Task::find($task_id);
-        return view('mobile.workspace.task.show', compact('task', 'workspace'));
-    }
+   public function __construct()
+   {
+      $this->tanurApi = new \App\Http\Controllers\Api\TanurController();
+   }
+   //Show
+   public function show(Request $request, $id, $task_id)
+   {
+      $workspace = Workspace::find($id);
+      $task = Task::find($task_id);
+      if ($request->wantsJson() || $request->is('api/*')) {
+         return response()->json([
+            'success' => true,
+            'code' => 200,
+            'message' => 'Workspace Task retrievied successfully',
+            'data' => compact('task', 'workspace'),
+         ]);
+      }
+      return view('mobile.workspace.task.show', compact('task', 'workspace'));
+   }
 
-    //Store
-    public function store($id, $task_id, Request $request){
-        $task = Task::findOrFail($task_id);
-        $workspace = Workspace::findOrFail($id);
-        if(!$workspace->is_approved || $workspace->status == '0' || $workspace->status == '5'){
-            return back()->with('error', 'Workspace Belum Disetujui');
-        }
+   //Store
+   public function store($id, $task_id, Request $request)
+   {
+      $task = Task::findOrFail($task_id);
+      $workspace = Workspace::findOrFail($id);
+      if (!$workspace->is_approved || $workspace->status == '0' || $workspace->status == '5') {
+         if ($request->wantsJson() || $request->is('api/*')) {
+            return response()->json([
+               'success' => false,
+               'code' => 401,
+               'message' => 'Workspace Belum Disetujui',
+               'data' => null,
+            ]);
+         }
+         return back()->with('error', 'Workspace Belum Disetujui');
+      }
 
-        if($workspace->requester->id != session('agent_id')){
-            return back()->with('error', 'Anda tidak ada akses melakukan aksi ini! Perilaku anda tercatat disistem kami');
-        }
+      if ($workspace->requester->id != session('agent_id')) {
+         if ($request->wantsJson() || $request->is('api/*')) {
+            return response()->json([
+               'success' => false,
+               'code' => 401,
+               'message' => 'Anda tidak ada akses melakukan aksi ini! Perilaku anda tercatat disistem kami',
+               'data' => null,
+            ]);
+         }
+         return back()->with('error', 'Anda tidak ada akses melakukan aksi ini! Perilaku anda tercatat disistem kami');
+      }
 
-        $request->validate([
-            'answer_text' => 'required|string',
-            'filenames' => 'nullable|array',
-            'filenames.*' => 'nullable|string',
-            'attachments' => 'nullable|array',
-            'attachments.*' => 'nullable|mimes:jpg,jpeg,png,pdf,doc,docx,xls,xlsx,ppt,pptx,webp|max:5120',
-        ]);
+      $request->validate([
+         'answer_text' => 'required|string',
+         'filenames' => 'nullable|array',
+         'filenames.*' => 'nullable|string',
+         'attachments' => 'nullable|array',
+         'attachments.*' => 'nullable|mimes:jpg,jpeg,png,pdf,doc,docx,xls,xlsx,ppt,pptx,webp|max:5120',
+      ]);
 
-        try {
-            $wstage = WorkspaceStage::where('workspace_id', $id)->where('stage_id', $task->stage_id)->first();
-            if(!$wstage){
-                $wstage = new WorkspaceStage();
-                $wstage->workspace_id = $id;
-                $wstage->stage_id = $task->stage_id;
-                $wstage->status = '0';
-                $wstage->deadline_at = $wstage->stage->deadlineCount($workspace->approved_at)['deadline_date'];
-                $wstage->save();
-            }
-            
-            $wtask = new WorkspaceTask();
-            $wtask->workspace_stage_id = $wstage->id;
-            $wtask->stage_task_id = $task->id;
-            $wtask->answer_text = $request->answer_text;
-            $wtask->score = $task->score;
-            $wtask->finished_at = now();
-            $wtask->status = '1'; // 0: Belum Selesai, 1: Selesai
-            $wtask->save();
+      try {
+         $wstage = WorkspaceStage::where('workspace_id', $id)->where('stage_id', $task->stage_id)->first();
+         if (!$wstage) {
+            $wstage = new WorkspaceStage();
+            $wstage->workspace_id = $id;
+            $wstage->stage_id = $task->stage_id;
+            $wstage->status = '0';
+            $wstage->deadline_at = $wstage->stage->deadlineCount($workspace->approved_at)['deadline_date'];
+            $wstage->save();
+         }
 
-            if($request->hasFile('attachments')) {
-                if($request->hasFile('attachments')) {
-                    foreach ($request->file('attachments') as $index => $attachment) {
-                        $customName = null;
+         $wtask = new WorkspaceTask();
+         $wtask->workspace_stage_id = $wstage->id;
+         $wtask->stage_task_id = $task->id;
+         $wtask->answer_text = $request->answer_text;
+         $wtask->score = $task->score;
+         $wtask->finished_at = now();
+         $wtask->status = '1'; // 0: Belum Selesai, 1: Selesai
+         $wtask->save();
 
-                        if (isset($request->filenames[$index])) {
-                            $customName = $request->filenames[$index];
-                        } else {
-                            $customName = $attachment->getClientOriginalName();
-                        }
-
-                        $extension = $attachment->getClientOriginalExtension();
-                        $filename = time() . '_' . uniqid() . '_' . $customName . '.' . $extension;
-                        
-                        $path = $attachment->storeAs('workspace/'.session('agent_id').'/task', $filename, 'public');
-
-                        $wtaskAttachment = new WorkspaceTaskAttachment();
-                        $wtaskAttachment->workspace_task_id = $wtask->id;
-                        $wtaskAttachment->name = $customName;
-                        $wtaskAttachment->file = $path;
-                        $wtaskAttachment->mime = $attachment->getClientMimeType();
-                        $wtaskAttachment->save();
-                    }
-                }
-            }
-            
-            $history = new History();
-            $history->agent_id = $workspace->agent_id;
-            $history->relation_id = $wtask->id;
-            $history->type = 'task';
-            $history->message = 'Menyelesaikan Task '.$task->name;
-            $history->color = 'success';
-            $history->save();
-
-            $this->tanurApi->notify($workspace->agent_id, 1, 1, 1, 'Menyelesaikan Task '.$task->name, "Terdapat pembaruan terkait task pada workspace", 1);
-
-            
-        } catch (\Exception $e) {
-            return redirect()->back()->withInput()->with('error', 'Gagal menyelesaikan Task '.$task->name .': '. $e->getMessage());
-        }
-
-        return redirect()->route('agent.workspace.show', $id)->with('success', 'Berhasil menyimpan penyelesaian / jawaban Task : '.$task->name);
-    }
-
-    public function update($id, $task_id, $wtask_id, Request $request)
-    {
-        $task = Task::findOrFail($task_id);
-        $workspace = Workspace::findOrFail($id);
-        $wtask = WorkspaceTask::findOrFail($wtask_id);
-
-        $request->validate([
-            'answer_text' => 'required|string',
-            'filenames' => 'nullable|array',
-            'filenames.*' => 'nullable|string',
-            'attachments' => 'nullable|array',
-            'attachments.*' => 'nullable|mimes:jpg,jpeg,png,pdf,doc,docx,xls,xlsx,ppt,pptx,webp|max:5120',
-            'deleted_attachments' => 'nullable|string'
-        ]);
-
-        try {
-            // Update teks jawaban
-            $wtask->answer_text = $request->answer_text;
-            $wtask->status = '1'; // selesai
-            $wtask->finished_at = now();
-            $wtask->save();
-
-            // Hapus lampiran yang ditandai untuk dihapus
-            if ($request->filled('deleted_attachments')) {
-                $ids = explode(',', $request->deleted_attachments);
-                $attachments = WorkspaceTaskAttachment::whereIn('id', $ids)->where('workspace_task_id', $wtask->id)->get();
-                foreach ($attachments as $attachment) {
-                    Storage::disk('public')->delete($attachment->file);
-                    $attachment->delete();
-                }
-            }
-
-            // Tambah lampiran baru
+         if ($request->hasFile('attachments')) {
             if ($request->hasFile('attachments')) {
-                foreach ($request->file('attachments') as $index => $attachment) {
-                    $customName = $request->filenames[$index] ?? $attachment->getClientOriginalName();
-                    $extension = $attachment->getClientOriginalExtension();
-                    $filename = time() . '_' . uniqid() . '_' . $customName . '.' . $extension;
+               foreach ($request->file('attachments') as $index => $attachment) {
+                  $customName = null;
 
-                    $path = $attachment->storeAs('workspace/' . session('agent_id') . '/task', $filename, 'public');
+                  if (isset($request->filenames[$index])) {
+                     $customName = $request->filenames[$index];
+                  } else {
+                     $customName = $attachment->getClientOriginalName();
+                  }
 
-                    $wtaskAttachment = new WorkspaceTaskAttachment();
-                    $wtaskAttachment->workspace_task_id = $wtask->id;
-                    $wtaskAttachment->name = $customName;
-                    $wtaskAttachment->file = $path;
-                    $wtaskAttachment->mime = $attachment->getClientMimeType();
-                    $wtaskAttachment->save();
-                }
+                  $extension = $attachment->getClientOriginalExtension();
+                  $filename = time() . '_' . uniqid() . '_' . $customName . '.' . $extension;
+
+                  $path = $attachment->storeAs('workspace/' . session('agent_id') . '/task', $filename, 'public');
+
+                  $wtaskAttachment = new WorkspaceTaskAttachment();
+                  $wtaskAttachment->workspace_task_id = $wtask->id;
+                  $wtaskAttachment->name = $customName;
+                  $wtaskAttachment->file = $path;
+                  $wtaskAttachment->mime = $attachment->getClientMimeType();
+                  $wtaskAttachment->save();
+               }
             }
+         }
 
-            $history = new History();
-            $history->agent_id = $workspace->agent_id;
-            $history->relation_id = $wtask->id;
-            $history->type = 'task';
-            $history->message = 'Memperbarui Task '.$task->name;
-            $history->color = 'dark';
-            $history->save();
+         $history = new History();
+         $history->agent_id = $workspace->agent_id;
+         $history->relation_id = $wtask->id;
+         $history->type = 'task';
+         $history->message = 'Menyelesaikan Task ' . $task->name;
+         $history->color = 'success';
+         $history->save();
 
-            $this->tanurApi->notify($workspace->agent_id, 1, 1, 1,'Memperbarui Task '.$task->name, "Terdapat pembaruan terkait task pada workspace", 1);
-            
-        } catch (\Exception $e) {
-            return redirect()->back()->withInput()->with('error', 'Gagal memperbarui Task '.$task->name .': '. $e->getMessage());
-        }
+         $this->tanurApi->notify($workspace->agent_id, 1, 1, 1, 'Menyelesaikan Task ' . $task->name, "Terdapat pembaruan terkait task pada workspace", 1);
+      } catch (\Exception $e) {
+         if ($request->wantsJson() || $request->is('api/*')) {
+            return response()->json([
+               'success' => false,
+               'code' => 500,
+               'message' => 'Gagal menyelesaikan Task ' . $task->name . ': ' . $e->getMessage(),
+               'data' => null,
+            ]);
+         }
 
-        return redirect()->route('agent.workspace.show', $workspace->id)->with('success', 'Berhasil memperbarui laporan Task : '.$task->name);
-    }
+         return redirect()->back()->withInput()->with('error', 'Gagal menyelesaikan Task ' . $task->name . ': ' . $e->getMessage());
+      }
+
+      if ($request->wantsJson() || $request->is('api/*')) {
+         return response()->json([
+            'success' => true,
+            'code' => 200,
+            'message' => 'Berhasil menyimpan penyelesaian / jawaban Task : ' . $task->name,
+            'data' => null,
+         ]);
+      }
+      
+      return redirect()->route('agent.workspace.show', $id)->with('success', 'Berhasil menyimpan penyelesaian / jawaban Task : ' . $task->name);
+   }
+
+   public function update($id, $task_id, $wtask_id, Request $request)
+   {
+      $task = Task::findOrFail($task_id);
+      $workspace = Workspace::findOrFail($id);
+      $wtask = WorkspaceTask::findOrFail($wtask_id);
+
+      $request->validate([
+         'answer_text' => 'required|string',
+         'filenames' => 'nullable|array',
+         'filenames.*' => 'nullable|string',
+         'attachments' => 'nullable|array',
+         'attachments.*' => 'nullable|mimes:jpg,jpeg,png,pdf,doc,docx,xls,xlsx,ppt,pptx,webp|max:5120',
+         'deleted_attachments' => 'nullable|string'
+      ]);
+
+      try {
+         // Update teks jawaban
+         $wtask->answer_text = $request->answer_text;
+         $wtask->status = '1'; // selesai
+         $wtask->finished_at = now();
+         $wtask->save();
+
+         // Hapus lampiran yang ditandai untuk dihapus
+         if ($request->filled('deleted_attachments')) {
+            $ids = explode(',', $request->deleted_attachments);
+            $attachments = WorkspaceTaskAttachment::whereIn('id', $ids)->where('workspace_task_id', $wtask->id)->get();
+            foreach ($attachments as $attachment) {
+               Storage::disk('public')->delete($attachment->file);
+               $attachment->delete();
+            }
+         }
+
+         // Tambah lampiran baru
+         if ($request->hasFile('attachments')) {
+            foreach ($request->file('attachments') as $index => $attachment) {
+               $customName = $request->filenames[$index] ?? $attachment->getClientOriginalName();
+               $extension = $attachment->getClientOriginalExtension();
+               $filename = time() . '_' . uniqid() . '_' . $customName . '.' . $extension;
+
+               $path = $attachment->storeAs('workspace/' . session('agent_id') . '/task', $filename, 'public');
+
+               $wtaskAttachment = new WorkspaceTaskAttachment();
+               $wtaskAttachment->workspace_task_id = $wtask->id;
+               $wtaskAttachment->name = $customName;
+               $wtaskAttachment->file = $path;
+               $wtaskAttachment->mime = $attachment->getClientMimeType();
+               $wtaskAttachment->save();
+            }
+         }
+
+         $history = new History();
+         $history->agent_id = $workspace->agent_id;
+         $history->relation_id = $wtask->id;
+         $history->type = 'task';
+         $history->message = 'Memperbarui Task ' . $task->name;
+         $history->color = 'dark';
+         $history->save();
+
+         $this->tanurApi->notify($workspace->agent_id, 1, 1, 1, 'Memperbarui Task ' . $task->name, "Terdapat pembaruan terkait task pada workspace", 1);
+      } catch (\Exception $e) {
+         if ($request->wantsJson() || $request->is('api/*')) {
+            return response()->json([
+               'success' => false,
+               'code' => 500,
+               'message' => 'Gagal memperbarui Task ' . $task->name . ': ' . $e->getMessage(),
+               'data' => null,
+            ]);
+         }
+         return redirect()->back()->withInput()->with('error', 'Gagal memperbarui Task ' . $task->name . ': ' . $e->getMessage());
+      }
+
+      if ($request->wantsJson() || $request->is('api/*')) {
+         return response()->json([
+            'success' => true,
+            'code' => 200,
+            'message' => 'Berhasil memperbarui laporan Task : ' . $task->name,
+            'data' => null,
+         ]);
+      }
+      return redirect()->route('agent.workspace.show', $workspace->id)->with('success', 'Berhasil memperbarui laporan Task : ' . $task->name);
+   }
 }

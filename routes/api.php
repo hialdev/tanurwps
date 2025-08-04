@@ -1,6 +1,10 @@
 <?php
 
 use App\Http\Controllers\ApprovalController;
+use App\Http\Controllers\HistoryController;
+use App\Http\Controllers\StageApprovalController;
+use App\Http\Controllers\WorkspaceController;
+use App\Http\Controllers\WorkspaceTaskController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
@@ -61,3 +65,45 @@ Route::prefix('approval')->group(function () {
     Route::post('/fetch', [ApprovalController::class, 'getApprovals']);
     Route::post('/check', [ApprovalController::class, 'getApprovalBoolean']);
 });
+
+Route::middleware('api.agent.access')->group(function () {
+   Route::get('/histories', [HistoryController::class, 'index']);
+
+   // Workspace Management
+   Route::prefix('workspaces')->group(function () {
+      Route::get('/', [WorkspaceController::class, 'index']);
+      Route::get('/{workspace_id}', [WorkspaceController::class, 'show']);
+      Route::get('/list', [WorkspaceController::class, 'list']);
+      Route::get('/add', [WorkspaceController::class, 'add']);
+      Route::post('/', [WorkspaceController::class, 'store']);
+      Route::get('/{workspace_id}/edit', [WorkspaceController::class, 'edit']);
+      Route::put('/{workspace_id}', [WorkspaceController::class, 'update']);
+      Route::delete('/{workspace_id}', [WorkspaceController::class, 'destroy']);
+      Route::post('/{workspace_id}/stages/{stage_id}/send-approval', [StageApprovalController::class, 'send']);
+      
+      Route::prefix('tasks')->group(function () {
+         Route::get('/{task_id}', [WorkspaceTaskController::class, 'show']);
+         Route::post('/{task_id}', [WorkspaceTaskController::class, 'store']);
+         Route::put('/{task_id}/workspace_task/{wtask_id}', [WorkspaceTaskController::class, 'update']);
+      });
+   });
+
+   // Workspace Approvals
+   Route::prefix('approvals')->group(function () {
+      Route::get('/', [ApprovalController::class, 'index']);
+      Route::get('/{approval_id}', [ApprovalController::class, 'show']);
+      Route::post('/{approval_id}/decision', [ApprovalController::class, 'decision']);
+      Route::put('/{approval_id}/decision', [ApprovalController::class, 'updateDecision']);
+   });
+
+   // Stage Approvals
+   Route::prefix('stage-approvals')->group(function () {
+      Route::get('/', [StageApprovalController::class, 'index']);
+      Route::get('/{approval_id}', [StageApprovalController::class, 'show']);
+      Route::post('/{approval_id}/decision', [StageApprovalController::class, 'decision']);
+      Route::put('/{approval_id}/decision', [StageApprovalController::class, 'updateDecision']);
+   });
+
+});
+
+

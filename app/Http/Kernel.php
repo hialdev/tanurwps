@@ -69,5 +69,6 @@ class Kernel extends HttpKernel
         'check.app.permission' => \App\Http\Middleware\CheckAppPermission::class,
         'api.token' => \App\Http\Middleware\ApiTokenMiddleware::class,
         'agent.access' => \App\Http\Middleware\ValidateAgentAccess::class,
+        'api.agent.access' => \App\Http\Middleware\ValidateAPIAgentAccess::class,
     ];
 }

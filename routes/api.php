@@ -72,10 +72,10 @@ Route::middleware('api.agent.access')->group(function () {
    // Workspace Management
    Route::prefix('workspaces')->group(function () {
       Route::get('/', [WorkspaceController::class, 'index']);
-      Route::get('/{workspace_id}', [WorkspaceController::class, 'show']);
       Route::get('/list', [WorkspaceController::class, 'list']);
       Route::get('/add', [WorkspaceController::class, 'add']);
       Route::post('/', [WorkspaceController::class, 'store']);
+      Route::get('/{workspace_id}', [WorkspaceController::class, 'show']);
       Route::get('/{workspace_id}/edit', [WorkspaceController::class, 'edit']);
       Route::put('/{workspace_id}', [WorkspaceController::class, 'update']);
       Route::delete('/{workspace_id}', [WorkspaceController::class, 'destroy']);

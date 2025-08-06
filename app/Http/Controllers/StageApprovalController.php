@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\ApiTransformer;
 use App\Http\Controllers\Api\TanurController;
 use App\Models\History;
 use App\Models\WorkspaceStage;
@@ -108,7 +109,10 @@ class StageApprovalController extends Controller
             'success' => true,
             'code' => 200,
             'message' => 'Stage approval retrevied successfully.',
-            'data' => null,
+            'data' => [
+               'approval' => ApiTransformer::transformStageApproval($approval),
+               'workspace' => ApiTransformer::transformWorkspace($approval->workspaceStage->workspace, true, false)
+            ],
          ]);
       }
       return view('mobile.approval.stage', compact('approval'));

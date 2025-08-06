@@ -40,6 +40,7 @@ class ApiTransformer
          "created_at" => $approval->created_at,
          "updated_at" => $approval->updated_at,
       ];
+      // dd($showDataLinked);
       if($showDataLinked) $response["workspace"] = $approval->workspace;
       return $response;
    }
@@ -69,7 +70,7 @@ class ApiTransformer
    {
       $isWorkspace = isset($approval->workspace);
       if ($isWorkspace) {
-         return self::transformWorkspaceApproval($approval, $showDataLinked);
+         return self::transformWorkspaceApproval($approval, $showDataLinked ? true : false);
       }else{
          return self::transformStageApproval($approval);
       }

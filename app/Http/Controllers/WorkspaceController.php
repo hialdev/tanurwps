@@ -55,7 +55,7 @@ class WorkspaceController extends Controller
             'data' => [
                'agent' => $agent,
                'workspaces' => $workspaces->map(fn($w) => ApiTransformer::transformWorkspace($w)),
-               'approvals' => $approvals->map(fn($a) => ApiTransformer::transformApproval($a, true))->values(),
+               'approvals' => $approvals->map(fn($a) => ApiTransformer::transformApproval($a, true)),
                'count' => $count,
             ],
          ]);

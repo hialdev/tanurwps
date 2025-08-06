@@ -70,17 +70,20 @@ class WorkspaceController extends Controller
    {
       $workspace = Workspace::findOrFail($workspace_id);
       $stages = Stage::whereHas('tasks')->orderBy('order')->with('tasks')->get();
+      $workstages = null;
       if ($workspace->all_stage_approved) {
-         $wstages = WorkspaceStage::where('workspace_id', $workspace_id)->get()->pluck('stage_id');
+         $workstages = WorkspaceStage::where('workspace_id', $workspace_id)->get();
+         $wstages = $workstages->pluck('stage_id');
          $stages = Stage::whereHas('tasks')->whereIn('id', $wstages)->get();
       }
-
       if ($request->wantsJson() || $request->is('api/*')) {
          return response()->json([
             'success' => true,
             'code' => 200,
             'message' => 'Workspace detail retrievied successfully',
-            'data' => ['workspace' => ApiTransformer::transformWorkspace($workspace), 'stages' => $stages],
+            'data' => [
+               'workspace' => ApiTransformer::transformWorkspace($workspace, false),
+            ],
          ]);
       }
       return view('mobile.workspace.show', compact('workspace', 'stages'));
@@ -94,6 +97,8 @@ class WorkspaceController extends Controller
          'field' => $request->get('field', 'code'),
          'order' => $request->get('order') === 'oldest' ? 'asc' : 'desc',
          'status' => $request->get('status', ''), // tambahkan filter status
+         'limit' => $request->get('limit', 100),
+         'page' => $request->get('page', 1),
       ];
 
       $query = Workspace::where('agent_id', session('agent_id'));
@@ -110,14 +115,25 @@ class WorkspaceController extends Controller
       }
 
       $workspaces = $query->orderBy($filter->field, $filter->order)
-         ->paginate(100);
+         ->paginate($filter->limit, ['*'], 'page', $filter->page);
 
       if ($request->wantsJson() || $request->is('api/*')) {
          return response()->json([
             'success' => true,
             'code' => 200,
             'message' => 'Workspace list retrievied successfully',
-            'data' => compact('workspaces', 'filter'),
+            'data' => [
+               'pagination' => [
+                  'current_page' => $workspaces->currentPage(),
+                  'last_page' => $workspaces->lastPage(),
+                  'per_page' => $workspaces->perPage(),
+                  'total' => $workspaces->total(),
+               ],
+               'workspaces' => $workspaces->map(function($workspace) {
+                                 return ApiTransformer::transformWorkspace($workspace);
+                              }),
+               'filter' => $filter,
+            ],
          ]);
       }
       return view('mobile.workspace.list', compact('workspaces', 'filter'));

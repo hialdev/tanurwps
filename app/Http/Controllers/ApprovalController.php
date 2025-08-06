@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\ApiTransformer;
 use App\Models\History;
 use App\Models\Stage;
 use App\Models\WorkspaceApproval;
@@ -26,36 +27,59 @@ class ApprovalController extends Controller
       $search = $request->get('search', '');
       $status = $request->get('status', '');
 
-      $workspace_approvals = WorkspaceApproval::where('approver_id', session('agent_id'))
-         ->when($status !== '', fn($q) => $q->where('status', 'LIKE', '%' . (string) $status))
-         ->when($search, fn($q) => $q->where(function ($q) use ($search) {
-            $q->where('note', 'like', "%{$search}%")
-               ->orWhereHas('workspace', fn($q) => $q->where('name', 'like', "%{$search}%"));
+      $filter = (object) [
+         'q' => $request->get('search', ''),
+         'status' => $request->get('status', ''),
+         'limit' => (int) $request->get('limit', 15),
+         'page' => (int) $request->get('page', 1),
+      ];
+
+      // Ambil semua approval, lalu gabungkan dan sort
+      $workspace_approvals = WorkspaceApproval::with(['workspace', 'requester'])
+         ->where('approver_id', session('agent_id'))
+         ->when($filter->status !== '', fn($q) => $q->where('status', 'LIKE', '%' . (string) $filter->status))
+         ->when($filter->q, fn($q) => $q->where(function ($q) use ($filter) {
+            $q->where('note', 'like', "%{$filter->q}%")
+               ->orWhereHas('workspace', fn($q) => $q->where('name', 'like', "%{$filter->q}%"));
          }))
          ->get();
 
-      $stage_approvals = WorkspaceStageApproval::where('approver_id', session('agent_id'))
-         ->when($status !== '', fn($q) => $q->where('status', 'LIKE', '%' . (string) $status))
-         ->when($search, fn($q) => $q->where(function ($q) use ($search) {
-            $q->where('note', 'like', "%{$search}%")
-               ->orWhereHas('workspaceStage.workspace', fn($q) => $q->where('name', 'like', "%{$search}%"));
+      $stage_approvals = WorkspaceStageApproval::with(['workspaceStage.workspace', 'requester'])
+         ->where('approver_id', session('agent_id'))
+         ->when($filter->status !== '', fn($q) => $q->where('status', 'LIKE', '%' . (string) $filter->status))
+         ->when($filter->q, fn($q) => $q->where(function ($q) use ($filter) {
+            $q->where('note', 'like', "%{$filter->q}%")
+               ->orWhereHas('workspaceStage.workspace', fn($q) => $q->where('name', 'like', "%{$filter->q}%"));
          }))
          ->get();
 
-      $approvals = $workspace_approvals->merge($stage_approvals)->sortByDesc('created_at');
+      $merged = $workspace_approvals->merge($stage_approvals)->sortByDesc('created_at')->values();
 
-      // If request expects JSON (API), return JSON response
+      // Manual pagination (karena merge di-collection)
+      $total = $merged->count();
+      $slice = $merged->slice(($filter->page - 1) * $filter->limit, $filter->limit)->values();
+
       if ($request->wantsJson() || $request->is('api/*')) {
          return response()->json([
             'success' => true,
             'code' => 200,
             'message' => 'Approvals retrieved successfully',
-            'data' => $approvals->values(),
+            'data' => [
+               'pagination' => [
+                  'current_page' => $filter->page,
+                  'last_page' => ceil($total / $filter->limit),
+                  'per_page' => $filter->limit,
+                  'total' => $total,
+               ],
+               'approvals' => $slice->map(fn($approval) => ApiTransformer::transformWorkspaceApproval($approval)),
+               'filter' => $filter,
+            ],
          ]);
       }
 
-      // Otherwise, return web view
-      return view('mobile.approval.index', compact('approvals', 'search', 'status'));
+      // Untuk tampilan web
+      $approvals = $merged;
+      return view('mobile.approval.index', compact('approvals', 'filter', 'search', 'status'));
    }
 
 

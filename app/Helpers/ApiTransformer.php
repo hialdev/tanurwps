@@ -22,10 +22,12 @@ class ApiTransformer
          'task_analytic' => $workspace->taskAnalytic(),
          
       ];
-      if($showDetails) {
+      if ($showDataLinked){
          $response['approvals'] = $workspace->count() > 0 ? $workspace->approvals->map(function($approval) use ($showDataLinked) {
-                           return self::transformWorkspaceApproval($approval, $showDataLinked);
-                        }) : [];
+                        return self::transformWorkspaceApproval($approval, $showDataLinked);
+                     }) : [];
+      }
+      if($showDetails) {
          $response['details'] = $workspace->with('workspaceStages.stage.attachments')->with('workspaceStages.stage.tasks.attachments')->with(['workspaceStages.workspaceTasks' => function ($q) use ($workspace) {
                                  $q->whereHas('workspaceStage', fn ($q) => $q->where('workspace_id', $workspace->id));
                               }])->get();
@@ -66,6 +68,7 @@ class ApiTransformer
          "updated_at" => $approval->updated_at,
          "data_stage" => [
             "workspace_stage" => $approval->workspaceStage,
+            "workspace" => self::transformWorkspace($approval->workspaceStage->workspace, false, false),
             "stage" => $approval->stage,
          ]
       ];

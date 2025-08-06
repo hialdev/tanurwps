@@ -44,12 +44,10 @@ class ApprovalController extends Controller
          }))
          ->get();
 
-      $stage_approvals = WorkspaceStageApproval::with(['workspaceStage.workspace'])
-         ->where('approver_id', session('agent_id'))
+      $stage_approvals = WorkspaceStageApproval::where('approver_id', session('agent_id'))
          ->when($filter->status !== '', fn($q) => $q->where('status', 'LIKE', '%' . (string) $filter->status))
          ->when($filter->q, fn($q) => $q->where(function ($q) use ($filter) {
-            $q->where('note', 'like', "%{$filter->q}%")
-               ->orWhereHas('workspaceStage.workspace', fn($q) => $q->where('name', 'like', "%{$filter->q}%"));
+            $q->where('note', 'like', "%{$filter->q}%");
          }))
          ->get();
 
@@ -71,7 +69,7 @@ class ApprovalController extends Controller
                   'per_page' => $filter->limit,
                   'total' => $total,
                ],
-               'approvals' => $slice->map(fn($approval) => ApiTransformer::transformApproval($approval)),
+               'approvals' => $slice->map(fn($approval) => ApiTransformer::transformApproval($approval, true)),
                'filter' => $filter,
             ],
          ]);
@@ -98,7 +96,10 @@ class ApprovalController extends Controller
             'success' => true,
             'code' => 200,
             'message' => 'Approval retrieved successfully',
-            'data' => $approval,
+            'data' => [
+               'approval' => ApiTransformer::transformApproval($approval),
+               'workspace' => ApiTransformer::transformWorkspace($approval->workspace, true, false)
+            ],
          ]);
       }
 

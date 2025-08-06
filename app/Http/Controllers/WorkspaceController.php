@@ -54,7 +54,7 @@ class WorkspaceController extends Controller
             'message' => 'Workspace retrieved successfully',
             'data' => [
                'agent' => $agent,
-               'workspaces' => $workspaces->map(fn($w) => ApiTransformer::transformWorkspace($w)),
+               'workspaces' => $workspaces->map(fn($w) => ApiTransformer::transformWorkspace($w, false, false)),
                'approvals' => $approvals->map(fn($a) => ApiTransformer::transformApproval($a, true)),
                'count' => $count,
             ],
@@ -82,7 +82,7 @@ class WorkspaceController extends Controller
             'code' => 200,
             'message' => 'Workspace detail retrievied successfully',
             'data' => [
-               'workspace' => ApiTransformer::transformWorkspace($workspace, false),
+               'workspace' => ApiTransformer::transformWorkspace($workspace, false, false),
             ],
          ]);
       }
@@ -130,7 +130,7 @@ class WorkspaceController extends Controller
                   'total' => $workspaces->total(),
                ],
                'workspaces' => $workspaces->map(function($workspace) {
-                                 return ApiTransformer::transformWorkspace($workspace);
+                                 return ApiTransformer::transformWorkspace($workspace, false, false);
                               }),
                'filter' => $filter,
             ],

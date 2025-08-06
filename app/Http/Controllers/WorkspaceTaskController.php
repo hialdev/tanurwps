@@ -26,12 +26,13 @@ class WorkspaceTaskController extends Controller
    {
       $workspace = Workspace::find($id);
       $task = Task::find($task_id);
+      $workspace_task = $task->wTask($workspace->id);
       if ($request->wantsJson() || $request->is('api/*')) {
          return response()->json([
             'success' => true,
             'code' => 200,
             'message' => 'Workspace Task retrievied successfully',
-            'data' => compact('task', 'workspace'),
+            'data' => compact('task', 'workspace_task','workspace'),
          ]);
       }
       return view('mobile.workspace.task.show', compact('task', 'workspace'));

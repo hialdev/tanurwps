@@ -59,7 +59,8 @@ class Task extends Model
 
     public function wTask($workspace_id){
         $wtask = WorkspaceTask::whereHas('workspaceStage', fn ($q) => ($q->where('workspace_id', $workspace_id)))
-                                ->where('stage_task_id', $this->id)->first();
+                                ->where('stage_task_id', $this->id)->with('attachments')->first();
         return $wtask;
     }
+
 }

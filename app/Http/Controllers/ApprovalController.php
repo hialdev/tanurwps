@@ -35,7 +35,7 @@ class ApprovalController extends Controller
       ];
 
       // Ambil semua approval, lalu gabungkan dan sort
-      $workspace_approvals = WorkspaceApproval::with(['workspace', 'requester'])
+      $workspace_approvals = WorkspaceApproval::with(['workspace'])
          ->where('approver_id', session('agent_id'))
          ->when($filter->status !== '', fn($q) => $q->where('status', 'LIKE', '%' . (string) $filter->status))
          ->when($filter->q, fn($q) => $q->where(function ($q) use ($filter) {
@@ -44,7 +44,7 @@ class ApprovalController extends Controller
          }))
          ->get();
 
-      $stage_approvals = WorkspaceStageApproval::with(['workspaceStage.workspace', 'requester'])
+      $stage_approvals = WorkspaceStageApproval::with(['workspaceStage.workspace'])
          ->where('approver_id', session('agent_id'))
          ->when($filter->status !== '', fn($q) => $q->where('status', 'LIKE', '%' . (string) $filter->status))
          ->when($filter->q, fn($q) => $q->where(function ($q) use ($filter) {
@@ -71,7 +71,7 @@ class ApprovalController extends Controller
                   'per_page' => $filter->limit,
                   'total' => $total,
                ],
-               'approvals' => $slice->map(fn($approval) => ApiTransformer::transformWorkspaceApproval($approval)),
+               'approvals' => $slice->map(fn($approval) => ApiTransformer::transformApproval($approval)),
                'filter' => $filter,
             ],
          ]);

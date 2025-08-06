@@ -4,9 +4,9 @@ namespace App\Helpers;
 
 class ApiTransformer
 {
-   public static function transformWorkspace($workspace, $showDataLinked = false, $showDetails = false)
+   public static function transformWorkspace($workspace, $showDataLinked = false, $showDetails = true)
    {
-      return [
+      $response = [
          'id' => $workspace->id,
          'name' => $workspace->name,
          'description' => $workspace->description ?? 'tidak ada deskripsi',
@@ -20,11 +20,18 @@ class ApiTransformer
          'total_pilgrim' => $workspace->total_pilgrim_male + $workspace->total_pilgrim_female,
          'stage_analytic' => $workspace->stageAnalytic(),
          'task_analytic' => $workspace->taskAnalytic(),
-         'approvals' => $workspace->count() > 0 ? $workspace->approvals->map(function($approval) use ($showDataLinked) {
-                           return self::transformWorkspaceApproval($approval, $showDataLinked);
-                        }) : [],
-         'details' => $workspace->with('workspaceStages.stage'),
+         
       ];
+      if($showDetails) {
+         $response['approvals'] = $workspace->count() > 0 ? $workspace->approvals->map(function($approval) use ($showDataLinked) {
+                           return self::transformWorkspaceApproval($approval, $showDataLinked);
+                        }) : [];
+         $response['details'] = $workspace->with('workspaceStages.stage.attachments')->with('workspaceStages.stage.tasks.attachments')->with(['workspaceStages.workspaceTasks' => function ($q) use ($workspace) {
+                                 $q->whereHas('workspaceStage', fn ($q) => $q->where('workspace_id', $workspace->id));
+                              }])->get();
+      }
+
+      return $response;
    }
 
    public static function transformWorkspaceApproval($approval, $showDataLinked = false) {
@@ -41,7 +48,7 @@ class ApiTransformer
          "updated_at" => $approval->updated_at,
       ];
       // dd($showDataLinked);
-      if($showDataLinked) $response["workspace"] = $approval->workspace;
+      if($showDataLinked) $response["workspace"] = self::transformWorkspace($approval->workspace, false, false);
       return $response;
    }
 

@@ -81,7 +81,7 @@ Route::middleware('api.agent.access')->group(function () {
       Route::delete('/{workspace_id}', [WorkspaceController::class, 'destroy']);
       Route::post('/{workspace_id}/stages/{stage_id}/send-approval', [StageApprovalController::class, 'send']);
       
-      Route::prefix('tasks')->group(function () {
+      Route::prefix('{workspace_id}/tasks')->group(function () {
          Route::get('/{task_id}', [WorkspaceTaskController::class, 'show']);
          Route::post('/{task_id}', [WorkspaceTaskController::class, 'store']);
          Route::put('/{task_id}/workspace_task/{wtask_id}', [WorkspaceTaskController::class, 'update']);

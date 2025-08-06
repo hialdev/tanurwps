@@ -46,6 +46,22 @@ class StageApprovalController extends Controller
 
                $this->tanurApi->notify($superior['id'], 1, 1, 1, 'Pengajuan Stage ' . $wstage->stage->name . ' dari ' . $fetch['data']['agent']['name'], "Terdapat pengajuan stage baru, silahkan lihat di aplikasi pada menu WPS", 1);
             }
+         }else if ($fetch['data']['agent']['id_level'] == "MD") {
+            $stageApproval = new WorkspaceStageApproval();
+            $stageApproval->workspace_stage_id = $wstage->id;
+            $stageApproval->approver_id = session('agent_id');
+            $stageApproval->status = '0';
+            $stageApproval->save();
+
+            $history = new History();
+            $history->agent_id = session('agent_id');
+            $history->relation_id = $stageApproval->id;
+            $history->type = 'stage_approval';
+            $history->message = 'Pengajuan Stage ' . $wstage->stage->name . ' dari ' . $fetch['data']['agent']['name'];
+            $history->color = 'warning';
+            $history->save();
+
+            $this->tanurApi->notify(session('agent_id'), 1, 1, 1, 'Pengajuan Stage ' . $wstage->stage->name . ' dari ' . $fetch['data']['agent']['name'], "Terdapat pengajuan stage baru, silahkan lihat di aplikasi pada menu WPS", 1);
          }
          $wstage->save();
 

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\ApiTransformer;
 use App\Http\Controllers\Api\TanurController;
 use App\Models\Agent;
 use App\Models\History;
@@ -29,8 +30,8 @@ class WorkspaceController extends Controller
       $apitanur = new TanurController();
       $data = $apitanur->getAgentDetail(session('agent_id'));
       $agent = (object) $data['data']['agent'] ?? null;
-      $workspaces = Workspace::where('agent_id', session('agent_id'))->limit(5)->get();
 
+      $workspaces = Workspace::where('agent_id', session('agent_id'))->limit(5)->get();
       $workspace_approvals = WorkspaceApproval::where('approver_id', session('agent_id'))->where('status', '0')->limit(6)->get();
       $stage_approvals = WorkspaceStageApproval::where('approver_id', session('agent_id'))->where('status', '0')->limit(6)->get();
       $approvals = $workspace_approvals->merge($stage_approvals)->sortByDesc('created_at');
@@ -45,15 +46,22 @@ class WorkspaceController extends Controller
          ],
       ];
 
+      // ✅ Transform hanya saat JSON
       if ($request->wantsJson() || $request->is('api/*')) {
          return response()->json([
             'success' => true,
             'code' => 200,
-            'message' => 'Workspace retrievied successfully',
-            'data' => compact('workspaces', 'agent', 'approvals', 'count'),
+            'message' => 'Workspace retrieved successfully',
+            'data' => [
+               'agent' => $agent,
+               'workspaces' => $workspaces->map(fn($w) => ApiTransformer::transformWorkspace($w)),
+               'approvals' => $approvals->map(fn($a) => ApiTransformer::transformApproval($a))->values(),
+               'count' => $count,
+            ],
          ]);
       }
 
+      // ✅ Untuk blade tetap raw Eloquent model
       return view('mobile.workspace.index', compact('workspaces', 'agent', 'approvals', 'count'));
    }
 
@@ -72,7 +80,7 @@ class WorkspaceController extends Controller
             'success' => true,
             'code' => 200,
             'message' => 'Workspace detail retrievied successfully',
-            'data' => compact('workspace', 'stages'),
+            'data' => ['workspace' => ApiTransformer::transformWorkspace($workspace), 'stages' => $stages],
          ]);
       }
       return view('mobile.workspace.show', compact('workspace', 'stages'));

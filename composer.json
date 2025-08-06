@@ -27,7 +27,8 @@
     },
     "autoload": {
         "files": [
-            "app/Helpers/helpers.php"
+            "app/Helpers/helpers.php",
+            "app/Helpers/ApiTransformer.php"
         ],
         "psr-4": {
             "App\\": "app/",

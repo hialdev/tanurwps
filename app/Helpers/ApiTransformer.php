@@ -195,7 +195,7 @@ class ApiTransformer
          "created_at" => $task->created_at,
          "updated_at" => $task->updated_at,
          "attachments" => $task->attachments?->map(fn($task) => self::normalizeAttachment($task, 'stage_task')) ?? [],
-         "wtask" => self::normalizeWtask($wtask)
+         "wtask" => $wtask ? self::normalizeWtask($wtask) : null,
       ];
 
       return $response;

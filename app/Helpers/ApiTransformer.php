@@ -22,14 +22,15 @@ class ApiTransformer
          'city' => $workspace->city,
          'address' => $workspace->address,
          'product_type' => $workspace->product_type,
-         'finished_at' => $workspace->finished_at,
-         'approved_at' => $workspace->approved_at,
          'total_pilgrim_male' => $workspace->total_pilgrim_male,
          'total_pilgrim_female' => $workspace->total_pilgrim_female,
          'total_pilgrim' => $workspace->total_pilgrim_male + $workspace->total_pilgrim_female,
          'stage_analytic' => $workspace->stageAnalytic(),
          'task_analytic' => $workspace->taskAnalytic(),
-         
+         'finished_at' => $workspace->finished_at,
+         'approved_at' => $workspace->approved_at,
+         'created_at' => $workspace->created_at,
+         'updated_at' => $workspace->updated_at,
       ];
       if ($showDataLinked){
          $response['approvals'] = $workspace->count() > 0 ? $workspace->approvals->map(function($approval) use ($showDataLinked) {

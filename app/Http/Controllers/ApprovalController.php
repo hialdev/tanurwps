@@ -69,7 +69,7 @@ class ApprovalController extends Controller
                   'per_page' => $filter->limit,
                   'total' => $total,
                ],
-               'approvals' => $slice->map(fn($approval) => ApiTransformer::transformApproval($approval, true)),
+               'approvals' => $slice->map(fn($approval) => ApiTransformer::normalizeApproval($approval, true, false)),
                'filter' => $filter,
             ],
          ]);
@@ -97,8 +97,8 @@ class ApprovalController extends Controller
             'code' => 200,
             'message' => 'Approval retrieved successfully',
             'data' => [
-               'approval' => ApiTransformer::transformApproval($approval, false),
-               'workspace' => ApiTransformer::transformWorkspace($approval->workspace, true, false)
+               'approval' => ApiTransformer::normalizeApproval($approval, false, true),
+               'workspace' => ApiTransformer::normalizeWorkspace($approval->workspace, true)
             ],
          ]);
       }

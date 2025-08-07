@@ -110,8 +110,8 @@ class StageApprovalController extends Controller
             'code' => 200,
             'message' => 'Stage approval retrevied successfully.',
             'data' => [
-               'approval' => ApiTransformer::transformStageApproval($approval),
-               'workspace' => ApiTransformer::transformWorkspace($approval->workspaceStage->workspace, true, false)
+               'approval' => ApiTransformer::normalizeSapproval($approval, false),
+               'workspace_stage' => ApiTransformer::normalizeWstage($approval->workspaceStage, true)
             ],
          ]);
       }

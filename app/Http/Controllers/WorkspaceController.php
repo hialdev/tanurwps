@@ -53,8 +53,8 @@ class WorkspaceController extends Controller
             'code' => 200,
             'message' => 'Workspace retrieved successfully',
             'data' => [
-               'workspaces' => $workspaces->map(fn($w) => ApiTransformer::transformWorkspace($w, false, false)),
-               'approvals' => $approvals->map(fn($a) => ApiTransformer::transformApproval($a, false))->values(),
+               'workspaces' => $workspaces->map(fn($w) => ApiTransformer::normalizeWorkspace($w, false)),
+               'approvals' => $approvals->map(fn($a) => ApiTransformer::normalizeApproval($a, true, true))->values(),
                'count' => $count,
             ],
          ]);
@@ -80,9 +80,7 @@ class WorkspaceController extends Controller
             'success' => true,
             'code' => 200,
             'message' => 'Workspace detail retrievied successfully',
-            'data' => [
-               'workspace' => ApiTransformer::transformWorkspace($workspace, true, true),
-            ],
+            'data' => ApiTransformer::workspaceDetail($workspace),
          ]);
       }
       return view('mobile.workspace.show', compact('workspace', 'stages'));

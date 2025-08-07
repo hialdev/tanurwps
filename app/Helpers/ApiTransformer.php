@@ -25,7 +25,7 @@ class ApiTransformer
       ];
       if ($showDataLinked){
          $response['approvals'] = $workspace->count() > 0 ? $workspace->approvals->map(function($approval) use ($showDataLinked) {
-                        return self::transformWorkspaceApproval($approval, $showDataLinked);
+                        return self::transformWorkspaceApproval($approval, $showDataLinked, false);
                      }) : [];
       }
       if($showDetails) {
@@ -67,12 +67,9 @@ class ApiTransformer
          "attachment" => $approval->attachment,
          "created_at" => $approval->created_at,
          "updated_at" => $approval->updated_at,
-         "data_stage" => [
-            "workspace_stage" => $approval->workspaceStage,
-            "stage" => $approval->workspaceStage->stage,
-         ],
+         "workspace_stage" => $approval->workspaceStage->with(['workspace', 'stage'])->get(),
       ];
-      
+      // dd($approval->workspaceStage->workspace);
       if ($showDataLinked)
          $response["data_stage"]["workspace"] = self::transformWorkspace($approval->workspaceStage->workspace, false, false);
 

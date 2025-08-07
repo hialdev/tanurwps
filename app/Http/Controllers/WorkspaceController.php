@@ -53,7 +53,6 @@ class WorkspaceController extends Controller
             'code' => 200,
             'message' => 'Workspace retrieved successfully',
             'data' => [
-               'agent' => $agent,
                'workspaces' => $workspaces->map(fn($w) => ApiTransformer::transformWorkspace($w, false, false)),
                'approvals' => $approvals->map(fn($a) => ApiTransformer::transformApproval($a, true)),
                'count' => $count,

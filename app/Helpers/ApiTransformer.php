@@ -68,7 +68,7 @@ class ApiTransformer
          "created_at" => $approval->created_at,
          "updated_at" => $approval->updated_at,
          "data_stage" => [
-            "workspace_stage" => $approval->workspaceStage->makeHidden(['workspace']),
+            "workspace_stage" => $approval->workspaceStage->makeHidden(['workspace', 'stage']),
             "workspace" => self::transformWorkspace($approval->workspaceStage->workspace->makeHidden(['workspaceStages', 'workspaceTasks', 'stage', 'workspace']), false, false),
             "stage" => $approval->workspaceStage->stage,
          ],

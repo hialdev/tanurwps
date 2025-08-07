@@ -97,7 +97,7 @@ class ApprovalController extends Controller
             'code' => 200,
             'message' => 'Approval retrieved successfully',
             'data' => [
-               'approval' => ApiTransformer::transformApproval($approval),
+               'approval' => ApiTransformer::transformApproval($approval, false),
                'workspace' => ApiTransformer::transformWorkspace($approval->workspace, true, false)
             ],
          ]);

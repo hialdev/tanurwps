@@ -4,10 +4,11 @@ namespace App\Helpers;
 
 class ApiTransformer
 {
-   public static function transformWorkspace($workspace, $showDataLinked = false, $showDetails = true)
+   public static function transformWorkspace($workspace, $showDataLinked, $showDetails)
    {
       $response = [
          'id' => $workspace->id,
+         'agent_id' => $workspace->agent_id,
          'name' => $workspace->name,
          'description' => $workspace->description ?? 'tidak ada deskripsi',
          'status' => $workspace->status,
@@ -36,7 +37,7 @@ class ApiTransformer
       return $response;
    }
 
-   public static function transformWorkspaceApproval($approval, $showDataLinked = false) {
+   public static function transformWorkspaceApproval($approval, $showDataLinked) {
       $response = [
          "id" => $approval->id,
          "workspace_id" => $approval->workspace_id,
@@ -54,7 +55,7 @@ class ApiTransformer
       return $response;
    }
 
-   public static function transformStageApproval($approval) {
+   public static function transformStageApproval($approval, $showDataLinked) {
       $response = [
          "id" => $approval->id,
          "workspace_stage_id" => $approval->workspace_id,
@@ -68,21 +69,23 @@ class ApiTransformer
          "updated_at" => $approval->updated_at,
          "data_stage" => [
             "workspace_stage" => $approval->workspaceStage,
-            "workspace" => self::transformWorkspace($approval->workspaceStage->workspace, false, false),
-            "stage" => $approval->stage,
-         ]
+            "stage" => $approval->workspaceStage->stage,
+         ],
       ];
+      
+      if ($showDataLinked)
+         $response["data_stage"]["workspace"] = self::transformWorkspace($approval->workspaceStage->workspace, false, false);
 
       return $response;
    }
 
-   public static function transformApproval($approval, $showDataLinked = false)
+   public static function transformApproval($approval, $showDataLinked)
    {
       $isWorkspace = isset($approval->workspace);
       if ($isWorkspace) {
-         return self::transformWorkspaceApproval($approval, $showDataLinked ? true : false);
+         return self::transformWorkspaceApproval($approval, $showDataLinked);
       }else{
-         return self::transformStageApproval($approval);
+         return self::transformStageApproval($approval, $showDataLinked);
       }
    }
 }

@@ -40,6 +40,7 @@ class ApiTransformer
    public static function transformWorkspaceApproval($approval, $showDataLinked) {
       $response = [
          "id" => $approval->id,
+         "type" => "workspace",
          "workspace_id" => $approval->workspace_id,
          "approver_id" => $approval->approver_id,
          "status" => $approval->status,
@@ -58,6 +59,7 @@ class ApiTransformer
    public static function transformStageApproval($approval, $showDataLinked) {
       $response = [
          "id" => $approval->id,
+         "type" => "stage",
          "workspace_stage_id" => $approval->workspace_id,
          "approver_id" => $approval->approver_id,
          "status" => $approval->status,

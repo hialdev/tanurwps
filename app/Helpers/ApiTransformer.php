@@ -29,7 +29,7 @@ class ApiTransformer
                      }) : [];
       }
       if($showDetails) {
-         $response['workspace_stages'] = $workspace->workspaceStages()->with(['stage.attachments', 'workspaceTasks.attachments', 'workspaceTasks.task.attachments'])->get();
+         $response['workspace_stages'] = $workspace->workspaceStages()->with(['stage.attachments', 'stage.tasks.attachments', 'workspaceTasks.attachments', 'workspaceTasks'])->get();
       }
 
       return $response;

@@ -25,13 +25,11 @@ class ApiTransformer
       ];
       if ($showDataLinked){
          $response['approvals'] = $workspace->count() > 0 ? $workspace->approvals->map(function($approval) use ($showDataLinked) {
-                        return self::transformWorkspaceApproval($approval, $showDataLinked, false);
+                        return self::transformWorkspaceApproval($approval, false);
                      }) : [];
       }
       if($showDetails) {
-         $response['details'] = $workspace->with('workspaceStages.stage.attachments')->with('workspaceStages.stage.tasks.attachments')->with(['workspaceStages.workspaceTasks' => function ($q) use ($workspace) {
-                                 $q->whereHas('workspaceStage', fn ($q) => $q->where('workspace_id', $workspace->id));
-                              }])->get();
+         $response['workspace_stages'] = $workspace->workspaceStages()->with(['stage.attachments', 'workspaceTasks.attachments', 'workspaceTasks.task.attachments'])->get();
       }
 
       return $response;

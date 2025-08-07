@@ -81,7 +81,7 @@ class WorkspaceController extends Controller
             'code' => 200,
             'message' => 'Workspace detail retrievied successfully',
             'data' => [
-               'workspace' => ApiTransformer::transformWorkspace($workspace, false, false),
+               'workspace' => ApiTransformer::transformWorkspace($workspace, true, true),
             ],
          ]);
       }

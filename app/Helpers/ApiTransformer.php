@@ -67,7 +67,11 @@ class ApiTransformer
          "attachment" => $approval->attachment,
          "created_at" => $approval->created_at,
          "updated_at" => $approval->updated_at,
-         "workspace_stage" => $approval->workspaceStage->with(['workspace', 'stage'])->get(),
+         "data_stage" => [
+            "workspace_stage" => $approval->workspaceStage->makeHidden(['workspace']),
+            "workspace" => self::transformWorkspace($approval->workspaceStage->workspace->makeHidden(['workspaceStages', 'workspaceTasks', 'stage', 'workspace']), false, false),
+            "stage" => $approval->workspaceStage->stage,
+         ],
       ];
       // dd($approval->workspaceStage->workspace);
       if ($showDataLinked)

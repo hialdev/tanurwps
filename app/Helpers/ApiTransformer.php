@@ -84,7 +84,7 @@ class ApiTransformer
    {
       $isWorkspace = isset($approval->workspace);
       if ($isWorkspace) {
-         return self::transformWorkspaceApproval($approval, $showDataLinked);
+         return self::transformWorkspaceApproval($approval, true);
       }else{
          return self::transformStageApproval($approval, $showDataLinked);
       }

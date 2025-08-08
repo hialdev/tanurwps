@@ -176,6 +176,7 @@ class ApiTransformer
          "status" => $wstage->status,
          "finished_at" => $wstage->finished_at,
          "approved_at" => $wstage->approved_at,
+         "approvals" => $wstage->approvals
       ];
 
       if ($showDataLinked) $response["stage"] = self::normalizeStage($wstage->stage, true, $wstage->workspace_id);

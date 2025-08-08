@@ -51,6 +51,7 @@ class AgentController extends Controller
         $filtered = collect($allAgents)->filter(function ($agent) use ($filter) {
             return str_contains(strtolower($agent['name']), strtolower($filter->q)) || 
                    str_contains(strtolower($agent['agent_no']), strtolower($filter->q)) ||
+                   str_contains(strtolower($agent['id']), strtolower($filter->q)) ||
                    str_contains(strtolower($agent['level']), strtolower($filter->q));
         })->sortBy($filter->field, SORT_NATURAL | SORT_FLAG_CASE, $filter->order === 'asc')->values();
 

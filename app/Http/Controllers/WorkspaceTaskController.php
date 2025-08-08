@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\ApiTransformer;
 use App\Models\History;
 use App\Models\Stage;
 use App\Models\Task;
@@ -32,7 +33,9 @@ class WorkspaceTaskController extends Controller
             'success' => true,
             'code' => 200,
             'message' => 'Workspace Task retrievied successfully',
-            'data' => compact('task', 'workspace_task','workspace'),
+            'data' => [
+               'task' => ApiTransformer::normalizeTask($task, $id),
+            ],
          ]);
       }
       return view('mobile.workspace.task.show', compact('task', 'workspace'));
@@ -43,6 +46,8 @@ class WorkspaceTaskController extends Controller
    {
       $task = Task::findOrFail($task_id);
       $workspace = Workspace::findOrFail($id);
+      $wtask = $task->wTask($id);
+
       if (!$workspace->is_approved || $workspace->status == '0' || $workspace->status == '5') {
          if ($request->wantsJson() || $request->is('api/*')) {
             return response()->json([
@@ -53,6 +58,18 @@ class WorkspaceTaskController extends Controller
             ]);
          }
          return back()->with('error', 'Workspace Belum Disetujui');
+      }
+
+      if ($wtask){
+         if ($request->wantsJson() || $request->is('api/*')) {
+            return response()->json([
+               'success' => false,
+               'code' => 401,
+               'message' => 'Sudah ada jawaban dibuat, silahkan edit saja',
+               'data' => null,
+            ]);
+         }
+         return back()->with('error', 'Sudah ada jawaban dibuat, silahkan edit saja');
       }
 
       if ($workspace->requester->id != session('agent_id')) {

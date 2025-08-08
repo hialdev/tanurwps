@@ -73,18 +73,18 @@ Route::middleware('api.agent.access')->group(function () {
    Route::prefix('workspaces')->group(function () {
       Route::get('/', [WorkspaceController::class, 'index']);
       Route::get('/list', [WorkspaceController::class, 'list']);
+      Route::post('/add', [WorkspaceController::class, 'store']);
       Route::get('/add', [WorkspaceController::class, 'add']);
-      Route::post('/', [WorkspaceController::class, 'store']);
       Route::get('/{workspace_id}', [WorkspaceController::class, 'show']);
       Route::get('/{workspace_id}/edit', [WorkspaceController::class, 'edit']);
-      Route::put('/{workspace_id}', [WorkspaceController::class, 'update']);
+      Route::post('/{workspace_id}/edit', [WorkspaceController::class, 'update']);
       Route::delete('/{workspace_id}', [WorkspaceController::class, 'destroy']);
       Route::post('/{workspace_id}/stages/{stage_id}/send-approval', [StageApprovalController::class, 'send']);
       
       Route::prefix('{workspace_id}/tasks')->group(function () {
          Route::get('/{task_id}', [WorkspaceTaskController::class, 'show']);
          Route::post('/{task_id}', [WorkspaceTaskController::class, 'store']);
-         Route::put('/{task_id}/workspace_task/{wtask_id}', [WorkspaceTaskController::class, 'update']);
+         Route::post('/{task_id}/workspace_task/{wtask_id}', [WorkspaceTaskController::class, 'update']);
       });
    });
 
@@ -93,7 +93,7 @@ Route::middleware('api.agent.access')->group(function () {
       Route::get('/', [ApprovalController::class, 'index']);
       Route::get('/{approval_id}', [ApprovalController::class, 'show']);
       Route::post('/{approval_id}/decision', [ApprovalController::class, 'decision']);
-      Route::put('/{approval_id}/decision', [ApprovalController::class, 'updateDecision']);
+      Route::post('/{approval_id}/decision/update', [ApprovalController::class, 'updateDecision']);
    });
 
    // Stage Approvals
@@ -101,7 +101,7 @@ Route::middleware('api.agent.access')->group(function () {
       Route::get('/', [StageApprovalController::class, 'index']);
       Route::get('/{approval_id}', [StageApprovalController::class, 'show']);
       Route::post('/{approval_id}/decision', [StageApprovalController::class, 'decision']);
-      Route::put('/{approval_id}/decision', [StageApprovalController::class, 'updateDecision']);
+      Route::post('/{approval_id}/decision/update', [StageApprovalController::class, 'updateDecision']);
    });
 
 });

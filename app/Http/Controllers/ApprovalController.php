@@ -262,7 +262,6 @@ class ApprovalController extends Controller
             'reason' => 'required|string',
             'attachment' => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,ppt,pptx,jpg,jpeg,png,webp|max:5120',
          ]);
-
          $approval->status = $request->decision === 'approve' ? '1' : '2';
          $approval->reason = $request->reason;
          if ($approval->attachment) {

@@ -2,6 +2,8 @@
 
 namespace App\Helpers;
 
+use App\Models\WorkspaceStage;
+
 class ApiTransformer
 {
    public static function transformWorkspace($workspace, $showDataLinked, $showDetails)
@@ -150,10 +152,27 @@ class ApiTransformer
    }
 
    public static function normalizeStage($stage, $showDataLinked, $workspace_id){
+      $wstage = WorkspaceStage::where('workspace_id', $workspace_id)->where('stage_id', $stage->id)->first();
+      $isFilled = false;
+      if ($wstage) {
+         $tasks = $wstage->workspaceTasks;
+         if ($tasks->count() > 0) {
+
+            if ($tasks->count() != $stage->tasks->count()) $isFilled = false;
+
+            foreach ($tasks as $task) {
+               if ($task->finished_at == null) {
+                  $isFilled = false;
+               }
+            }
+            $isFilled = true;
+         }
+      }
       $response = [
          "id" => $stage->id,
          "name" => $stage->name,
          "order" => $stage->order,
+         "is_filled" => $isFilled,
          "description" => $stage->description,
          "deadline_days" => $stage->deadline_days,
          "created_at" => $stage->created_at,
@@ -176,7 +195,7 @@ class ApiTransformer
          "status" => $wstage->status,
          "finished_at" => $wstage->finished_at,
          "approved_at" => $wstage->approved_at,
-         "approvals" => $wstage->approvals
+         "approvals" => $wstage->approvals,
       ];
 
       if ($showDataLinked) $response["stage"] = self::normalizeStage($wstage->stage, true, $wstage->workspace_id);

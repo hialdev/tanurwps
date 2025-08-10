@@ -42,7 +42,7 @@ class WorkspaceStageApproval extends Model
     public function getRequesterAttribute(){
         $tanurApi = new TanurController();
         $data = $tanurApi->getAgentDetail($this->workspaceStage->workspace->agent_id);
-        return (object) $data['data']['agent'] ?? null;
+        return (object) $data['data'] && $data['data']['agent'] ? $data['data']['agent'] : null;
     }
 
     public function getTimeAgoAttribute()

@@ -32,13 +32,13 @@ class WorkspaceApproval extends Model
     public function getRequesterAttribute(){
         $tanurApi = new TanurController();
         $data = $tanurApi->getAgentDetail($this->workspace->agent_id);
-        return (object) $data['data'] && $data['data']['agent'] ? $data['data']['agent'] : null;
+        return (object) $data['data'] && $data['data']['agent'] ? (object) $data['data']['agent'] : null;
     }
 
     public function getApproverAttribute(){
         $tanurApi = new TanurController();
         $data = $tanurApi->getAgentDetail($this->approver_id);
-        return (object) $data['data'] && $data['data']['agent'] ? $data['data']['agent'] : null;
+        return (object) $data['data'] && $data['data']['agent'] ? (object) $data['data']['agent'] : null;
     }
 
     public function getStatus()

@@ -123,7 +123,6 @@ class ApprovalController extends Controller
          return back()->with('error', 'Anda tidak memiliki akses untuk memutuskan pengajuan ini');
       }
       if ($approval->status != '0' || (int) $approval->status > 0) {
-         dd($approval, $request->all());
          // If request expects JSON (API), return JSON response
          if ($request->wantsJson() || $request->is('api/*')) {
             return response()->json([

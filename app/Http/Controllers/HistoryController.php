@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\ApiTransformer;
 use App\Models\History;
 use Illuminate\Http\Request;
 
@@ -31,7 +32,7 @@ class HistoryController extends Controller
                   'per_page' => $histories->perPage(),
                   'total' => $histories->total(),
                ],
-               'histories' => $histories->values(),
+               'histories' => $histories->values()->map(fn($hst) => ApiTransformer::normalizeHistory($hst)),
                'filter' => $filter,
             ], 
          ]);

@@ -322,7 +322,7 @@ class WorkspaceController extends Controller
          }
          return redirect()->route('agent.workspace.show', $workspace_id)->with('error', 'Aksi Ilegal, Anda tidak bisa mengubah Workspace orang lain.');
       }
-      if ($workspace->status != '0') {
+      if (((int) $workspace->status != 0 && (int) $workspace->status != 5)) {
          if ($request->wantsJson() || $request->is('api/*')) {
             return response()->json([
                'success' => false,

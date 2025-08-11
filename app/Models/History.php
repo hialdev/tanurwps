@@ -54,6 +54,37 @@ class History extends Model
         return null;
     }
 
+    public function relationWorkspaceId(){
+        $type = $this->type;
+        switch ($type) {
+            case 'workspace':
+                return Workspace::find($this->relation_id)->id;
+                
+                break;
+            case 'workspace_approval':
+                return WorkspaceApproval::find($this->relation_id)->workspace_id;
+                
+                break;
+            case 'stage':
+                return WorkspaceStage::find($this->relation_id)->workspace_id;
+                
+                break;
+            case 'stage_approval':
+                return WorkspaceStageApproval::find($this->relation_id)->workspaceStage->workspace_id;
+                
+                break;
+            case 'task':
+                return WorkspaceTask::find($this->relation_id)->workspaceStage->workspace_id;
+                break;
+            
+            default:
+                return null;
+                break;
+        }
+
+        return null;
+    }
+
     public function getIconAttribute(){
         $icons = [
             'workspace' => 'briefcase',

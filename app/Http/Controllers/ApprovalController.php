@@ -136,7 +136,7 @@ class ApprovalController extends Controller
          return back()->with('error', 'Pengajuan ini sudah diproses sebelumnya');
          
       }
-      if (($approval->workspace->status != '0' && $approval->workspace->status != '5') && ((int) $approval->workspace->status != 0 && (int) $approval->workspace->status != 5)) {
+      if (((int) $approval->workspace->status != 0 && (int) $approval->workspace->status != 5)) {
          // If request expects JSON (API), return JSON response
          if ($request->wantsJson() || $request->is('api/*')) {
             return response()->json([

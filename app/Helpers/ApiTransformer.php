@@ -330,6 +330,22 @@ class ApiTransformer
       return $response;
    }
 
+   public static function normalizeHistory($history){
+      $response = [
+         "id" => $history->id,
+         "agent_id" => $history->agent_id,
+         "type" => $history->type,
+         "relation_id" => $history->relation_id,
+         "workspace_id" => $history->relationWorkspaceId(),
+         "message" => $history->message,
+         "color" => $history->color,
+         "created_at" => $history->created_at,
+         "updated_at" => $history->updated_at
+      ];
+
+      return $response;
+   }
+
    public static function workspaceDetail($workspace){
       $response = [
          "workspace" => self::normalizeWorkspace($workspace, true),

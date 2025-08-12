@@ -190,7 +190,7 @@ class ApprovalController extends Controller
          $history->color = $request->decision === 'approve' ? 'success' : 'danger';
          $history->save();
 
-         $this->tanurApi->notify($workspace->agent_id, 1, 1, 1, ($request->decision === 'approve' ? 'Menyetujui' : 'Menolak') . ' Workspace ' . $workspace->name, "Berhasil memberikan aksi terhadap approval, silahkan lihat di aplikasi pada menu WPS", 1, "wps_approval", ApiTransformer::normalizeApproval($approval, true, true));
+         $this->tanurApi->notify(session('agent_id'), 1, 1, 1, ($request->decision === 'approve' ? 'Menyetujui' : 'Menolak') . ' Workspace ' . $workspace->name, "Berhasil memberikan aksi terhadap approval, silahkan lihat di aplikasi pada menu WPS", 1, "wps_approval", ApiTransformer::normalizeApproval($approval, true, true));
 
          $history = new History();
          $history->agent_id = $workspace->agent_id;

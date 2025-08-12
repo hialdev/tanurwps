@@ -204,17 +204,17 @@ class StageApprovalController extends Controller
          $history->color = $request->decision === 'approve' ? 'success' : 'danger';
          $history->save();
 
-         $this->tanurApi->notify($wstage->workspace->agent_id, 1, 1, 1, ($request->decision === 'approve' ? 'Menyetujui' : 'Menolak') . ' Stage ' . $wstage->stage->name, "Berhasil memberikan aksi terhadap approval, silahkan lihat di aplikasi pada menu WPS", 1, "wps_approval", ApiTransformer::normalizeApproval($approval, true, true));
+         $this->tanurApi->notify(session('agent_id'), 1, 1, 1, ($request->decision === 'approve' ? 'Menyetujui' : 'Menolak') . ' Stage ' . $wstage->stage->name, "Berhasil memberikan aksi terhadap approval, silahkan lihat di aplikasi pada menu WPS", 1, "wps_approval", ApiTransformer::normalizeApproval($approval, true, true));
 
          $history = new History();
-         $history->agent_id = session('agent_id');
+         $history->agent_id = $wstage->workspace->agent_id;
          $history->relation_id = $wstage->id;
          $history->type = 'stage';
          $history->message = 'Salah Satu Approver ' . ($request->decision === 'approve' ? 'Menyetujui' : 'Menolak') . ' Stage ' . $wstage->stage->name;
          $history->color = $request->decision === 'approve' ? 'success' : 'danger';
          $history->save();
 
-         $this->tanurApi->notify(session('agent_id'), 1, 1, 1, 'Salah Satu Approver ' . ($request->decision === 'approve' ? 'Menyetujui' : 'Menolak') . ' Stage ' . $wstage->stage->name, "Terdapat status approval terbaru, silahkan lihat di aplikasi pada menu WPS", 1, "wps_workspace", ApiTransformer::normalizeMinimalWorkspace($wstage->workspace));
+         $this->tanurApi->notify($wstage->workspace->agent_id, 1, 1, 1, 'Salah Satu Approver ' . ($request->decision === 'approve' ? 'Menyetujui' : 'Menolak') . ' Stage ' . $wstage->stage->name, "Terdapat status approval terbaru, silahkan lihat di aplikasi pada menu WPS", 1, "wps_workspace", ApiTransformer::normalizeMinimalWorkspace($wstage->workspace));
 
          if ($wstage->workspace->isAllStageApproved()) {
             $wstage->workspace->status = '4';

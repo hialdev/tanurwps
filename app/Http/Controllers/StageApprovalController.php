@@ -45,7 +45,7 @@ class StageApprovalController extends Controller
                $history->color = 'warning';
                $history->save();
 
-               $this->tanurApi->notify($superior['id'], 1, 1, 1, 'Pengajuan Stage ' . $wstage->stage->name . ' dari ' . $fetch['data']['agent']['name'], "Terdapat pengajuan stage baru, silahkan lihat di aplikasi pada menu WPS", 1);
+               $this->tanurApi->notify($superior['id'], 1, 1, 1, 'Pengajuan Stage ' . $wstage->stage->name . ' dari ' . $fetch['data']['agent']['name'], "Terdapat pengajuan stage baru, silahkan lihat di aplikasi pada menu WPS", 1, "wps_approval", ApiTransformer::normalizeApproval($stageApproval, true, true));
             }
          }else if ($fetch['data']['agent']['id_level'] == "MD") {
             $stageApproval = new WorkspaceStageApproval();
@@ -62,7 +62,7 @@ class StageApprovalController extends Controller
             $history->color = 'warning';
             $history->save();
 
-            $this->tanurApi->notify(session('agent_id'), 1, 1, 1, 'Pengajuan Stage ' . $wstage->stage->name . ' dari ' . $fetch['data']['agent']['name'], "Terdapat pengajuan stage baru, silahkan lihat di aplikasi pada menu WPS", 1);
+            $this->tanurApi->notify(session('agent_id'), 1, 1, 1, 'Pengajuan Stage ' . $wstage->stage->name . ' dari ' . $fetch['data']['agent']['name'], "Terdapat pengajuan stage baru, silahkan lihat di aplikasi pada menu WPS", 1, "wps_approval", ApiTransformer::normalizeApproval($stageApproval, true, true));
          }
          $wstage->save();
 

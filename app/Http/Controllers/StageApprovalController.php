@@ -204,7 +204,7 @@ class StageApprovalController extends Controller
          $history->color = $request->decision === 'approve' ? 'success' : 'danger';
          $history->save();
 
-         $this->tanurApi->notify($wstage->workspace->agent_id, 1, 1, 1, ($request->decision === 'approve' ? 'Menyetujui' : 'Menolak') . ' Stage ' . $wstage->stage->name, "Berhasil memberikan aksi terhadap approval, silahkan lihat di aplikasi pada menu WPS", 1);
+         $this->tanurApi->notify($wstage->workspace->agent_id, 1, 1, 1, ($request->decision === 'approve' ? 'Menyetujui' : 'Menolak') . ' Stage ' . $wstage->stage->name, "Berhasil memberikan aksi terhadap approval, silahkan lihat di aplikasi pada menu WPS", 1, "wps_approval", ApiTransformer::normalizeApproval($approval, true, true));
 
          $history = new History();
          $history->agent_id = session('agent_id');
@@ -214,7 +214,7 @@ class StageApprovalController extends Controller
          $history->color = $request->decision === 'approve' ? 'success' : 'danger';
          $history->save();
 
-         $this->tanurApi->notify(session('agent_id'), 1, 1, 1, 'Salah Satu Approver ' . ($request->decision === 'approve' ? 'Menyetujui' : 'Menolak') . ' Stage ' . $wstage->stage->name, "Terdapat status approval terbaru, silahkan lihat di aplikasi pada menu WPS", 1);
+         $this->tanurApi->notify(session('agent_id'), 1, 1, 1, 'Salah Satu Approver ' . ($request->decision === 'approve' ? 'Menyetujui' : 'Menolak') . ' Stage ' . $wstage->stage->name, "Terdapat status approval terbaru, silahkan lihat di aplikasi pada menu WPS", 1, "wps_workspace", ApiTransformer::normalizeMinimalWorkspace($wstage->workspace));
 
          if ($wstage->workspace->isAllStageApproved()) {
             $wstage->workspace->status = '4';
@@ -228,7 +228,7 @@ class StageApprovalController extends Controller
             $history->color = 'success';
             $history->save();
 
-            $this->tanurApi->notify($wstage->workspace->agent_id, 1, 1, 1, 'Workspace ' . $wstage->workspace->name . ' Selesai', "Workspace selesai!, silahkan lihat di aplikasi pada menu WPS", 1);
+            $this->tanurApi->notify($wstage->workspace->agent_id, 1, 1, 1, 'Workspace ' . $wstage->workspace->name . ' Selesai', "Workspace selesai!, silahkan lihat di aplikasi pada menu WPS", 1, "wps_workspace", ApiTransformer::normalizeMinimalWorkspace($wstage->workspace));
          }
 
          if ($request->wantsJson() || $request->is('api/*')) {
@@ -330,7 +330,7 @@ class StageApprovalController extends Controller
          $history->color = $request->decision === 'approve' ? 'success' : 'danger';
          $history->save();
 
-         $this->tanurApi->notify(session('agent_id'), 1, 1, 1, '[Diperbarui] ' . ($request->decision === 'approve' ? 'Menyetujui' : 'Menolak') . ' Stage ' . $wstage->stage->name, "Memperbarui aksi terhadap approval, silahkan lihat di aplikasi pada menu WPS", 1);
+         $this->tanurApi->notify(session('agent_id'), 1, 1, 1, '[Diperbarui] ' . ($request->decision === 'approve' ? 'Menyetujui' : 'Menolak') . ' Stage ' . $wstage->stage->name, "Memperbarui aksi terhadap approval, silahkan lihat di aplikasi pada menu WPS", 1, "wps_approval", ApiTransformer::normalizeApproval($approval, true, true));
 
 
          $history = new History();
@@ -341,7 +341,7 @@ class StageApprovalController extends Controller
          $history->color = $request->decision === 'approve' ? 'success' : 'danger';
          $history->save();
 
-         $this->tanurApi->notify($wstage->workspace->agent_id, 1, 1, 1, '[Diperbarui] Salah Satu Approver ' . ($request->decision === 'approve' ? 'Menyetujui' : 'Menolak') . ' Stage ' . $wstage->stage->name, "Terdapat pembaruan status approval, silahkan lihat di aplikasi pada menu WPS", 1);
+         $this->tanurApi->notify($wstage->workspace->agent_id, 1, 1, 1, '[Diperbarui] Salah Satu Approver ' . ($request->decision === 'approve' ? 'Menyetujui' : 'Menolak') . ' Stage ' . $wstage->stage->name, "Terdapat pembaruan status approval, silahkan lihat di aplikasi pada menu WPS", 1, "wps_workspace", ApiTransformer::normalizeMinimalWorkspace($wstage->workspace));
 
          if ($wstage->workspace->isAllStageApproved()) {
             $wstage->workspace->status = '4';
@@ -355,7 +355,7 @@ class StageApprovalController extends Controller
             $history->color = 'success';
             $history->save();
 
-            $this->tanurApi->notify($wstage->workspace->agent_id, 1, 1, 1, 'Workspace ' . $wstage->workspace->name . ' Selesai', "Workspace selesai!, silahkan lihat di aplikasi pada menu WPS", 1);
+            $this->tanurApi->notify($wstage->workspace->agent_id, 1, 1, 1, 'Workspace ' . $wstage->workspace->name . ' Selesai', "Workspace selesai!, silahkan lihat di aplikasi pada menu WPS", 1, "wps_workspace", ApiTransformer::normalizeMinimalWorkspace($wstage->workspace));
          }
 
          if ($request->wantsJson() || $request->is('api/*')) {

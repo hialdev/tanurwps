@@ -225,7 +225,7 @@ class WorkspaceController extends Controller
             $history->color = 'dark';
             $history->save();
 
-            $this->tanurApi->notify(session('agent_id'), 1, 1, 1, 'Workspace dibuat dan diajukan ' . $workspace->name, "Membuat dan mengajukan workspace baru, silahkan lihat di aplikasi pada menu WPS", 1);
+            $this->tanurApi->notify(session('agent_id'), 1, 1, 1, 'Workspace dibuat dan diajukan ' . $workspace->name, "Membuat dan mengajukan workspace baru, silahkan lihat di aplikasi pada menu WPS", 1, "wps_workspace", ApiTransformer::normalizeMinimalWorkspace($workspace));
 
             //Get Superior Tanur API Agent Detail
             $fetch = $this->tanurApi->getAgentDetail(session('agent_id'));
@@ -246,7 +246,7 @@ class WorkspaceController extends Controller
                   $history->color = 'dark';
                   $history->save();
 
-                  $this->tanurApi->notify($superior['id'], 1, 1, 1, 'Pengajuan Workspace ' . $workspace->name . ' dari ' . $fetch['data']['agent']['name'], "Terdapat pengajuan workspace baru, silahkan lihat di aplikasi pada menu WPS", 1);
+                  $this->tanurApi->notify($superior['id'], 1, 1, 1, 'Pengajuan Workspace ' . $workspace->name . ' dari ' . $fetch['data']['agent']['name'], "Terdapat pengajuan workspace baru, silahkan lihat di aplikasi pada menu WPS", 1, "wps_approval", ApiTransformer::normalizeApproval($workspaceApproval, true, true));
                }
             } else if ($fetch['data']['agent']['id_level'] == "MD") {
                $workspaceApproval = new WorkspaceApproval();
@@ -263,7 +263,7 @@ class WorkspaceController extends Controller
                $history->color = 'dark';
                $history->save();
 
-               $this->tanurApi->notify(session('agent_id'), 1, 1, 1, 'Pengajuan Workspace ' . $workspace->name . ' dari ' . $fetch['data']['agent']['name'], "Terdapat pengajuan workspace baru, silahkan lihat di aplikasi pada menu WPS", 1);
+               $this->tanurApi->notify(session('agent_id'), 1, 1, 1, 'Pengajuan Workspace ' . $workspace->name . ' dari ' . $fetch['data']['agent']['name'], "Terdapat pengajuan workspace baru, silahkan lihat di aplikasi pada menu WPS", 1, "wps_approval", ApiTransformer::normalizeApproval($workspaceApproval, true, true));
             }
          });
 
@@ -411,7 +411,7 @@ class WorkspaceController extends Controller
             $history->color = 'dark';
             $history->save();
 
-            $this->tanurApi->notify(session('agent_id'), 0, 0, 1, 'Memperbarui Workspace ' . $workspace->name, "Terdapat pembaruan pada workspace, silahkan lihat di aplikasi pada menu WPS", 1);
+            $this->tanurApi->notify(session('agent_id'), 0, 0, 1, 'Memperbarui Workspace ' . $workspace->name, "Terdapat pembaruan pada workspace, silahkan lihat di aplikasi pada menu WPS", 1, "wps_workspace", ApiTransformer::normalizeMinimalWorkspace($workspace));
          });
 
          if ($request->wantsJson() || $request->is('api/*')) {
@@ -525,7 +525,7 @@ class WorkspaceController extends Controller
          $history->color = 'danger';
          $history->save();
 
-         $this->tanurApi->notify(session('agent_id'), 0, 0, 1, 'Menghapus Workspace ' . $workspace->name, "Terdapat penghapusan workspace, silahkan lihat di aplikasi pada menu WPS", 1);
+         $this->tanurApi->notify(session('agent_id'), 0, 0, 1, 'Menghapus Workspace ' . $workspace->name, "Terdapat penghapusan workspace, silahkan lihat di aplikasi pada menu WPS", 1, "wps");
 
          if ($request->wantsJson() || $request->is('api/*')) {
             return response()->json([

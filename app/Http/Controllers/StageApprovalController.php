@@ -74,7 +74,7 @@ class StageApprovalController extends Controller
          $history->color = 'warning';
          $history->save();
 
-         $this->tanurApi->notify($wstage->workspace->agent_id, 1, 1, 1, 'Mengajukan Stage ' . $wstage->stage->name, "Berhasil mengajukan stage, silahkan lihat di aplikasi pada menu WPS", 1);
+         $this->tanurApi->notify($wstage->workspace->agent_id, 1, 1, 1, 'Mengajukan Stage ' . $wstage->stage->name, "Berhasil mengajukan stage, silahkan lihat di aplikasi pada menu WPS", 1, "wps_workspace", ApiTransformer::normalizeMinimalWorkspace($wstage->workspace));
 
          if ($request->wantsJson() || $request->is('api/*')) {
             return response()->json([

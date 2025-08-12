@@ -146,7 +146,7 @@ class WorkspaceTaskController extends Controller
          $history->color = 'success';
          $history->save();
 
-         $this->tanurApi->notify($workspace->agent_id, 1, 1, 1, 'Menyelesaikan Task ' . $task->name, "Terdapat pembaruan terkait task pada workspace", 1);
+         $this->tanurApi->notify($workspace->agent_id, 1, 1, 1, 'Menyelesaikan Task ' . $task->name, "Terdapat pembaruan terkait task pada workspace", 1, "wps_workspace", ApiTransformer::normalizeMinimalWorkspace($workspace));
       } catch (\Exception $e) {
          if ($request->wantsJson() || $request->is('api/*')) {
             return response()->json([
@@ -230,7 +230,7 @@ class WorkspaceTaskController extends Controller
          $history->color = 'dark';
          $history->save();
 
-         $this->tanurApi->notify($workspace->agent_id, 1, 1, 1, 'Memperbarui Task ' . $task->name, "Terdapat pembaruan terkait task pada workspace", 1);
+         $this->tanurApi->notify($workspace->agent_id, 1, 1, 1, 'Memperbarui Task ' . $task->name, "Terdapat pembaruan terkait task pada workspace", 1, "wps_workspace", ApiTransformer::normalizeMinimalWorkspace($workspace));
       } catch (\Exception $e) {
          if ($request->wantsJson() || $request->is('api/*')) {
             return response()->json([
